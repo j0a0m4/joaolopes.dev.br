@@ -2,7 +2,8 @@
   (:require [clj-yaml.core :as yaml]
             [clojure.string :as str]
             [markdown.core :as md])
-  (:import [java.text SimpleDateFormat]
+  (:import [java.time Instant ZoneOffset]
+           [java.time.format DateTimeFormatter]
            [java.util Date]))
 
 (defn parse-frontmatter
@@ -70,14 +71,15 @@
   [text]
   (md/md-to-html-string text :heading-anchors true))
 
+(def ^:private ^DateTimeFormatter iso-date
+  (DateTimeFormatter/ISO_LOCAL_DATE))
+
 (defn- normalize-date
   "Converts java.util.Date (from clj-yaml) back to YYYY-MM-DD string.
    clj-yaml parses dates as UTC midnight — format must use UTC to avoid timezone shift."
   [v]
   (if (instance? Date v)
-    (let [sdf (SimpleDateFormat. "yyyy-MM-dd")]
-      (.setTimeZone sdf (java.util.TimeZone/getTimeZone "UTC"))
-      (.format sdf v))
+    (.format (.atOffset (Instant/ofEpochMilli (.getTime ^Date v)) ZoneOffset/UTC) iso-date)
     (str v)))
 
 (defn- normalize-dates
@@ -89,20 +91,6 @@
               m))
           meta
           [:created :published-on :last-verified]))
-
-(defn validate-series
-  "Validates a series-map {slug {:posts [vec] :slug->idx {}}} from pages/group-series.
-   Checks title consistency and series-order presence. Prints warnings."
-  [series-map]
-  (doseq [[slug {:keys [posts]}] series-map]
-    (let [titles (into #{} (map :series-title) posts)]
-      (when (< 1 (count titles))
-        (println (str "WARNING: Series '" slug "' has inconsistent titles: "
-                      (pr-str titles)))))
-    (doseq [p posts
-            :when (nil? (:series-order p))]
-      (println (str "WARNING: Post '" (:title p) "' in series '" slug
-                    "' is missing series-order")))))
 
 (defn parse-post
   "Parses a markdown file into a post map with :meta, :body, :slug, :url."

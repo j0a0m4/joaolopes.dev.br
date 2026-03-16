@@ -35,12 +35,9 @@
     (copy-dir assets-dir (str public-dir "/assets"))
     (println (str "Built " (count page-map) " pages to " public-dir "/"))))
 
-(defn- app
-  "Ring handler that serves pages with fresh rebuild on each request."
-  [req]
-  (let [page-map (pages/get-pages posts-dir)
-        serve (stasis/serve-pages page-map)]
-    (serve req)))
+(def ^:private app
+  "Ring handler. Passes a fn to stasis so pages rebuild on each request (live dev)."
+  (stasis/serve-pages #(pages/get-pages posts-dir)))
 
 (defn serve
   "Starts dev server on port 3000."

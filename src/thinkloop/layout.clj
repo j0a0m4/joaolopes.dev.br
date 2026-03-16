@@ -21,8 +21,8 @@
   (str "/series/" slug "/"))
 
 (defn base-layout
-  "Full HTML document. body is a sequence of hiccup forms."
-  [title description & body]
+  "Full HTML document. body is an HTML string to embed in <main>."
+  [title description body]
   (str
    "<!DOCTYPE html>\n"
    (h/html
@@ -46,40 +46,42 @@
         [:span.nav-links
          [:a {:href (href "/")} "Posts"]
          [:a {:href (href "/feed.xml")} "RSS"]]]]
-      [:main (map h/raw body)]
+      [:main (h/raw body)]
       [:footer
        [:p (str "© " (.getYear (java.time.LocalDate/now)) " João Lopes")]]]])))
 
 (defn- series-toc
-  "Ordered list of series posts, current one highlighted."
+  "Ordered list of series posts, current one highlighted. Returns HTML string."
   [{:keys [series-posts series-title series-slug]} current-slug]
-  (h/html
-   [:aside.series-toc
-    [:p.series-label
-     [:a {:href (href (series-path series-slug))} (hu/escape-html series-title)]]
-    [:ol
-     (for [p series-posts]
-       (let [active? (= (:slug p) current-slug)]
-         [:li {:class (when active? "current")}
-          (if active?
-            [:strong (hu/escape-html (:title p))]
-            [:a {:href (href (:url p))} (hu/escape-html (:title p))])]))]]))
+  (str
+   (h/html
+    [:aside.series-toc
+     [:p.series-label
+      [:a {:href (href (series-path series-slug))} (hu/escape-html series-title)]]
+     [:ol
+      (for [p series-posts]
+        (let [active? (= (:slug p) current-slug)]
+          [:li {:class (when active? "current")}
+           (if active?
+             [:strong (hu/escape-html (:title p))]
+             [:a {:href (href (:url p))} (hu/escape-html (:title p))])]))]])))
 
 (defn- series-nav
-  "Prev/next navigation block with link to series index."
+  "Prev/next navigation block with link to series index. Returns HTML string."
   [{:keys [prev next series-slug series-title]}]
-  (h/html
-   [:nav.series-nav
-    (if prev
-      [:a.series-prev {:href (href (:url prev))}
-       (str "\u2190 " (hu/escape-html (:title prev)))]
-      [:span])
-    [:a.series-index {:href (href (series-path series-slug))}
-     (hu/escape-html series-title)]
-    (if next
-      [:a.series-next {:href (href (:url next))}
-       (str (hu/escape-html (:title next)) " \u2192")]
-      [:span])]))
+  (str
+   (h/html
+    [:nav.series-nav
+     (if prev
+       [:a.series-prev {:href (href (:url prev))}
+        (str "\u2190 " (hu/escape-html (:title prev)))]
+       [:span])
+     [:a.series-index {:href (href (series-path series-slug))}
+      (hu/escape-html series-title)]
+     (if next
+       [:a.series-next {:href (href (:url next))}
+        (str (hu/escape-html (:title next)) " \u2192")]
+       [:span])])))
 
 (defn- series-json-ld
   "JSON-LD BlogPosting with isPartOf CreativeWorkSeries."
@@ -129,12 +131,22 @@
           (for [tag tags]
             [:span.tag (str "#" (name tag))])])]
       (when series-ctx
-        (h/raw (str (series-toc series-ctx slug))))
+        (h/raw (series-toc series-ctx slug)))
       (h/raw html-body)
       (when series-ctx
-        (h/raw (str (series-nav series-ctx))))
+        (h/raw (series-nav series-ctx)))
       (when series-ctx
         (h/raw (series-json-ld post series-ctx)))]))))
+
+(defn not-found-layout
+  "404 page content."
+  []
+  (str
+   (h/html
+    [:div.not-found
+     [:h1 "404"]
+     [:p "This page doesn't exist."]
+     [:p [:a {:href (href "/")} "← Back to posts"]]])))
 
 (defn index-layout
   "Post list for the index page. Returns hiccup-rendered HTML string."

@@ -11,18 +11,33 @@
   "Loads all markdown files from dir, parses them, returns sorted by published-on desc."
   [dir]
   (let [d (io/file dir)]
-    (when (.isDirectory d)
+    (if (.isDirectory d)
       (->> (.listFiles d)
            (filter #(str/ends-with? (.getName %) ".md"))
            (map (fn [f]
                   (markdown/parse-post (.getName f) (slurp f))))
            (filter :published-on)
-           (sort-by :published-on #(compare %2 %1))))))
+           (sort-by :published-on #(compare %2 %1))
+           vec)
+      [])))
 
 (defn- published-slugs
   "Set of slugs from published posts, for wikilink resolution."
   [posts]
   (into #{} (map :slug posts)))
+
+(defn- validate-series
+  "Validates a series-map. Checks title consistency and series-order presence."
+  [series-map]
+  (doseq [[slug {:keys [posts]}] series-map]
+    (let [titles (into #{} (map :series-title) posts)]
+      (when (< 1 (count titles))
+        (println (str "WARNING: Series '" slug "' has inconsistent titles: "
+                      (pr-str titles)))))
+    (doseq [p posts
+            :when (nil? (:series-order p))]
+      (println (str "WARNING: Post '" (:title p) "' in series '" slug
+                    "' is missing series-order")))))
 
 (defn- group-series
   "Groups posts by :series slug. Returns {slug {:posts [vec] :slug->idx {slug->int}}}."
@@ -39,7 +54,7 @@
   [post series-map]
   (when-let [slug (:series post)]
     (when-let [{:keys [posts slug->idx]} (get series-map slug)]
-      (let [idx (slug->idx (:slug post))]
+      (when-let [idx (slug->idx (:slug post))]
         {:series-posts posts
          :series-title (:series-title post)
          :series-slug slug
@@ -84,7 +99,8 @@
       (str/replace "&" "&amp;")
       (str/replace "<" "&lt;")
       (str/replace ">" "&gt;")
-      (str/replace "\"" "&quot;")))
+      (str/replace "\"" "&quot;")
+      (str/replace "'" "&apos;")))
 
 (defn- render-rss
   "Generates RSS 2.0 feed XML."
@@ -136,19 +152,15 @@
 (defn- render-404 []
   (layout/base-layout
    "Not Found" nil
-   (str (hiccup2.core/html
-         [:div.not-found
-          [:h1 "404"]
-          [:p "This page doesn't exist."]
-          [:p [:a {:href (layout/href "/")} "← Back to posts"]]]))))
+   (layout/not-found-layout)))
 
 (defn get-pages
   "Builds the Stasis page map from posts directory."
   [posts-dir]
-  (let [posts (or (load-posts posts-dir) [])
+  (let [posts (load-posts posts-dir)
         slugs (published-slugs posts)
         series-map (group-series posts)
-        _ (markdown/validate-series series-map)]
+        _ (validate-series series-map)]
     (merge
      {"/" (fn [_] (render-index posts))
       "/feed.xml" (fn [_] (render-rss posts))
