@@ -4,4 +4,4 @@ ThinkLoop is where I write about AI-first engineering: building systems where AI
 
 I'm from Brazil. I listen to Radiohead, Skrillex, and Chopin — simultaneously if possible.
 
-[GitHub](https://github.com/j0a0m4)
+[GitHub](https://github.com/j0a0m4) · [LinkedIn](https://www.linkedin.com/in/j0a0m4/)
