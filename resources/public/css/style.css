@@ -188,6 +188,98 @@ footer {
   color: var(--muted);
 }
 
+/* Series TOC (in-post) */
+.series-toc {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.series-toc .series-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.series-toc .series-label a {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.series-toc .series-label a:hover { color: var(--accent); }
+
+.series-toc ol {
+  margin: 0 0 0 1.25rem;
+  padding: 0;
+}
+
+.series-toc li { margin-bottom: 0.25rem; font-size: 0.9rem; }
+.series-toc li.current { color: var(--fg); font-weight: 500; }
+.series-toc li a { color: var(--accent); text-decoration: none; }
+.series-toc li a:hover { text-decoration: underline; }
+
+/* Series nav (prev/next) */
+.series-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.series-nav a { color: var(--accent); text-decoration: none; }
+.series-nav a:hover { text-decoration: underline; }
+.series-nav .series-index { font-weight: 600; color: var(--muted); }
+.series-nav .series-index:hover { color: var(--fg); }
+.series-prev { text-align: left; }
+.series-next { text-align: right; }
+
+/* Series index page */
+.series-index { margin-top: 1rem; }
+.series-index h1 { margin-bottom: 0.5rem; }
+
+.series-count {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.series-full-toc {
+  list-style: decimal;
+  margin-left: 1.25rem;
+  padding: 0;
+}
+
+.series-full-toc li {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.series-full-toc a {
+  color: var(--fg);
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.series-full-toc a:hover { color: var(--accent); }
+
+.series-full-toc time {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.series-full-toc .description {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 0;
+}
+
 /* 404 */
 .not-found { text-align: center; margin-top: 4rem; }
 .not-found h1 { font-size: 4rem; margin-bottom: 1rem; }

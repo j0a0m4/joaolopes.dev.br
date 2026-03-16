@@ -24,15 +24,47 @@
   [posts]
   (into #{} (map :slug posts)))
 
+(defn- group-series
+  "Groups posts by :series slug. Returns {slug {:posts [vec] :slug->idx {slug->int}}}."
+  [posts]
+  (-> (->> posts (filter :series) (group-by :series))
+      (update-vals (fn [group]
+                     (let [sorted (vec (sort-by :series-order group))]
+                       {:posts sorted
+                        :slug->idx (into {} (map-indexed (fn [i p] [(:slug p) i])) sorted)})))))
+
+(defn- series-context
+  "Returns series navigation context for a post, or nil if not in a series.
+   Keys: :series-posts, :series-title, :series-slug, :prev, :next."
+  [post series-map]
+  (when-let [slug (:series post)]
+    (when-let [{:keys [posts slug->idx]} (get series-map slug)]
+      (let [idx (slug->idx (:slug post))]
+        {:series-posts posts
+         :series-title (:series-title post)
+         :series-slug slug
+         :prev (get posts (dec idx))
+         :next (get posts (inc idx))}))))
+
 (defn- render-post
   "Renders a single post to full HTML page."
-  [post slugs]
-  (let [transformed (markdown/transform-obsidian (:body post) slugs)
-        html-body (markdown/render-markdown transformed)]
+  [post slugs series-ctx]
+  (let [html-body (-> (:body post)
+                      (markdown/transform-obsidian slugs)
+                      markdown/render-markdown)]
     (layout/base-layout
      (:title post)
      (:description post)
-     (layout/post-layout post html-body))))
+     (layout/post-layout post html-body series-ctx))))
+
+(defn- render-series-index
+  "Renders a series index page at /series/<slug>/."
+  [slug {:keys [posts]}]
+  (let [title (:series-title (first posts))]
+    (layout/base-layout
+     (str title " — Series")
+     (str "All posts in the " title " series.")
+     (layout/series-index-layout slug posts))))
 
 (defn- render-index
   "Renders the index page."
@@ -83,7 +115,7 @@
 
 (defn- render-sitemap
   "Generates sitemap.xml."
-  [posts]
+  [posts series-map]
   (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
        "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n"
        "<url><loc>" layout/site-url "/</loc></url>\n"
@@ -92,6 +124,12 @@
           (str "<url>"
                "<loc>" layout/site-url url "</loc>"
                "<lastmod>" published-on "</lastmod>"
+               "</url>\n")))
+       (str/join
+        (for [[slug {:keys [posts]}] series-map]
+          (str "<url>"
+               "<loc>" layout/site-url (layout/series-path slug) "</loc>"
+               "<lastmod>" (:published-on (last posts)) "</lastmod>"
                "</url>\n")))
        "</urlset>"))
 
@@ -108,12 +146,21 @@
   "Builds the Stasis page map from posts directory."
   [posts-dir]
   (let [posts (or (load-posts posts-dir) [])
-        slugs (published-slugs posts)]
+        slugs (published-slugs posts)
+        series-map (group-series posts)
+        _ (markdown/validate-series series-map)]
     (merge
      {"/" (fn [_] (render-index posts))
       "/feed.xml" (fn [_] (render-rss posts))
-      "/sitemap.xml" (fn [_] (render-sitemap posts))
+      "/sitemap.xml" (fn [_] (render-sitemap posts series-map))
       "/404.html" (fn [_] (render-404))}
      (into {}
-           (for [post posts]
-             [(:url post) (fn [_] (render-post post slugs))])))))
+           (map (fn [post]
+                  [(:url post)
+                   (fn [_] (render-post post slugs (series-context post series-map)))]))
+           posts)
+     (into {}
+           (map (fn [[slug group]]
+                  [(layout/series-path slug)
+                   (fn [_] (render-series-index slug group))]))
+           series-map))))

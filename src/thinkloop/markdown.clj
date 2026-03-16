@@ -90,6 +90,20 @@
           meta
           [:created :published-on :last-verified]))
 
+(defn validate-series
+  "Validates a series-map {slug {:posts [vec] :slug->idx {}}} from pages/group-series.
+   Checks title consistency and series-order presence. Prints warnings."
+  [series-map]
+  (doseq [[slug {:keys [posts]}] series-map]
+    (let [titles (into #{} (map :series-title) posts)]
+      (when (< 1 (count titles))
+        (println (str "WARNING: Series '" slug "' has inconsistent titles: "
+                      (pr-str titles)))))
+    (doseq [p posts
+            :when (nil? (:series-order p))]
+      (println (str "WARNING: Post '" (:title p) "' in series '" slug
+                    "' is missing series-order")))))
+
 (defn parse-post
   "Parses a markdown file into a post map with :meta, :body, :slug, :url."
   [filename content]
