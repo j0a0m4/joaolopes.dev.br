@@ -59,7 +59,7 @@
       [:footer
        [:p (str "© " (.getYear (java.time.LocalDate/now)) " João Lopes")]
        [:p "Theme inspired by "
-        [:a {:href "https://github.com/bennybuilds/obsidianite"
+        [:a {:href "https://github.com/bennyxguo/Obsidian-Obsidianite"
              :target "_blank" :rel "noopener noreferrer"} "Obsidianite"]]]]])))
 
 (defn- series-toc
