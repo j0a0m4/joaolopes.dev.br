@@ -1,6 +1,7 @@
 (ns thinkloop.pages
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
+            [hiccup.util :as hu]
             [thinkloop.layout :as layout]
             [thinkloop.markdown :as markdown])
   (:import [java.time LocalDate ZoneId]
@@ -86,21 +87,15 @@
   [posts]
   (layout/base-layout nil nil (layout/index-layout posts)))
 
+(def ^:private ^DateTimeFormatter rfc822-fmt
+  (DateTimeFormatter/ofPattern "EEE, dd MMM yyyy HH:mm:ss Z" Locale/US))
+
 (defn- rfc822-date
   "Formats a date string (YYYY-MM-DD) as RFC 822 for RSS."
   [date-str]
   (let [ld (LocalDate/parse (str date-str))
-        zdt (.atStartOfDay ld (ZoneId/of "America/Sao_Paulo"))
-        fmt (DateTimeFormatter/ofPattern "EEE, dd MMM yyyy HH:mm:ss Z" Locale/US)]
-    (.format zdt fmt)))
-
-(defn- xml-escape [s]
-  (-> (str s)
-      (str/replace "&" "&amp;")
-      (str/replace "<" "&lt;")
-      (str/replace ">" "&gt;")
-      (str/replace "\"" "&quot;")
-      (str/replace "'" "&apos;")))
+        zdt (.atStartOfDay ld (ZoneId/of "America/Sao_Paulo"))]
+    (.format zdt rfc822-fmt)))
 
 (defn- render-rss
   "Generates RSS 2.0 feed XML."
@@ -111,19 +106,19 @@
          "<channel>\n"
          "<title>" layout/site-title "</title>\n"
          "<link>" layout/site-url "</link>\n"
-         "<description>" (xml-escape layout/site-description) "</description>\n"
+         "<description>" (hu/escape-html layout/site-description) "</description>\n"
          "<language>en</language>\n"
-         "<atom:link href=\"" layout/site-url "/feed.xml\" rel=\"self\" type=\"application/rss+xml\"/>\n"
+         "<atom:link href=\"" (layout/absolute-url "/feed.xml") "\" rel=\"self\" type=\"application/rss+xml\"/>\n"
          (when (seq items)
            (str "<lastBuildDate>" (rfc822-date (:published-on (first items))) "</lastBuildDate>\n"))
          (str/join
           (for [{:keys [title url description published-on]} items]
             (str "<item>\n"
-                 "<title>" (xml-escape title) "</title>\n"
-                 "<link>" layout/site-url url "</link>\n"
-                 "<guid>" layout/site-url url "</guid>\n"
+                 "<title>" (hu/escape-html title) "</title>\n"
+                 "<link>" (layout/absolute-url url) "</link>\n"
+                 "<guid>" (layout/absolute-url url) "</guid>\n"
                  (when description
-                   (str "<description>" (xml-escape description) "</description>\n"))
+                   (str "<description>" (hu/escape-html description) "</description>\n"))
                  "<pubDate>" (rfc822-date published-on) "</pubDate>\n"
                  "</item>\n")))
          "</channel>\n"
@@ -134,17 +129,17 @@
   [posts series-map]
   (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
        "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n"
-       "<url><loc>" layout/site-url "/</loc></url>\n"
+       "<url><loc>" (layout/absolute-url "/") "</loc></url>\n"
        (str/join
         (for [{:keys [url published-on]} posts]
           (str "<url>"
-               "<loc>" layout/site-url url "</loc>"
+               "<loc>" (layout/absolute-url url) "</loc>"
                "<lastmod>" published-on "</lastmod>"
                "</url>\n")))
        (str/join
         (for [[slug {:keys [posts]}] series-map]
           (str "<url>"
-               "<loc>" layout/site-url (layout/series-path slug) "</loc>"
+               "<loc>" (layout/absolute-url (layout/series-path slug)) "</loc>"
                "<lastmod>" (:published-on (last posts)) "</lastmod>"
                "</url>\n")))
        "</urlset>"))
