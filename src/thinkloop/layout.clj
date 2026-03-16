@@ -54,10 +54,12 @@
         [:a {:href (href "/")} site-title]
         [:span.nav-links
          [:a {:href (href "/")} "Posts"]
+         [:a {:href (href "/about/")} "About"]
          [:a {:href (href "/feed.xml")} "RSS"]]]]
       [:main body]
       [:footer
-       [:p (str "© " (.getYear (java.time.LocalDate/now)) " João Lopes")]
+       [:p (str "© " (.getYear (java.time.LocalDate/now)) " ")
+        [:a {:href "https://github.com/j0a0m4" :target "_blank" :rel "noopener noreferrer"} "João Lopes"]]
        [:p "Theme inspired by "
         [:a {:href "https://github.com/bennyxguo/Obsidian-Obsidianite"
              :target "_blank" :rel "noopener noreferrer"} "Obsidianite"]]]]])))
@@ -141,6 +143,13 @@
       (series-nav series-ctx))
     (when series-ctx
       (series-json-ld post series-ctx))]))
+
+(defn about-layout
+  "About page content. Returns hiccup."
+  [html-body]
+  [:article.about
+   [:h1 "About"]
+   (h/raw html-body)])
 
 (defn not-found-layout
   "404 page content. Returns hiccup."
