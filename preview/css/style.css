@@ -81,13 +81,15 @@ nav a {
 .logo-path {
   stroke-dasharray: 60;
   stroke-dashoffset: 60;
-  animation: trace 8s ease-in-out infinite;
+  animation: trace 10s ease-in-out infinite;
 }
 
 @keyframes trace {
   0% { stroke-dashoffset: 60; }
-  15% { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: 0; }
+  10% { stroke-dashoffset: 0; }
+  50% { stroke-dashoffset: 0; }
+  60% { stroke-dashoffset: -60; }
+  100% { stroke-dashoffset: -60; }
 }
 
 .nav-links { display: flex; gap: 1.5rem; }
