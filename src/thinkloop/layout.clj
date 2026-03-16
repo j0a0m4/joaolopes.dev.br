@@ -37,11 +37,15 @@
       [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
       [:title (if title (str title " — " site-title) site-title)]
       [:meta {:name "description" :content (or description site-description)}]
+      [:link {:rel "preconnect" :href "https://fonts.googleapis.com"}]
+      [:link {:rel "preconnect" :href "https://fonts.gstatic.com" :crossorigin ""}]
+      [:link {:rel "stylesheet"
+              :href "https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"}]
       [:link {:rel "stylesheet" :href (href "/css/style.css")}]
       [:link {:rel "alternate" :type "application/rss+xml"
               :title site-title :href (href "/feed.xml")}]
       [:link {:rel "stylesheet"
-              :href "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"}]
+              :href "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css"}]
       [:script {:src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"}]
       [:script "hljs.highlightAll();"]]
      [:body
@@ -53,7 +57,10 @@
          [:a {:href (href "/feed.xml")} "RSS"]]]]
       [:main body]
       [:footer
-       [:p (str "© " (.getYear (java.time.LocalDate/now)) " João Lopes")]]]])))
+       [:p (str "© " (.getYear (java.time.LocalDate/now)) " João Lopes")]
+       [:p "Theme inspired by "
+        [:a {:href "https://github.com/bennybuilds/obsidianite"
+             :target "_blank" :rel "noopener noreferrer"} "Obsidianite"]]]]])))
 
 (defn- series-toc
   "Ordered list of series posts, current one highlighted. Returns hiccup."
