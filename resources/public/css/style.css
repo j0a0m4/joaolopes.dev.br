@@ -86,10 +86,8 @@ nav a {
 
 @keyframes trace {
   0% { stroke-dashoffset: 60; }
-  12% { stroke-dashoffset: 0; }
-  18% { stroke-dashoffset: 0; }
-  30% { stroke-dashoffset: -60; }
-  100% { stroke-dashoffset: -60; }
+  15% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
 }
 
 .nav-links { display: flex; gap: 1.5rem; }
