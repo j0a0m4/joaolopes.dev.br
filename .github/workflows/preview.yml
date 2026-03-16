@@ -1,0 +1,85 @@
+name: PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    paths:
+      - 'posts/**'
+      - 'src/**'
+      - 'resources/**'
+      - 'assets/**'
+      - 'deps.edn'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  preview:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeLaGuardo/setup-clojure@13.1
+        with:
+          cli: latest
+
+      - name: Cache Clojure deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+            .cpcache
+          key: clj-${{ hashFiles('deps.edn') }}
+
+      - name: Build preview
+        run: clojure -M:build
+        env:
+          BASE_PATH: /preview
+
+      - name: Stage preview under /preview
+        run: |
+          mkdir -p preview
+          cp -r public/* preview/
+
+      - name: Deploy preview
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./preview
+          destination_dir: preview
+          cname: joaolopes.dev.br
+
+      - name: Comment preview link
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: preview
+          message: |
+            **Preview live:** https://joaolopes.dev.br/preview/
+            _Commit: `${{ github.event.pull_request.head.sha }}`_
+
+  teardown:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Remove preview
+        run: |
+          if [ -d preview ]; then
+            git rm -rf preview
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "Remove PR preview"
+            git push
+          fi
