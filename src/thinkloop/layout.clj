@@ -42,6 +42,7 @@
       [:link {:rel "stylesheet"
               :href "https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"}]
       [:link {:rel "stylesheet" :href (href "/css/style.css")}]
+      [:link {:rel "icon" :type "image/svg+xml" :href (href "/favicon.svg")}]
       [:link {:rel "alternate" :type "application/rss+xml"
               :title site-title :href (href "/feed.xml")}]
       [:link {:rel "stylesheet"
@@ -51,7 +52,12 @@
      [:body
       [:header
        [:nav
-        [:a {:href (href "/")} site-title]
+        [:a.site-logo {:href (href "/")}
+         [:svg.logo {:viewBox "0 0 32 32" :width "24" :height "24" :aria-hidden "true"}
+          [:path.logo-path {:d "M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z"
+                            :fill "none" :stroke "currentColor" :stroke-width "2"
+                            :stroke-linecap "round" :stroke-linejoin "round"}]]
+         site-title]
         [:span.nav-links
          [:a {:href (href "/")} "Posts"]
          [:a {:href (href "/about/")} "About"]

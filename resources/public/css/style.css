@@ -68,6 +68,24 @@ nav a {
   font-weight: 600;
 }
 
+.site-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.logo { color: var(--accent); }
+
+.logo-path {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: trace 1.2s ease-out forwards;
+}
+
+@keyframes trace {
+  to { stroke-dashoffset: 0; }
+}
+
 .nav-links { display: flex; gap: 1.5rem; }
 .nav-links a { font-weight: 400; font-size: 0.9rem; color: var(--muted); }
 .nav-links a:hover { color: var(--fg); }
