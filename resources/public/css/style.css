@@ -68,6 +68,30 @@ nav a {
   font-weight: 600;
 }
 
+.site-logo { font-size: 1.3rem; }
+
+.site-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.logo { color: var(--accent); }
+
+.logo-path {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: trace 9s ease-in-out infinite;
+}
+
+@keyframes trace {
+  0% { stroke-dashoffset: 60; }
+  22% { stroke-dashoffset: 0; }
+  56% { stroke-dashoffset: 0; }
+  78% { stroke-dashoffset: -60; }
+  100% { stroke-dashoffset: -60; }
+}
+
 .nav-links { display: flex; gap: 1.5rem; }
 .nav-links a { font-weight: 400; font-size: 0.9rem; color: var(--muted); }
 .nav-links a:hover { color: var(--fg); }
