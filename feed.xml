@@ -11,7 +11,7 @@
 <title>Hello ThinkLoop</title>
 <link>https://joaolopes.dev.br/posts/hello-thinkloop/</link>
 <guid>https://joaolopes.dev.br/posts/hello-thinkloop/</guid>
-<description>First post on ThinkLoop — a static blog built with Clojure, Stasis, and Obsidian as the authoring environment.</description>
+<description>First post on ThinkLoop — what this blog is about, who&apos;s behind it, and the Obsidian + Clojure stack that powers it.</description>
 <pubDate>Mon, 16 Mar 2026 00:00:00 -0300</pubDate>
 </item>
 </channel>
