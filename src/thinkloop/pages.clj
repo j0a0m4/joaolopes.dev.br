@@ -102,6 +102,7 @@
   [posts]
   (let [items (take 20 posts)]
     (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+         "<?xml-stylesheet href=\"/feed.xsl\" type=\"text/xsl\"?>\n"
          "<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n"
          "<channel>\n"
          "<title>" layout/site-title "</title>\n"
