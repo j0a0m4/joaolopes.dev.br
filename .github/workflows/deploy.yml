@@ -41,8 +41,6 @@ jobs:
 
       - name: Build site
         run: clojure -M:build
-        env:
-          BASE_PATH: /thinkloop
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
