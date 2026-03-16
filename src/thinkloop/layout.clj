@@ -53,7 +53,7 @@
       [:header
        [:nav
         [:a.site-logo {:href (href "/")}
-         [:svg.logo {:viewBox "0 0 32 32" :width "24" :height "24" :aria-hidden "true"}
+         [:svg.logo {:viewBox "0 0 32 32" :width "32" :height "32" :aria-hidden "true"}
           [:path.logo-path {:d "M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z"
                             :fill "none" :stroke "currentColor" :stroke-width "2"
                             :stroke-linecap "round" :stroke-linejoin "round"}]]
