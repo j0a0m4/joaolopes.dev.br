@@ -6,6 +6,14 @@
 (def site-url "https://joaolopes.dev.br")
 (def site-description "Notes on software, systems, and thinking tools.")
 
+;; Base path for GitHub Pages subpath hosting. Set to "" for custom domain.
+(def base-path (or (System/getenv "BASE_PATH") ""))
+
+(defn href
+  "Prepends base-path to an absolute path."
+  [path]
+  (str base-path path))
+
 (defn base-layout
   "Full HTML document. body is a sequence of hiccup forms."
   [title description & body]
@@ -18,9 +26,9 @@
       [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
       [:title (if title (str title " — " site-title) site-title)]
       [:meta {:name "description" :content (or description site-description)}]
-      [:link {:rel "stylesheet" :href "/css/style.css"}]
+      [:link {:rel "stylesheet" :href (href "/css/style.css")}]
       [:link {:rel "alternate" :type "application/rss+xml"
-              :title site-title :href "/feed.xml"}]
+              :title site-title :href (href "/feed.xml")}]
       [:link {:rel "stylesheet"
               :href "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"}]
       [:script {:src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"}]
@@ -28,10 +36,10 @@
      [:body
       [:header
        [:nav
-        [:a {:href "/"} site-title]
+        [:a {:href (href "/")} site-title]
         [:span.nav-links
-         [:a {:href "/"} "Posts"]
-         [:a {:href "/feed.xml"} "RSS"]]]]
+         [:a {:href (href "/")} "Posts"]
+         [:a {:href (href "/feed.xml")} "RSS"]]]]
       [:main (map h/raw body)]
       [:footer
        [:p (str "© " (.getYear (java.time.LocalDate/now)) " João Lopes")]]]])))
@@ -62,7 +70,7 @@
        [:ul.post-list
         (for [{:keys [title url published-on description]} posts]
           [:li
-           [:a {:href url} (hu/escape-html title)]
+           [:a {:href (href url)} (hu/escape-html title)]
            [:time {:datetime (str published-on)} (str published-on)]
            (when description
              [:p.description (hu/escape-html description)])])]

@@ -102,7 +102,7 @@
          [:div.not-found
           [:h1 "404"]
           [:p "This page doesn't exist."]
-          [:p [:a {:href "/"} "← Back to posts"]]]))))
+          [:p [:a {:href (layout/href "/")} "← Back to posts"]]]))))
 
 (defn get-pages
   "Builds the Stasis page map from posts directory."
