@@ -9,7 +9,7 @@
 (defn parse-frontmatter
   "Splits YAML frontmatter from markdown body. Returns [metadata body]."
   [content]
-  (if-let [[_ yaml-str body] (re-matches #"(?s)^---\n(.*?)\n---\n(.*)" content)]
+  (if-let [[_ yaml-str body] (re-matches #"(?s)^---\r?\n(.*?)\r?\n---\r?\n(.*)" content)]
     [(yaml/parse-string yaml-str :keywords true :load-all false) (str/trim body)]
     [nil (str/trim content)]))
 

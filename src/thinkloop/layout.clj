@@ -1,7 +1,6 @@
 (ns thinkloop.layout
   (:require [clojure.data.json :as json]
-            [hiccup2.core :as h]
-            [hiccup.util :as hu]))
+            [hiccup2.core :as h]))
 
 (def site-title "ThinkLoop")
 (def site-url "https://joaolopes.dev.br")
@@ -15,13 +14,19 @@
   [path]
   (str base-path path))
 
+(defn absolute-url
+  "Full URL for a site-relative path."
+  [path]
+  (str site-url path))
+
 (defn series-path
   "Canonical path for a series index page."
   [slug]
   (str "/series/" slug "/"))
 
 (defn base-layout
-  "Full HTML document. body is an HTML string to embed in <main>."
+  "Full HTML document. body is a hiccup vector to embed in <main>.
+   Single serialization boundary — all other layout fns return hiccup data."
   [title description body]
   (str
    "<!DOCTYPE html>\n"
@@ -46,121 +51,109 @@
         [:span.nav-links
          [:a {:href (href "/")} "Posts"]
          [:a {:href (href "/feed.xml")} "RSS"]]]]
-      [:main (h/raw body)]
+      [:main body]
       [:footer
        [:p (str "© " (.getYear (java.time.LocalDate/now)) " João Lopes")]]]])))
 
 (defn- series-toc
-  "Ordered list of series posts, current one highlighted. Returns HTML string."
+  "Ordered list of series posts, current one highlighted. Returns hiccup."
   [{:keys [series-posts series-title series-slug]} current-slug]
-  (str
-   (h/html
-    [:aside.series-toc
-     [:p.series-label
-      [:a {:href (href (series-path series-slug))} (hu/escape-html series-title)]]
-     [:ol
-      (for [p series-posts]
-        (let [active? (= (:slug p) current-slug)]
-          [:li {:class (when active? "current")}
-           (if active?
-             [:strong (hu/escape-html (:title p))]
-             [:a {:href (href (:url p))} (hu/escape-html (:title p))])]))]])))
+  [:aside.series-toc
+   [:p.series-label
+    [:a {:href (href (series-path series-slug))} series-title]]
+   [:ol
+    (for [p series-posts]
+      (let [active? (= (:slug p) current-slug)]
+        [:li {:class (when active? "current")}
+         (if active?
+           [:strong (:title p)]
+           [:a {:href (href (:url p))} (:title p)])]))]])
 
 (defn- series-nav
-  "Prev/next navigation block with link to series index. Returns HTML string."
+  "Prev/next navigation block with link to series index. Returns hiccup."
   [{:keys [prev next series-slug series-title]}]
-  (str
-   (h/html
-    [:nav.series-nav
-     (if prev
-       [:a.series-prev {:href (href (:url prev))}
-        (str "\u2190 " (hu/escape-html (:title prev)))]
-       [:span])
-     [:a.series-index {:href (href (series-path series-slug))}
-      (hu/escape-html series-title)]
-     (if next
-       [:a.series-next {:href (href (:url next))}
-        (str (hu/escape-html (:title next)) " \u2192")]
-       [:span])])))
+  [:nav.series-nav
+   (if prev
+     [:a.series-prev {:href (href (:url prev))}
+      (str "\u2190 " (:title prev))]
+     [:span])
+   [:a.series-index {:href (href (series-path series-slug))}
+    series-title]
+   (if next
+     [:a.series-next {:href (href (:url next))}
+      (str (:title next) " \u2192")]
+     [:span])])
 
 (defn- series-json-ld
-  "JSON-LD BlogPosting with isPartOf CreativeWorkSeries."
+  "JSON-LD BlogPosting with isPartOf CreativeWorkSeries. Returns hiccup."
   [{:keys [title published-on description url series-order]} {:keys [series-title series-slug]}]
   (let [ld {"@context" "https://schema.org"
              "@type" "BlogPosting"
              "headline" title
              "datePublished" (str published-on)
-             "url" (str site-url url)
+             "url" (absolute-url url)
              "author" {"@type" "Person" "name" "João Lopes"}
              "isPartOf" {"@type" "CreativeWorkSeries"
                          "name" series-title
-                         "url" (str site-url (series-path series-slug))}
+                         "url" (absolute-url (series-path series-slug))}
              "position" series-order}
         ld (cond-> ld description (assoc "description" description))]
-    (str "<script type=\"application/ld+json\">" (json/write-str ld) "</script>")))
+    [:script {:type "application/ld+json"} (h/raw (json/write-str ld))]))
 
 (defn series-index-layout
-  "Full series index page with title, count, ordered list."
+  "Full series index page with title, count, ordered list. Returns hiccup."
   [slug posts]
   (let [title (:series-title (first posts))]
-    (str
-     (h/html
-      [:div.series-index
-       [:h1 (hu/escape-html title)]
-       [:p.series-count (str (count posts) " post" (when (not= 1 (count posts)) "s") " in this series")]
-       [:ol.series-full-toc
-        (for [p posts]
-          [:li
-           [:a {:href (href (:url p))} (hu/escape-html (:title p))]
-           [:time {:datetime (str (:published-on p))} (str (:published-on p))]
-           (when (:description p)
-             [:p.description (hu/escape-html (:description p))])])]]))))
+    [:div.series-index
+     [:h1 title]
+     [:p.series-count (str (count posts) " post" (when (not= 1 (count posts)) "s") " in this series")]
+     [:ol.series-full-toc
+      (for [p posts]
+        [:li
+         [:a {:href (href (:url p))} (:title p)]
+         [:time {:datetime (str (:published-on p))} (str (:published-on p))]
+         (when (:description p)
+           [:p.description (:description p)])])]]))
 
 (defn post-layout
-  "Article layout for a single post. Returns hiccup-rendered HTML string."
+  "Article layout for a single post. Returns hiccup."
   ([post html-body] (post-layout post html-body nil))
   ([{:keys [title published-on tags slug] :as post} html-body series-ctx]
-   (str
-    (h/html
-     [:article
-      [:h1 (hu/escape-html title)]
-      [:div.post-meta
-       [:time {:datetime (str published-on)} (str published-on)]
-       (when (seq tags)
-         [:span.tags
-          (for [tag tags]
-            [:span.tag (str "#" (name tag))])])]
-      (when series-ctx
-        (h/raw (series-toc series-ctx slug)))
-      (h/raw html-body)
-      (when series-ctx
-        (h/raw (series-nav series-ctx)))
-      (when series-ctx
-        (h/raw (series-json-ld post series-ctx)))]))))
+   [:article
+    [:h1 title]
+    [:div.post-meta
+     [:time {:datetime (str published-on)} (str published-on)]
+     (when (seq tags)
+       [:span.tags
+        (for [tag tags]
+          [:span.tag (str "#" (name tag))])])]
+    (when series-ctx
+      (series-toc series-ctx slug))
+    (h/raw html-body)
+    (when series-ctx
+      (series-nav series-ctx))
+    (when series-ctx
+      (series-json-ld post series-ctx))]))
 
 (defn not-found-layout
-  "404 page content."
+  "404 page content. Returns hiccup."
   []
-  (str
-   (h/html
-    [:div.not-found
-     [:h1 "404"]
-     [:p "This page doesn't exist."]
-     [:p [:a {:href (href "/")} "← Back to posts"]]])))
+  [:div.not-found
+   [:h1 "404"]
+   [:p "This page doesn't exist."]
+   [:p [:a {:href (href "/")} "← Back to posts"]]])
 
 (defn index-layout
-  "Post list for the index page. Returns hiccup-rendered HTML string."
+  "Post list for the index page. Returns hiccup."
   [posts]
-  (str
-   (h/html
-    [:div.index
-     [:h1 "Posts"]
-     (if (seq posts)
-       [:ul.post-list
-        (for [{:keys [title url published-on description]} posts]
-          [:li
-           [:a {:href (href url)} (hu/escape-html title)]
-           [:time {:datetime (str published-on)} (str published-on)]
-           (when description
-             [:p.description (hu/escape-html description)])])]
-       [:p "No posts yet. Check back soon."])])))
+  [:div.index
+   [:h1 "Posts"]
+   (if (seq posts)
+     [:ul.post-list
+      (for [{:keys [title url published-on description]} posts]
+        [:li
+         [:a {:href (href url)} title]
+         [:time {:datetime (str published-on)} (str published-on)]
+         (when description
+           [:p.description description])])]
+     [:p "No posts yet. Check back soon."])])
