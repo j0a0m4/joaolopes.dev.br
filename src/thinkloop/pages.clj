@@ -130,6 +130,7 @@
   (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
        "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n"
        "<url><loc>" (layout/absolute-url "/") "</loc></url>\n"
+       "<url><loc>" (layout/absolute-url "/about/") "</loc></url>\n"
        (str/join
         (for [{:keys [url published-on]} posts]
           (str "<url>"
@@ -143,6 +144,15 @@
                "<lastmod>" (:published-on (last posts)) "</lastmod>"
                "</url>\n")))
        "</urlset>"))
+
+(defn- render-about
+  "Renders the about page from pages/about.md."
+  []
+  (let [f (io/file "pages" "about.md")
+        html-body (-> (slurp f) markdown/render-markdown)]
+    (layout/base-layout
+     "About" nil
+     (layout/about-layout html-body))))
 
 (defn- render-404 []
   (layout/base-layout
@@ -158,6 +168,7 @@
         _ (validate-series series-map)]
     (merge
      {"/" (fn [_] (render-index posts))
+      "/about/" (fn [_] (render-about))
       "/feed.xml" (fn [_] (render-rss posts))
       "/sitemap.xml" (fn [_] (render-sitemap posts series-map))
       "/404.html" (fn [_] (render-404))}
