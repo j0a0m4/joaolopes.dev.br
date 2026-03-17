@@ -2,17 +2,17 @@
 <?xml-stylesheet href="feed.xsl" type="text/xsl"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
-<title>ThinkLoop</title>
+<title>João Lopes</title>
 <link>https://joaolopes.dev.br</link>
 <description>Notes on software, systems, and thinking tools.</description>
 <language>en</language>
 <atom:link href="https://joaolopes.dev.br/feed.xml" rel="self" type="application/rss+xml"/>
 <lastBuildDate>Mon, 16 Mar 2026 00:00:00 -0300</lastBuildDate>
 <item>
-<title>Hello ThinkLoop</title>
-<link>https://joaolopes.dev.br/posts/hello-thinkloop/</link>
-<guid>https://joaolopes.dev.br/posts/hello-thinkloop/</guid>
-<description>First post on ThinkLoop — what this blog is about, who&apos;s behind it, and the Obsidian + Clojure stack that powers it.</description>
+<title>Hello World</title>
+<link>https://joaolopes.dev.br/posts/hello-world/</link>
+<guid>https://joaolopes.dev.br/posts/hello-world/</guid>
+<description>First post — what this blog is about, who&apos;s behind it, and the Obsidian + Clojure stack that powers it.</description>
 <pubDate>Mon, 16 Mar 2026 00:00:00 -0300</pubDate>
 </item>
 </channel>
