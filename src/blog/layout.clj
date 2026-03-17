@@ -145,6 +145,8 @@
     (when series-ctx
       (series-toc series-ctx slug))
     (h/raw html-body)
+    [:aside.colophon
+     "This post was drafted by an AI agent, reviewed by another, and revised by me."]
     (when series-ctx
       (series-nav series-ctx))
     (when series-ctx
