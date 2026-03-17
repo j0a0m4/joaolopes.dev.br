@@ -190,10 +190,7 @@ article strong {
 }
 
 article em {
-  background: linear-gradient(62deg, #87c2fd, #dcb9fc);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #b4befe;
   font-style: italic;
 }
 
