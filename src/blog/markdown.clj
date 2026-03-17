@@ -1,4 +1,4 @@
-(ns thinkloop.markdown
+(ns blog.markdown
   (:require [clj-yaml.core :as yaml]
             [clojure.string :as str]
             [markdown.core :as md])

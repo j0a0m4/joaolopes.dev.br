@@ -1,8 +1,8 @@
-(ns thinkloop.core
+(ns blog.core
   (:require [clojure.java.io :as io]
             [stasis.core :as stasis]
             [ring.adapter.jetty :as jetty]
-            [thinkloop.pages :as pages]))
+            [blog.pages :as pages]))
 
 (def posts-dir "posts")
 (def public-dir "public")

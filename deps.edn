@@ -8,5 +8,5 @@
         org.clojure/data.json     {:mvn/version "2.5.1"}}
 
  :aliases
- {:build {:main-opts ["-m" "thinkloop.core" "build"]}
-  :serve {:main-opts ["-m" "thinkloop.core" "serve"]}}}
+ {:build {:main-opts ["-m" "blog.core" "build"]}
+  :serve {:main-opts ["-m" "blog.core" "serve"]}}}
