@@ -20,8 +20,9 @@ Engineers are being asked to reinvent how they work with tools they don't fully
 understand. What's an agent? How is it different from autocomplete? What are
 rules, skills, hooks — and when do you use each one?
 
-This post is the foundation. **AI agents are not text completers. They are
-runtime loops.** Once that clicks, the rest follows.
+This post is the foundation.
+**AI agents are not text completers. They are runtime loops.**
+Once that clicks, the rest follows.
 
 ## What an agent actually is
 
