@@ -189,6 +189,36 @@ article strong {
   -webkit-text-fill-color: transparent;
 }
 
+article em {
+  background: linear-gradient(62deg, #87c2fd, #dcb9fc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-style: italic;
+}
+
+article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+
+article th, article td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+article th {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+article tr:hover {
+  background: var(--bg-alt);
+}
+
 article ul, article ol { margin: 0 0 1rem 1.5rem; }
 article li { margin-bottom: 0.25rem; }
 

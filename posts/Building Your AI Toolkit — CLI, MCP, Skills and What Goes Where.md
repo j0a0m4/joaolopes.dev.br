@@ -85,7 +85,7 @@ HUMAN GATE
   "Here's your prep. Want me to adjust anything?"
 ```
 
-Same loop. Same building blocks. No code involved.
+Same loop. Same building blocks. No new code — just the same patterns applied to a different problem.
 
 **The loop doesn't care what kind of task it's running.** Gather, act, observe,
 repeat. Whether the task is running tests or drafting meeting prep, the
