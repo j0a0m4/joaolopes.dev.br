@@ -1,8 +1,8 @@
-(ns thinkloop.layout
+(ns blog.layout
   (:require [clojure.data.json :as json]
             [hiccup2.core :as h]))
 
-(def site-title "ThinkLoop")
+(def site-title "João Lopes")
 (def site-url "https://joaolopes.dev.br")
 (def site-description "Notes on software, systems, and thinking tools.")
 

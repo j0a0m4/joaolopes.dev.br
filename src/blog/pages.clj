@@ -1,9 +1,9 @@
-(ns thinkloop.pages
+(ns blog.pages
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
             [hiccup.util :as hu]
-            [thinkloop.layout :as layout]
-            [thinkloop.markdown :as markdown])
+            [blog.layout :as layout]
+            [blog.markdown :as markdown])
   (:import [java.time LocalDate ZoneId]
            [java.time.format DateTimeFormatter]
            [java.util Locale]))

@@ -1,6 +1,6 @@
 ---
-title: "Hello ThinkLoop"
-description: "First post on ThinkLoop — what this blog is about, who's behind it, and the Obsidian + Clojure stack that powers it."
+title: "Hello World"
+description: "First post — what this blog is about, who's behind it, and the Obsidian + Clojure stack that powers it."
 created: 2026-03-16
 published-on: 2026-03-16
 tags:
@@ -8,9 +8,9 @@ tags:
   - clojure
 ---
 
-# Hello ThinkLoop
+# Hello World
 
-ThinkLoop is a blog about software, systems, and thinking tools — written from inside an AI-powered markdown knowledge vault. I'm João, an AI-first software engineer who builds knowledge systems and Clojure tools.
+This is a blog about software, systems, and thinking tools — written from inside an AI-powered markdown knowledge vault. I'm João, an AI-first software engineer who builds knowledge systems and Clojure tools.
 
 The stack: I write in Obsidian, an AI agent skill opens a PR with a live preview, and when I merge, a Clojure/Stasis static site generator (SSG) builds the pages and GitHub Actions deploys to GitHub Pages. The whole thing is ~500 lines of Clojure.
 

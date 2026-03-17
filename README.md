@@ -1,4 +1,4 @@
-# ThinkLoop
+# joaolopes.dev.br
 
 Personal blog at [joaolopes.dev.br](https://joaolopes.dev.br). Built with Clojure and [Stasis](https://github.com/magnars/stasis).
 
