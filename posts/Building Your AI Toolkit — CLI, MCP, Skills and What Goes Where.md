@@ -112,15 +112,14 @@ it belongs in CLI.
 
 ### MCP — the cross-client protocol
 
-MCP (Model Context Protocol) is how AI agents call external tools over
-JSON-RPC (a standard remote procedure call protocol). Anthropic [describes it as
-USB-C for AI](https://www.anthropic.com/news/model-context-protocol): one
-server, any client.
+MCP (Model Context Protocol) lets AI agents call external tools over a
+standardized JSON-RPC interface. You define a server once; it works in Claude
+Code, Cursor, VS Code, and any other MCP-compatible client.
+Anthropic [describes it as USB-C for AI](https://www.anthropic.com/news/model-context-protocol).
 
 Each MCP tool is self-describing — it carries its name, description, and
 parameter schema. The agent reads the descriptions, decides which tools are
-relevant, and calls them with structured parameters. Configure the server once;
-it works in Claude Code, Cursor, VS Code, and any other MCP-compatible client.
+relevant, and calls them with structured parameters.
 
 ```
                           JSON-RPC
@@ -135,8 +134,15 @@ it works in Claude Code, Cursor, VS Code, and any other MCP-compatible client.
 └──────────────┘                          └──────────────────────┘
 ```
 
-Use MCP when you need cross-client portability, when the AI should discover and
-choose from available capabilities, or when you're bridging to external systems.
+**The tradeoff is context cost.** MCP tool responses are often verbose JSON —
+a single search result can return thousands of tokens of metadata the agent
+doesn't need. Every token in a tool response competes with your conversation,
+your code, and your instructions for space in the context window. When using
+MCP, design your servers to return focused responses, not raw API dumps.
+
+Use MCP when you need cross-client portability, when the AI should discover
+available capabilities at runtime, or when you're bridging to external systems.
+Prefer CLI when you need a fast, predictable result without the context overhead.
 
 ### Skills — the workflow brain
 
@@ -221,9 +227,10 @@ same reason JSON became the default for web APIs: every LLM was trained on
 vast amounts of markdown, they generate it natively, and humans can read and
 edit it without tooling.
 
-The token economics reinforce it. [Per Cloudflare's
-data](https://blog.cloudflare.com/markdown-for-agents/), a markdown heading
-costs ~3 tokens; the HTML equivalent costs 12-15 — a 4-5x overhead. Across an entire rules file
+The token economics reinforce it.
+[Per Cloudflare's data](https://blog.cloudflare.com/markdown-for-agents/),
+a markdown heading costs ~3 tokens; the HTML equivalent costs 12-15 — a 4-5x overhead.
+Across an entire rules file
 or skill definition loaded into context, the savings compound. When context
 window space is your most constrained resource, format choices are architectural
 choices.
