@@ -284,6 +284,16 @@ footer a {
 
 footer a:hover { color: var(--accent); }
 
+/* Colophon */
+.colophon {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
 /* Series TOC (in-post) */
 .series-toc {
   border: 1px solid rgba(14, 210, 247, 0.15);
