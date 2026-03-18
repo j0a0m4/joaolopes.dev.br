@@ -48,18 +48,21 @@
       [:link {:rel "stylesheet"
               :href "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css"}]
       [:script {:src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"}]
-      [:script (h/raw "document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('pre code:not(.mermaid)').forEach(el => hljs.highlightElement(el)));")]
-      [:script {:type "module"}
-       (h/raw "import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-        mermaid.initialize({ startOnLoad: false, theme: 'dark' });
-        document.querySelectorAll('pre > code.mermaid').forEach(code => {
-          const pre = code.parentElement;
-          const div = document.createElement('pre');
+      [:script {:src "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"}]
+      [:script (h/raw "document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('pre > code.mermaid').forEach(function(code) {
+          var pre = code.parentElement;
+          var div = document.createElement('pre');
           div.className = 'mermaid';
           div.textContent = code.textContent;
           pre.replaceWith(div);
         });
-        await mermaid.run({ querySelector: 'pre.mermaid' });")]]
+        mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        mermaid.run();
+        document.querySelectorAll('pre code').forEach(function(el) {
+          hljs.highlightElement(el);
+        });
+      });")]]
      [:body
       [:header
        [:nav
