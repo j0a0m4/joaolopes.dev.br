@@ -140,10 +140,29 @@
          (when (:description p)
            [:p.description (:description p)])])]]))
 
+(defn- toc-nav
+  "Table of contents from extracted headings. Returns hiccup or nil."
+  [headings]
+  (when (seq headings)
+    [:nav.toc {:id "toc"}
+     [:p.toc-label "Contents"]
+     [:ul
+      (for [{:keys [level text anchor]} headings
+            :when (= 2 level)]
+        (let [subs (take-while #(= 3 (:level %))
+                               (rest (drop-while #(not= anchor (:anchor %)) headings)))]
+          [:li
+           [:a {:href (str "#" anchor)} text]
+           (when (seq subs)
+             [:ul
+              (for [s subs]
+                [:li [:a {:href (str "#" (:anchor s))} (:text s)]])])]))]]))
+
 (defn post-layout
   "Article layout for a single post. Returns hiccup."
-  ([post html-body] (post-layout post html-body nil))
-  ([{:keys [title published-on tags slug] :as post} html-body series-ctx]
+  ([post html-body] (post-layout post html-body nil nil))
+  ([post html-body series-ctx] (post-layout post html-body series-ctx nil))
+  ([{:keys [title published-on tags slug] :as post} html-body series-ctx toc]
    [:article
     [:h1 title]
     [:div.post-meta
@@ -154,6 +173,7 @@
           [:span.tag (str "#" (name tag))])])]
     (when series-ctx
       (series-toc series-ctx slug))
+    (toc-nav toc)
     (h/raw html-body)
     [:aside.colophon
      "This post was drafted by an AI agent, reviewed by another, and revised by me."]
