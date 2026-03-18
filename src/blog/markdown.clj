@@ -1,5 +1,6 @@
 (ns blog.markdown
   (:require [clj-yaml.core :as yaml]
+            [clojure.java.io :as io]
             [clojure.string :as str])
   (:import [java.time Instant ZoneOffset]
            [java.time.format DateTimeFormatter]
@@ -114,6 +115,22 @@
   [text]
   (->> (.parse parser text)
        (.render renderer)))
+
+(def ^:private img-svg-pattern
+  #"<img\s+[^>]*src=\"(/assets/[^\"]+\.svg)\"[^>]*>")
+
+(defn inline-svgs
+  "Replaces <img> tags pointing to local SVGs with inlined SVG content.
+   SVGs inherit the page's fonts and styles when inlined."
+  [html-body]
+  (str/replace html-body img-svg-pattern
+               (fn [[img-tag src-path]]
+                 (let [f (io/file (str "." src-path))]
+                   (if (.exists f)
+                     (-> (slurp f)
+                         (str/replace #"<\?xml[^>]*\?>\s*" "")
+                         str/trim)
+                     img-tag)))))
 
 (def ^:private ^DateTimeFormatter iso-date
   (DateTimeFormatter/ISO_LOCAL_DATE))

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 700 300">
+  <defs>
+    <marker id="biarr-r" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0fb6d6"/>
+    </marker>
+    <marker id="biarr-l" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+      <polygon points="10 0, 0 3.5, 10 7" fill="#0fb6d6"/>
+    </marker>
+  </defs>
+
+  <!-- Client node -->
+  <rect x="40" y="80" width="200" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="140" y="120" text-anchor="middle" fill="#0fb6d6" font-family="Rubik, system-ui, sans-serif" font-size="20" font-weight="600">Claude Code</text>
+  <text x="140" y="145" text-anchor="middle" fill="#7a7a8e" font-family="Rubik, system-ui, sans-serif" font-size="14">(client)</text>
+
+  <!-- enterprise-search server -->
+  <rect x="420" y="25" width="240" height="115" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="540" y="56" text-anchor="middle" fill="#0fb6d6" font-family="Rubik, system-ui, sans-serif" font-size="17" font-weight="600">enterprise-search</text>
+  <text x="540" y="82" text-anchor="middle" fill="#bebebe" font-family="Rubik, system-ui, sans-serif" font-size="14">· search</text>
+  <text x="540" y="102" text-anchor="middle" fill="#bebebe" font-family="Rubik, system-ui, sans-serif" font-size="14">· read_document</text>
+  <text x="540" y="128" text-anchor="middle" fill="#7a7a8e" font-family="Rubik, system-ui, sans-serif" font-size="11">(MCP server)</text>
+
+  <!-- internal-api server -->
+  <rect x="420" y="160" width="240" height="115" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="540" y="192" text-anchor="middle" fill="#0fb6d6" font-family="Rubik, system-ui, sans-serif" font-size="17" font-weight="600">internal-api</text>
+  <text x="540" y="218" text-anchor="middle" fill="#bebebe" font-family="Rubik, system-ui, sans-serif" font-size="14">· get_customer</text>
+  <text x="540" y="238" text-anchor="middle" fill="#bebebe" font-family="Rubik, system-ui, sans-serif" font-size="14">· create_order</text>
+  <text x="540" y="264" text-anchor="middle" fill="#7a7a8e" font-family="Rubik, system-ui, sans-serif" font-size="11">(MCP server)</text>
+
+  <!-- Client → enterprise-search bidirectional -->
+  <line x1="240" y1="110" x2="415" y2="80" stroke="#0fb6d6" stroke-width="2" marker-end="url(#biarr-r)" marker-start="url(#biarr-l)"/>
+  <text x="325" y="85" text-anchor="middle" fill="#0fb6d6" font-family="ui-monospace, Cascadia Code, monospace" font-size="12">JSON-RPC</text>
+
+  <!-- Client → internal-api bidirectional -->
+  <line x1="240" y1="150" x2="415" y2="200" stroke="#0fb6d6" stroke-width="2" marker-end="url(#biarr-r)" marker-start="url(#biarr-l)"/>
+  <text x="310" y="165" text-anchor="middle" fill="#0fb6d6" font-family="ui-monospace, Cascadia Code, monospace" font-size="12">JSON-RPC</text>
+</svg>

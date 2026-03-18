@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 520">
+  <defs>
+    <marker id="id-arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7a7a8e"/>
+    </marker>
+    <marker id="id-arr-accent" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f4569d"/>
+    </marker>
+    <marker id="id-arr-cyan" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0fb6d6"/>
+    </marker>
+  </defs>
+
+  <!-- Non-deterministic group -->
+  <rect x="20" y="15" width="720" height="170" rx="8" fill="none" stroke="rgba(244, 86, 157, 0.2)" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="40" y="35" fill="#f4569d" font-family="Rubik, system-ui, sans-serif" font-size="14" font-weight="500" opacity="0.8">NON-DETERMINISTIC — shapes thinking</text>
+
+  <!-- Rules node -->
+  <rect x="60" y="55" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="190" y="95" text-anchor="middle" fill="#0fb6d6" font-family="Rubik, system-ui, sans-serif" font-size="21" font-weight="600">Rules</text>
+  <text x="190" y="120" text-anchor="middle" fill="#7a7a8e" font-family="Rubik, system-ui, sans-serif" font-size="14">Passive knowledge — absorbed</text>
+  <text x="190" y="140" text-anchor="middle" fill="#7a7a8e" font-family="Rubik, system-ui, sans-serif" font-size="14">not called</text>
+
+  <!-- Skills node -->
+  <rect x="440" y="55" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="570" y="95" text-anchor="middle" fill="#0fb6d6" font-family="Rubik, system-ui, sans-serif" font-size="21" font-weight="600">Skills</text>
+  <text x="570" y="120" text-anchor="middle" fill="#7a7a8e" font-family="Rubik, system-ui, sans-serif" font-size="14">Workflow brain — invoked</text>
+  <text x="570" y="140" text-anchor="middle" fill="#7a7a8e" font-family="Rubik, system-ui, sans-serif" font-size="14">orchestrates</text>
+
+  <!-- Agent node (center) -->
+  <rect x="250" y="220" width="260" height="80" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.3)" stroke-width="2"/>
+  <text x="380" y="258" text-anchor="middle" fill="#0fb6d6" font-family="Rubik, system-ui, sans-serif" font-size="22" font-weight="600">Agent</text>
+  <text x="380" y="282" text-anchor="middle" fill="#bebebe" font-family="Rubik, system-ui, sans-serif" font-size="14">Plans, decides, calls tools</text>
+
+  <!-- Deterministic group -->
+  <rect x="20" y="340" width="720" height="165" rx="8" fill="none" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="40" y="360" fill="#0fb6d6" font-family="Rubik, system-ui, sans-serif" font-size="14" font-weight="500" opacity="0.8">DETERMINISTIC — executes and enforces</text>
+
+  <!-- Hooks node -->
+  <rect x="60" y="380" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="190" y="420" text-anchor="middle" fill="#0fb6d6" font-family="Rubik, system-ui, sans-serif" font-size="21" font-weight="600">Hooks</text>
+  <text x="190" y="446" text-anchor="middle" fill="#7a7a8e" font-family="Rubik, system-ui, sans-serif" font-size="14">Structural enforcement —</text>
+  <text x="190" y="466" text-anchor="middle" fill="#7a7a8e" font-family="Rubik, system-ui, sans-serif" font-size="14">intercepts tool calls</text>
+
+  <!-- Tools node -->
+  <rect x="440" y="380" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="570" y="420" text-anchor="middle" fill="#0fb6d6" font-family="Rubik, system-ui, sans-serif" font-size="21" font-weight="600">Tools</text>
+  <text x="570" y="446" text-anchor="middle" fill="#7a7a8e" font-family="Rubik, system-ui, sans-serif" font-size="14">Bash, Write, Read, MCP, …</text>
+
+  <!-- Rules → Agent (dashed, "shape") -->
+  <path d="M 190 155 L 310 220" fill="none" stroke="#f4569d" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#id-arr-accent)"/>
+  <text x="220" y="195" fill="#f4569d" font-family="Rubik, system-ui, sans-serif" font-size="13" font-style="italic">shape</text>
+
+  <!-- Skills → Agent ("direct") -->
+  <line x1="570" y1="155" x2="455" y2="220" stroke="#f4569d" stroke-width="2" marker-end="url(#id-arr-accent)"/>
+  <text x="530" y="195" fill="#f4569d" font-family="Rubik, system-ui, sans-serif" font-size="13" font-style="italic">direct</text>
+
+  <!-- Agent → Tools ("calls") -->
+  <line x1="455" y1="300" x2="545" y2="375" stroke="#7a7a8e" stroke-width="2" marker-end="url(#id-arr)"/>
+  <text x="520" y="340" fill="#7a7a8e" font-family="Rubik, system-ui, sans-serif" font-size="13" font-style="italic">calls</text>
+
+  <!-- Hooks → Tools ("intercept") -->
+  <line x1="320" y1="430" x2="435" y2="430" stroke="#0fb6d6" stroke-width="2" marker-end="url(#id-arr-cyan)"/>
+  <text x="378" y="422" text-anchor="middle" fill="#0fb6d6" font-family="Rubik, system-ui, sans-serif" font-size="13" font-style="italic">intercept</text>
+</svg>
