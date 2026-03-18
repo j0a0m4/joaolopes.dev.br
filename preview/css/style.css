@@ -296,6 +296,8 @@ footer a:hover { color: var(--accent); }
 
 /* Table of Contents */
 .toc {
+  display: flex;
+  flex-direction: column;
   border: 1px solid rgba(14, 210, 247, 0.15);
   border-radius: 6px;
   padding: 1rem 1.25rem;
