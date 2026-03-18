@@ -1,11 +1,11 @@
 ---
 title: "Building Your AI Toolkit"
+created: 2026-03-17
+published-on: 2026-03-17
 description:
   "AI agents are runtime loops, not autocomplete. The five building blocks —
   CLI, MCP, Skills, Rules, and Hooks — and why the role shifts from writing code
   to designing workflows."
-created: 2026-03-17
-published-on: 2026-03-17
 tags:
   - ai-workflow
   - architecture
@@ -153,7 +153,7 @@ it belongs in CLI.
 ### MCP — the cross-client protocol
 
 MCP (Model Context Protocol) lets AI agents call external tools over a
-standardized JSON-RPC interface. You define a server once; it works in Claude
+standardized JSON-RPC (Remote Procedure Call) interface. You define a server once; it works in Claude
 Code, Cursor, VS Code, and any other MCP-compatible client. Anthropic
 [describes it as USB-C for AI](https://www.anthropic.com/news/model-context-protocol).
 
@@ -171,7 +171,8 @@ When using MCP, design your servers to return focused responses, not raw API
 dumps.
 
 **The second tradeoff is blocking.** Every MCP tool call blocks the agent until
-it returns — no progress updates, no intermediate state, no parallelism. A CLI
+it returns — no progress updates, no intermediate state, no parallelism in
+standard implementations. A CLI
 command can run in the background while the agent continues working. A skill can
 dispatch sub-agents that run concurrently. MCP can't. The moment a workflow
 needs duration or parallelism, MCP breaks the experience.
@@ -188,6 +189,8 @@ the correct mental model: skills as the workflow brain on top of both.
 Hooks fire at lifecycle points — before a tool runs, after it succeeds, when the
 session ends. A `PreToolUse` hook can block operations before they execute. A
 `PostToolUse` hook can redirect behavior after a tool call.
+
+![Hooks lifecycle: Agent → PreToolUse (block / annotate / pass) → Tool call → PostToolUse → Side effect](/assets/hooks-lifecycle.svg)
 
 The critical insight: **instructions are suggestions the model may ignore under
 pressure. Hooks are structural enforcement.**
@@ -234,9 +237,10 @@ Three of the five layers are just markdown files:
 | `RULES.md`  | Coding standards     | Passive context loaded every session |
 
 This is not accidental. Markdown is the default format for AI agents for the
-same reason JSON became the default for web APIs: every LLM was trained on vast
-amounts of markdown, they generate it natively, and humans can read and edit it
-without tooling.
+same reason JSON became the default for web APIs: LLMs generate it natively —
+their training data is dominated by GitHub READMEs, documentation, and Stack
+Overflow answers, all markdown — and humans can read and edit it without
+tooling.
 
 The token economics reinforce it.
 [Per Cloudflare's data](https://blog.cloudflare.com/markdown-for-agents/), a
@@ -295,10 +299,9 @@ Three questions become your job:
 2. What decisions require a human?
 3. Where are the repetitive steps the agent should handle?
 
-Every skill in my toolkit was designed by me and drafted by the agent. I acted
-as architect — defining what each workflow needed, where the human gates belong,
-what information to gather. The agent implemented it. CLI, MCP, Skills, Rules,
-and Hooks are the building blocks. Markdown is the format they share.
+I acted as architect — defining what each workflow needed, where the human gates
+belong, what information to gather. The agent implemented it. CLI, MCP, Skills,
+Rules, and Hooks are the building blocks. Markdown is the format they share.
 
 _Next in this series: why filling your knowledge base with notes makes your AI
 agents less accurate — not more._
