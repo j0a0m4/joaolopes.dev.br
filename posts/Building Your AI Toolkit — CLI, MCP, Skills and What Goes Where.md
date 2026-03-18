@@ -21,8 +21,8 @@ do you use each one? Once that clicks, the rest follows.
 
 ## What an agent actually is
 
-An agent is a system where the model dynamically decides what to do. Not
-responding to prompts — planning and executing actions. The loop:
+An agent is a loop where the model plans, acts, and self-corrects — not just
+responding to a prompt, but executing a sequence of decisions. The loop:
 
 ```mermaid
 graph LR
