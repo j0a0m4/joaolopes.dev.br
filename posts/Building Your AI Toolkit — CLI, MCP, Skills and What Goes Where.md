@@ -121,17 +121,14 @@ Each MCP tool is self-describing — it carries its name, description, and
 parameter schema. The agent reads the descriptions, decides which tools are
 relevant, and calls them with structured parameters.
 
-```
-                          JSON-RPC
-┌──────────────┐     ◄──────────────►     ┌──────────────────────┐
-│              │                          │  enterprise-search   │
-│  Claude Code │                          │    · search          │
-│  (client)    │                          │    · read_document   │
-│              │     ◄──────────────►     └──────────────────────┘
-│              │         JSON-RPC         ┌──────────────────────┐
-│              │                          │  your-api-server     │
-│              │                          │    · query           │
-└──────────────┘                          └──────────────────────┘
+```mermaid
+graph LR
+  Client["Claude Code<br/>(client)"]
+  Search["enterprise-search<br/>· search<br/>· read_document"]
+  API["your-api-server<br/>· query"]
+
+  Client <-->|JSON-RPC| Search
+  Client <-->|JSON-RPC| API
 ```
 
 **The tradeoff is context cost.** MCP tool responses are often verbose JSON —
