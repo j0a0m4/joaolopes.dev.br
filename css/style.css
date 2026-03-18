@@ -294,6 +294,45 @@ footer a:hover { color: var(--accent); }
   font-style: italic;
 }
 
+/* Table of Contents */
+.toc {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(14, 210, 247, 0.15);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.toc .toc-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.toc ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.toc li { margin-bottom: 0.25rem; font-size: 0.9rem; }
+.toc li a { color: var(--accent); text-decoration: none; }
+.toc li a:hover { text-decoration: underline; }
+
+.toc ul ul {
+  margin: 0.25rem 0 0.25rem 1.25rem;
+}
+
+.toc-back {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+}
+
+.toc-back:hover { color: var(--accent); }
+
 /* Series TOC (in-post) */
 .series-toc {
   border: 1px solid rgba(14, 210, 247, 0.15);
