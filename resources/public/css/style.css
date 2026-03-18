@@ -100,6 +100,7 @@ nav a {
 main { min-height: 60vh; }
 
 /* Index */
+.index h1 { margin-bottom: 1.5rem; }
 .post-list { list-style: none; }
 
 .post-list li {
@@ -127,6 +128,11 @@ main { min-height: 60vh; }
   font-size: 0.9rem;
   color: var(--muted);
   margin: 0;
+}
+
+.post-list .tag {
+  font-size: 0.75rem;
+  font-weight: 400;
 }
 
 /* Article */
