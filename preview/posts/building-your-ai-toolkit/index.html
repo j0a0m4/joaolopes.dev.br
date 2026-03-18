@@ -173,7 +173,12 @@ call becomes an observable event you can log, validate, and react to. Hooks are
 the foundation for enforcement <em>and</em> observability.</p>
 <h3 id="the-intelligence-determinism-split">The intelligence-determinism split</h3>
 <p>The five layers split along one axis:</p>
-<p><img src="/assets/intelligence-determinism-split.svg" alt="Intelligence-determinism split" /></p>
+<pre><code class="language-mermaid">graph TB
+  Rules[&quot;🧠 Rules&lt;br/&gt;&lt;i&gt;non-deterministic&lt;/i&gt;&quot;] -.-&gt;|shape| Agent[&quot;Agent&quot;]
+  Skills[&quot;🧠 Skills&lt;br/&gt;&lt;i&gt;non-deterministic&lt;/i&gt;&quot;] --&gt;|direct| Agent
+  Agent --&gt;|calls| Tools[&quot;⚙️ Tools&lt;br/&gt;(Bash, Write, MCP, …)&lt;br/&gt;&lt;i&gt;deterministic&lt;/i&gt;&quot;]
+  Hooks[&quot;⚙️ Hooks&lt;br/&gt;&lt;i&gt;deterministic&lt;/i&gt;&quot;] --&gt;|intercept| Tools
+</code></pre>
 <p>Skills sit above the deterministic layer — they orchestrate CLI and MCP tools,
 not alongside them. Rules load passively into the agent's context, shaping how
 skills reason. Hooks intercept tool calls from below, enforcing constraints
