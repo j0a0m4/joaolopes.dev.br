@@ -129,6 +129,11 @@ main { min-height: 60vh; }
   margin: 0;
 }
 
+.post-list .tag {
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
 /* Article */
 article h1 {
   font-size: 1.8rem;
