@@ -10,8 +10,8 @@
 
   <!-- /pre-pr skill node -->
   <rect x="200" y="20" width="400" height="65" rx="8" fill="#191621" stroke="rgba(244, 86, 157, 0.3)" stroke-width="1.5"/>
-  <text x="400" y="50" text-anchor="middle" fill="#f4569d" font-family="Rubik, system-ui, sans-serif" font-size="20" font-weight="600">/pre-pr skill</text>
-  <text x="400" y="72" text-anchor="middle" fill="#7a7a8e" font-family="Rubik, system-ui, sans-serif" font-size="13">orchestrates the pipeline</text>
+  <text x="400" y="46" text-anchor="middle" fill="#7a7a8e" font-family="Rubik, system-ui, sans-serif" font-size="12" font-weight="500" letter-spacing="1">SKILL</text>
+  <text x="400" y="70" text-anchor="middle" fill="#f4569d" font-family="ui-monospace, Cascadia Code, monospace" font-size="20" font-weight="600">/pre-pr</text>
 
   <!-- Column 1: Lint -->
   <rect x="20" y="135" width="170" height="275" rx="8" fill="rgba(25, 22, 33, 0.4)" stroke="rgba(14, 210, 247, 0.08)" stroke-width="1"/>
@@ -51,8 +51,8 @@
   <line x1="450" y1="85" x2="485" y2="150" stroke="#f4569d" stroke-width="1.5" marker-end="url(#arr-dispatch)"/>
   <line x1="490" y1="85" x2="685" y2="150" stroke="#f4569d" stroke-width="1.5" marker-end="url(#arr-dispatch)"/>
 
-  <!-- "dispatch" label -->
-  <text x="175" y="115" fill="#f4569d" font-family="Rubik, system-ui, sans-serif" font-size="13" font-style="italic" opacity="0.8">dispatch</text>
+  <!-- "dispatch" label — centered above fan-out -->
+  <text x="400" y="110" text-anchor="middle" fill="#f4569d" font-family="Rubik, system-ui, sans-serif" font-size="13" font-style="italic" opacity="0.8">dispatch</text>
 
   <!-- Sub-agent → tool arrows -->
   <line x1="105" y1="210" x2="105" y2="325" stroke="#7a7a8e" stroke-width="1.5" marker-end="url(#arr)"/>
