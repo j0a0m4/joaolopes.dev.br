@@ -294,6 +294,32 @@ footer a:hover { color: var(--accent); }
   font-style: italic;
 }
 
+/* Table of Contents */
+.toc {
+  border: 1px solid rgba(14, 210, 247, 0.15);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.toc .toc-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.toc ol {
+  margin: 0 0 0 1.25rem;
+  padding: 0;
+}
+
+.toc li { margin-bottom: 0.25rem; font-size: 0.9rem; }
+.toc li a { color: var(--accent); text-decoration: none; }
+.toc li a:hover { text-decoration: underline; }
+
+.toc ol ol {
+  margin: 0.25rem 0 0.25rem 1.25rem;
+}
+
 /* Series TOC (in-post) */
 .series-toc {
   border: 1px solid rgba(14, 210, 247, 0.15);

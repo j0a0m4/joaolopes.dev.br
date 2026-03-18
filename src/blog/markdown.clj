@@ -66,6 +66,32 @@
   [body]
   (str/replace body #"(?s)\n## Related\n.*$" ""))
 
+(defn- heading-anchor
+  "Replicates markdown-clj's heading anchor slugification:
+   lowercase → spaces to _ → URL-encode."
+  [text]
+  (-> text
+      str/lower-case
+      str/trim
+      (str/replace " " "_")
+      (java.net.URLEncoder/encode "UTF-8")
+      (str/replace "+" "_")))
+
+(defn extract-toc
+  "Parses ## and ### headings from raw markdown body.
+   Returns [{:level 2, :text \"...\", :anchor \"...\"}] or nil if < min-headings."
+  ([body] (extract-toc body 3))
+  ([body min-headings]
+   (let [headings (->> (str/split-lines body)
+                       (keep (fn [line]
+                               (when-let [[_ hashes text] (re-matches #"^(#{2,3})\s+(.*)" line)]
+                                 {:level (count hashes)
+                                  :text (str/trim text)
+                                  :anchor (heading-anchor (str/trim text))})))
+                       vec)]
+     (when (>= (count (filter #(= 2 (:level %)) headings)) min-headings)
+       headings))))
+
 (defn render-markdown
   "Converts markdown string to HTML."
   [text]

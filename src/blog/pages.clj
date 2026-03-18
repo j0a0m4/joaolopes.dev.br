@@ -65,13 +65,15 @@
 (defn- render-post
   "Renders a single post to full HTML page."
   [post slugs series-ctx]
-  (let [html-body (-> (:body post)
+  (let [body (:body post)
+        toc (markdown/extract-toc body)
+        html-body (-> body
                       (markdown/transform-obsidian slugs)
                       markdown/render-markdown)]
     (layout/base-layout
      (:title post)
      (:description post)
-     (layout/post-layout post html-body series-ctx))))
+     (layout/post-layout post html-body series-ctx toc))))
 
 (defn- render-series-index
   "Renders a series index page at /series/<slug>/."
