@@ -206,8 +206,8 @@ Hooks fire at lifecycle points — before a tool runs, after it succeeds, when t
 session ends. A `PreToolUse` hook can block operations before they execute. A
 `PostToolUse` hook can redirect behavior after a tool call.
 
-The critical insight: **instructions are suggestions the model may ignore under
-pressure. Hooks are structural enforcement.**
+The critical insight:
+**instructions are suggestions the model may ignore under pressure. Hooks are structural enforcement.**
 
 A `CLAUDE.md` instruction like "always run tests before committing" competes
 with everything else in the context window — the conversation, the code, the
