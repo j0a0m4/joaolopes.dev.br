@@ -194,7 +194,7 @@
   ([post html-body] (post-layout post html-body nil nil))
   ([post html-body series-ctx] (post-layout post html-body series-ctx nil))
   ([{:keys [title published-on tags slug] :as post} html-body series-ctx toc]
-   [:article
+   [:article {:data-pagefind-body ""}
     [:h1 title]
     [:div.post-meta
      [:time {:datetime (str published-on)} (str published-on)]
@@ -235,10 +235,14 @@
    [:h1 "Posts"]
    (if (seq posts)
      [:ul.post-list
-      (for [{:keys [title url published-on description]} posts]
+      (for [{:keys [title url published-on description tags]} posts]
         [:li
          [:a {:href (href url)} title]
          [:time {:datetime (str published-on)} (str published-on)]
          (when description
-           [:p.description description])])]
+           [:p.description description])
+         (when (seq tags)
+           [:span.tags
+            (for [tag tags]
+              [:a.tag {:href (href (tag-path (name tag)))} (str "#" (name tag))])])])]
      [:p "No posts yet. Check back soon."])])
