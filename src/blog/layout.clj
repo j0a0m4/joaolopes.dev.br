@@ -48,7 +48,17 @@
       [:link {:rel "stylesheet"
               :href "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css"}]
       [:script {:src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"}]
-      [:script "hljs.highlightAll();"]]
+      [:script (h/raw "document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el)));")]
+      [:script {:type "module"}
+       (h/raw "import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        document.querySelectorAll('pre > code.mermaid').forEach(code => {
+          const pre = code.parentElement;
+          const div = document.createElement('pre');
+          div.className = 'mermaid';
+          div.textContent = code.textContent;
+          pre.replaceWith(div);
+        });
+        mermaid.initialize({ startOnLoad: true, theme: 'dark' });")]]
      [:body
       [:header
        [:nav
@@ -145,6 +155,8 @@
     (when series-ctx
       (series-toc series-ctx slug))
     (h/raw html-body)
+    [:aside.colophon
+     "This post was drafted by an AI agent, reviewed by another, and revised by me."]
     (when series-ctx
       (series-nav series-ctx))
     (when series-ctx
