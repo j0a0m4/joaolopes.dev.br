@@ -1,7 +1,9 @@
 (ns blog.core
   (:require [clojure.java.io :as io]
+            [clojure.string :as str]
             [stasis.core :as stasis]
             [ring.adapter.jetty :as jetty]
+            [ring.middleware.content-type :refer [wrap-content-type]]
             [blog.pages :as pages]))
 
 (def posts-dir "posts")
@@ -35,9 +37,29 @@
     (copy-dir assets-dir (str public-dir "/assets"))
     (println (str "Built " (count page-map) " pages to " public-dir "/"))))
 
+(defn- wrap-static-dirs
+  "Serves static files from specific directories that Stasis doesn't handle.
+   Only matches known static prefixes to avoid intercepting page routes."
+  [handler]
+  (let [mappings {"/css/"    (io/file static-dir "css")
+                  "/assets/" (io/file assets-dir)}]
+    (fn [req]
+      (let [uri (:uri req)]
+        (or (some (fn [[prefix dir]]
+                    (when (str/starts-with? uri prefix)
+                      (let [path (subs uri (count prefix))
+                            f (io/file dir path)]
+                        (when (and (.exists f) (.isFile f))
+                          {:status 200 :body f}))))
+                  mappings)
+            (handler req))))))
+
 (def ^:private app
-  "Ring handler. Passes a fn to stasis so pages rebuild on each request (live dev)."
-  (stasis/serve-pages #(pages/get-pages posts-dir)))
+  "Ring handler. Stasis serves pages (live rebuild). wrap-static-dirs serves
+   CSS and assets from filesystem. wrap-content-type sets MIME types."
+  (-> (stasis/serve-pages #(pages/get-pages posts-dir))
+      (wrap-static-dirs)
+      (wrap-content-type)))
 
 (defn serve
   "Starts dev server on port 3000."
