@@ -307,8 +307,9 @@ footer a:hover { color: var(--accent); }
   margin-bottom: 0.5rem;
 }
 
-.toc ol {
-  margin: 0 0 0 1.25rem;
+.toc ul {
+  list-style: none;
+  margin: 0;
   padding: 0;
 }
 
@@ -316,7 +317,7 @@ footer a:hover { color: var(--accent); }
 .toc li a { color: var(--accent); text-decoration: none; }
 .toc li a:hover { text-decoration: underline; }
 
-.toc ol ol {
+.toc ul ul {
   margin: 0.25rem 0 0.25rem 1.25rem;
 }
 

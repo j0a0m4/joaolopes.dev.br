@@ -146,7 +146,7 @@
   (when (seq headings)
     [:nav.toc {:id "toc"}
      [:p.toc-label "Contents"]
-     [:ol
+     [:ul
       (for [{:keys [level text anchor]} headings
             :when (= 2 level)]
         (let [subs (take-while #(= 3 (:level %))
@@ -154,7 +154,7 @@
           [:li
            [:a {:href (str "#" anchor)} text]
            (when (seq subs)
-             [:ol
+             [:ul
               (for [s subs]
                 [:li [:a {:href (str "#" (:anchor s))} (:text s)]])])]))]]))
 
