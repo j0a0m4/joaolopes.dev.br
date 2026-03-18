@@ -6,7 +6,8 @@
            [java.util Date]
            [org.commonmark.parser Parser]
            [org.commonmark.renderer.html HtmlRenderer]
-           [org.commonmark.ext.heading.anchor HeadingAnchorExtension]))
+           [org.commonmark.ext.heading.anchor HeadingAnchorExtension]
+           [org.commonmark.ext.gfm.tables TablesExtension]))
 
 (defn parse-frontmatter
   "Splits YAML frontmatter from markdown body. Returns [metadata body]."
@@ -95,7 +96,8 @@
        headings))))
 
 (def ^:private extensions
-  [(HeadingAnchorExtension/create)])
+  [(HeadingAnchorExtension/create)
+   (TablesExtension/create)])
 
 (def ^:private parser
   (-> (Parser/builder)
