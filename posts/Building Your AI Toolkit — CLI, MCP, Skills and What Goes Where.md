@@ -143,8 +143,7 @@ the workflow in conversation — "when I say `/meeting-prep`, gather the last tw
 weeks of notes, check the issue tracker, read the person file" — and the agent
 drafted the skill file. I refined it, tested it, iterated. The feedback loop is
 minutes: edit a markdown file, reload, try again. No server to build, no schema
-to validate, no deployment. Skills are client-specific (a Claude Code skill is
-not a Cursor rule), but the knowledge they encode is portable.
+to validate, no deployment.
 
 ### CLI — the deterministic anchor
 
