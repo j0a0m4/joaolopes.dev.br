@@ -279,7 +279,4 @@ what each workflow needed, where the human gates belong, what information to
 gather. The agent drafted the implementation. CLI, MCP, Skills, Rules, and Hooks
 are the building blocks. Markdown is the format they share.
 
----
-
-_Next in this series: why filling your knowledge base with notes makes your AI
-agents less accurate — not more._
+*Next in this series: why filling your knowledge base with notes makes your AI agents less accurate — not more.*
