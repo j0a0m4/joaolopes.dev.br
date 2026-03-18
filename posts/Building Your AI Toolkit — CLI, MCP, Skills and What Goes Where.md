@@ -1,7 +1,11 @@
 ---
 title: "Building Your AI Toolkit"
+description:
+  "AI agents are runtime loops, not autocomplete. The five building blocks —
+  CLI, MCP, Skills, Rules, and Hooks — and why the role shifts from writing code
+  to designing workflows."
+created: 2026-03-17
 published-on: 2026-03-17
-description: "AI agents are runtime loops, not autocomplete. The five building blocks — CLI, MCP, Skills, Rules, and Hooks — and why the role shifts from writing code to designing workflows."
 tags:
   - ai-workflow
   - architecture
@@ -81,7 +85,8 @@ HUMAN GATE
   "Here's your prep. Want me to adjust anything?"
 ```
 
-Same loop. Same building blocks. No new code — just the same patterns applied to a different problem.
+Same loop. Same building blocks. No new code — just the same patterns applied to
+a different problem.
 
 **The loop doesn't care what kind of task it's running.** Gather, act, observe,
 repeat. Whether the task is running tests or drafting meeting prep, the
@@ -110,12 +115,12 @@ task. They're actively invoked by name: `/pre-pr`, `/meeting-prep`, `/standup`.
 They orchestrate multi-step workflows, define what information to gather, and
 specify where human checkpoints belong.
 
-**Rules are absorbed. Skills are invoked.** Rules shape every session
-passively. Skills activate for specific workflows — they decide *what* to
-execute, *when* to connect to external systems, and *where* to pause for human
-input. "When preparing for a 1:1, gather the last two weeks of notes, check the
-issue tracker for anything blocked, read the person file for context — then
-draft, don't deliver." That's a skill.
+**Rules are absorbed. Skills are invoked.** Rules shape every session passively.
+Skills activate for specific workflows — they decide _what_ to execute, _when_
+to connect to external systems, and _where_ to pause for human input. "When
+preparing for a 1:1, gather the last two weeks of notes, check the issue tracker
+for anything blocked, read the person file for context — then draft, don't
+deliver." That's a skill.
 
 Skills are the orchestration layer above CLI and MCP. This is what makes the
 pre-PR pipeline possible — the skill tells the agent to dispatch four sub-agents
@@ -150,8 +155,8 @@ to validate, no deployment.
 CLI tools are predetermined operations. `git commit` commits. `lein test` runs
 tests. Same input, same output, every time.
 
-The agent *chooses when* to call them — but the command does the same thing
-regardless. This is the key: CLI is not "simple." It's *deterministic*. You use
+The agent _chooses when_ to call them — but the command does the same thing
+regardless. This is the key: CLI is not "simple." It's _deterministic_. You use
 CLI when you need the operation to behave identically every time, regardless of
 context or what the model thinks it knows.
 
@@ -163,8 +168,8 @@ it belongs in CLI.
 
 MCP (Model Context Protocol) lets AI agents call external tools over a
 standardized JSON-RPC interface. You define a server once; it works in Claude
-Code, Cursor, VS Code, and any other MCP-compatible client.
-Anthropic [describes it as USB-C for AI](https://www.anthropic.com/news/model-context-protocol).
+Code, Cursor, VS Code, and any other MCP-compatible client. Anthropic
+[describes it as USB-C for AI](https://www.anthropic.com/news/model-context-protocol).
 
 Each MCP tool is self-describing — it carries its name, description, and
 parameter schema. The agent reads the descriptions, decides which tools are
@@ -206,8 +211,8 @@ Hooks fire at lifecycle points — before a tool runs, after it succeeds, when t
 session ends. A `PreToolUse` hook can block operations before they execute. A
 `PostToolUse` hook can redirect behavior after a tool call.
 
-The critical insight:
-**instructions are suggestions the model may ignore under pressure. Hooks are structural enforcement.**
+The critical insight: **instructions are suggestions the model may ignore under
+pressure. Hooks are structural enforcement.**
 
 A `CLAUDE.md` instruction like "always run tests before committing" competes
 with everything else in the context window — the conversation, the code, the
@@ -219,7 +224,7 @@ enforces it whether the model is paying attention or not.
 Start with rules for guidance. Escalate to hooks when you find a rule that keeps
 getting ignored. And once you have hooks, you have an event layer — every tool
 call becomes an observable event you can log, validate, and react to. Hooks are
-the foundation for enforcement *and* observability.
+the foundation for enforcement _and_ observability.
 
 ### The intelligence-determinism split
 
@@ -239,7 +244,7 @@ skills reason. Hooks intercept tool calls from below, enforcing constraints
 regardless of what the skill or model decided.
 
 You don't want the agent deciding whether to run your tests. You want it to
-*always* run your tests. CLI is the right layer. You do want the agent deciding
+_always_ run your tests. CLI is the right layer. You do want the agent deciding
 how to frame your 1:1 prep based on context. Skills are the right layer.
 
 The split also determines where to debug. If a CLI command returns the wrong
@@ -250,26 +255,25 @@ or rule that shaped the decision.
 
 Three of the five layers are just markdown files:
 
-| File        | What it is           | What it *also* is                    |
+| File        | What it is           | What it _also_ is                    |
 | ----------- | -------------------- | ------------------------------------ |
 | `SKILL.md`  | Human-readable guide | Agent's workflow instructions        |
 | `CLAUDE.md` | Project README       | AI's identity file                   |
 | `RULES.md`  | Coding standards     | Passive context loaded every session |
 
 This is not accidental. Markdown is the default format for AI agents for the
-same reason JSON became the default for web APIs: every LLM was trained on
-vast amounts of markdown, they generate it natively, and humans can read and
-edit it without tooling.
+same reason JSON became the default for web APIs: every LLM was trained on vast
+amounts of markdown, they generate it natively, and humans can read and edit it
+without tooling.
 
 The token economics reinforce it.
-[Per Cloudflare's data](https://blog.cloudflare.com/markdown-for-agents/),
-a markdown heading costs ~3 tokens; the HTML equivalent costs 12-15 — a 4-5x overhead.
-Across an entire rules file
-or skill definition loaded into context, the savings compound. When context
-window space is your most constrained resource, format choices are architectural
-choices.
+[Per Cloudflare's data](https://blog.cloudflare.com/markdown-for-agents/), a
+markdown heading costs ~3 tokens; the HTML equivalent costs 12-15 — a 4-5x
+overhead. Across an entire rules file or skill definition loaded into context,
+the savings compound. When context window space is your most constrained
+resource, format choices are architectural choices.
 
-The deeper point: markdown is simultaneously documentation *and* executable
+The deeper point: markdown is simultaneously documentation _and_ executable
 configuration. A `SKILL.md` is both a human-readable guide and the agent's
 workflow instructions. A `CLAUDE.md` is both a project README and the AI's
 identity file. No other format serves both constituencies. JSON configs are
@@ -279,24 +283,24 @@ If your AI system is not markdown-native, you're fighting the current.
 
 ## 36% code, 64% everything else
 
-Here's the number that reframed how I use all of this: of the skills I've
-built, only 36% are about writing or reviewing code. The other 64% handle
-everything else an engineer does:
+Here's the number that reframed how I use all of this: of the skills I've built,
+only 36% are about writing or reviewing code. The other 64% handle everything
+else an engineer does:
 
-| Category              | What they do                                                      |
-| --------------------- | ----------------------------------------------------------------- |
-| Morning briefing      | Synthesize calendar, active issues, messages → prioritized day plan |
-| Meeting prep          | Relationship-first 1:1 prep from notes, issues, comm history      |
-| Standup generation    | Yesterday's journal + today's plan → paste-ready async update     |
-| Career growth         | Career level gap analysis, expectations drafting, evidence synthesis |
-| Issue triage          | Search mentions by priority, draft replies                        |
+| Category           | What they do                                                         |
+| ------------------ | -------------------------------------------------------------------- |
+| Morning briefing   | Synthesize calendar, active issues, messages → prioritized day plan  |
+| Meeting prep       | Relationship-first 1:1 prep from notes, issues, comm history         |
+| Standup generation | Yesterday's journal + today's plan → paste-ready async update        |
+| Career growth      | Career level gap analysis, expectations drafting, evidence synthesis |
+| Issue triage       | Search mentions by priority, draft replies                           |
 
 The career growth skill is the one that surprises people most. Here's what it
 looks like: I invoke the skill, and the agent reads my career level
 expectations, searches my journal for the last two weeks of evidence,
-cross-references with my manager's feedback notes, identifies gaps between
-where I am and where the next level expects me to be — and drafts a prep doc
-I can bring to my next 1:1. The same gather-act-observe loop, applied to career
+cross-references with my manager's feedback notes, identifies gaps between where
+I am and where the next level expects me to be — and drafts a prep doc I can
+bring to my next 1:1. The same gather-act-observe loop, applied to career
 development instead of code.
 
 Every one of these skills was designed by me and implemented by the agent. I
@@ -324,4 +328,5 @@ as architect — defining what each workflow needed, where the human gates belon
 what information to gather. The agent implemented it. CLI, MCP, Skills, Rules,
 and Hooks are the building blocks. Markdown is the format they share.
 
-*Next in this series: why filling your knowledge base with notes makes your AI agents less accurate — not more.*
+_Next in this series: why filling your knowledge base with notes makes your AI
+agents less accurate — not more._
