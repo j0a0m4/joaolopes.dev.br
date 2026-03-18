@@ -100,6 +100,7 @@ nav a {
 main { min-height: 60vh; }
 
 /* Index */
+.index h1 { margin-bottom: 1.5rem; }
 .post-list { list-style: none; }
 
 .post-list li {
