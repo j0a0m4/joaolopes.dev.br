@@ -62,6 +62,16 @@
          :prev (get posts (dec idx))
          :next (get posts (inc idx))}))))
 
+(defn- inject-toc-backlinks
+  "Inserts ↑ Contents links before each <h2> (except the first)."
+  [html-body]
+  (let [backlink "<a class=\"toc-back\" href=\"#toc\">\u2191 Contents</a>"
+        parts (str/split html-body #"(?=<h2 )")]
+    (if (<= (count parts) 1)
+      html-body
+      (str (first parts)
+           (str/join (map #(str backlink %) (rest parts)))))))
+
 (defn- render-post
   "Renders a single post to full HTML page."
   [post slugs series-ctx]
@@ -69,7 +79,8 @@
         toc (markdown/extract-toc body)
         html-body (-> body
                       (markdown/transform-obsidian slugs)
-                      markdown/render-markdown)]
+                      markdown/render-markdown
+                      (cond-> toc inject-toc-backlinks))]
     (layout/base-layout
      (:title post)
      (:description post)

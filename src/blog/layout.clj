@@ -144,7 +144,7 @@
   "Table of contents from extracted headings. Returns hiccup or nil."
   [headings]
   (when (seq headings)
-    [:nav.toc
+    [:nav.toc {:id "toc"}
      [:p.toc-label "Contents"]
      [:ol
       (for [{:keys [level text anchor]} headings
