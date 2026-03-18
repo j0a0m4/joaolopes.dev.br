@@ -226,23 +226,11 @@ the foundation for enforcement *and* observability.
 The five layers split along one axis:
 
 ```mermaid
-graph TD
-  subgraph "Non-deterministic — shapes thinking"
-    Rules["Rules<br/>(passive knowledge)"]
-    Skills["Skills<br/>(workflow orchestration)"]
-  end
-
-  subgraph "Deterministic — executes and enforces"
-    CLI["CLI<br/>(predetermined operations)"]
-    MCP["MCP<br/>(cross-client tools)"]
-    Hooks["Hooks<br/>(structural enforcement)"]
-  end
-
-  Skills -->|orchestrates| CLI
-  Skills -->|orchestrates| MCP
-  Rules -.->|shapes| Skills
-  Hooks -->|intercepts| CLI
-  Hooks -->|intercepts| MCP
+graph TB
+  Rules["🧠 Rules<br/><i>non-deterministic</i>"] -.->|shape| Agent["Agent"]
+  Skills["🧠 Skills<br/><i>non-deterministic</i>"] -->|direct| Agent
+  Agent -->|calls| Tools["⚙️ Tools<br/>(Bash, Write, MCP, …)<br/><i>deterministic</i>"]
+  Hooks["⚙️ Hooks<br/><i>deterministic</i>"] -->|intercept| Tools
 ```
 
 Skills sit above the deterministic layer — they orchestrate CLI and MCP tools,
