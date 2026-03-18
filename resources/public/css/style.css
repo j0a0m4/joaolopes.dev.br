@@ -164,6 +164,12 @@ article h3 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
   background: rgba(15, 182, 214, 0.15);
   padding: 0.1em 0.5em;
   border-radius: 3px;
+  text-decoration: none;
+}
+
+.tag:hover {
+  background: rgba(15, 182, 214, 0.3);
+  color: var(--accent-hover);
 }
 
 article p { margin-bottom: 1rem; }
@@ -420,6 +426,43 @@ footer a:hover { color: var(--accent); }
 }
 
 .series-full-toc .description {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Tag index page */
+.tag-index { margin-top: 1rem; }
+.tag-index h1 { margin-bottom: 0.5rem; }
+
+.tag-full-toc {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tag-full-toc li {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tag-full-toc a {
+  color: var(--fg);
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.tag-full-toc a:hover { color: var(--accent); }
+
+.tag-full-toc time {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.tag-full-toc .description {
   font-size: 0.9rem;
   color: var(--muted);
   margin: 0;

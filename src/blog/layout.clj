@@ -24,6 +24,11 @@
   [slug]
   (str "/series/" slug "/"))
 
+(defn tag-path
+  "Canonical path for a tag index page."
+  [slug]
+  (str "/tags/" slug "/"))
+
 (defn base-layout
   "Full HTML document. body is a hiccup vector to embed in <main>.
    Single serialization boundary — all other layout fns return hiccup data."
@@ -140,6 +145,20 @@
          (when (:description p)
            [:p.description (:description p)])])]]))
 
+(defn tag-index-layout
+  "Tag index page with tag name, count, unordered post list. Returns hiccup."
+  [tag posts]
+  [:div.tag-index
+   [:h1 (str "#" tag)]
+   [:p.series-count (str (count posts) " post" (when (not= 1 (count posts)) "s") " with this tag")]
+   [:ul.tag-full-toc
+    (for [p posts]
+      [:li
+       [:a {:href (href (:url p))} (:title p)]
+       [:time {:datetime (str (:published-on p))} (str (:published-on p))]
+       (when (:description p)
+         [:p.description (:description p)])])]])
+
 (defn- toc-nav
   "Table of contents from extracted headings. Returns hiccup or nil."
   [headings]
@@ -170,7 +189,7 @@
      (when (seq tags)
        [:span.tags
         (for [tag tags]
-          [:span.tag (str "#" (name tag))])])]
+          [:a.tag {:href (href (tag-path (name tag)))} (str "#" (name tag))])])]
     (when series-ctx
       (series-toc series-ctx slug))
     (toc-nav toc)

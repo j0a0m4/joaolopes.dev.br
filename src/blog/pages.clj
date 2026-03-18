@@ -62,6 +62,25 @@
          :prev (get posts (dec idx))
          :next (get posts (inc idx))}))))
 
+(defn- group-tags
+  "Groups posts by tag. Returns {tag-slug [posts]} sorted by published-on desc within each tag."
+  [posts]
+  (reduce (fn [acc post]
+            (reduce (fn [acc2 tag]
+                      (update acc2 (name tag) (fnil conj []) post))
+                    acc
+                    (:tags post)))
+          (sorted-map)
+          posts))
+
+(defn- render-tag-index
+  "Renders a tag index page at /tags/<slug>/."
+  [tag posts]
+  (layout/base-layout
+   (str "#" tag " — Posts")
+   (str "All posts tagged #" tag ".")
+   (layout/tag-index-layout tag posts)))
+
 (defn- inject-toc-backlinks
   "Inserts ↑ Contents links before each <h2> (except the first)."
   [html-body]
@@ -140,7 +159,7 @@
 
 (defn- render-sitemap
   "Generates sitemap.xml."
-  [posts series-map]
+  [posts series-map tag-map]
   (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
        "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n"
        "<url><loc>" (layout/absolute-url "/") "</loc></url>\n"
@@ -156,6 +175,12 @@
           (str "<url>"
                "<loc>" (layout/absolute-url (layout/series-path slug)) "</loc>"
                "<lastmod>" (:published-on (last posts)) "</lastmod>"
+               "</url>\n")))
+       (str/join
+        (for [[tag posts] tag-map]
+          (str "<url>"
+               "<loc>" (layout/absolute-url (layout/tag-path tag)) "</loc>"
+               "<lastmod>" (:published-on (first posts)) "</lastmod>"
                "</url>\n")))
        "</urlset>"))
 
@@ -179,12 +204,13 @@
   (let [posts (load-posts posts-dir)
         slugs (published-slugs posts)
         series-map (group-series posts)
+        tag-map (group-tags posts)
         _ (validate-series series-map)]
     (merge
      {"/" (fn [_] (render-index posts))
       "/about/" (fn [_] (render-about))
       "/feed.xml" (fn [_] (render-rss posts))
-      "/sitemap.xml" (fn [_] (render-sitemap posts series-map))
+      "/sitemap.xml" (fn [_] (render-sitemap posts series-map tag-map))
       "/404.html" (fn [_] (render-404))}
      (into {}
            (map (fn [post]
@@ -195,4 +221,9 @@
            (map (fn [[slug group]]
                   [(layout/series-path slug)
                    (fn [_] (render-series-index slug group))]))
-           series-map))))
+           series-map)
+     (into {}
+           (map (fn [[tag posts]]
+                  [(layout/tag-path tag)
+                   (fn [_] (render-tag-index tag posts))]))
+           tag-map))))
