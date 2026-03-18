@@ -172,23 +172,11 @@ call becomes an observable event you can log, validate, and react to. Hooks are
 the foundation for enforcement <em>and</em> observability.</p>
 <h3 id="the-intelligence-determinism-split">The intelligence-determinism split</h3>
 <p>The five layers split along one axis:</p>
-<pre><code class="language-mermaid">graph TD
-  subgraph &quot;Non-deterministic — shapes thinking&quot;
-    Rules[&quot;Rules&lt;br/&gt;(passive knowledge)&quot;]
-    Skills[&quot;Skills&lt;br/&gt;(workflow orchestration)&quot;]
-  end
-
-  subgraph &quot;Deterministic — executes and enforces&quot;
-    CLI[&quot;CLI&lt;br/&gt;(predetermined operations)&quot;]
-    MCP[&quot;MCP&lt;br/&gt;(cross-client tools)&quot;]
-    Hooks[&quot;Hooks&lt;br/&gt;(structural enforcement)&quot;]
-  end
-
-  Skills --&gt;|orchestrates| CLI
-  Skills --&gt;|orchestrates| MCP
-  Rules -.-&gt;|shapes| Skills
-  Hooks --&gt;|intercepts| CLI
-  Hooks --&gt;|intercepts| MCP
+<pre><code class="language-mermaid">graph TB
+  Rules[&quot;🧠 Rules&lt;br/&gt;&lt;i&gt;non-deterministic&lt;/i&gt;&quot;] -.-&gt;|shape| Agent[&quot;Agent&quot;]
+  Skills[&quot;🧠 Skills&lt;br/&gt;&lt;i&gt;non-deterministic&lt;/i&gt;&quot;] --&gt;|direct| Agent
+  Agent --&gt;|calls| Tools[&quot;⚙️ Tools&lt;br/&gt;(Bash, Write, MCP, …)&lt;br/&gt;&lt;i&gt;deterministic&lt;/i&gt;&quot;]
+  Hooks[&quot;⚙️ Hooks&lt;br/&gt;&lt;i&gt;deterministic&lt;/i&gt;&quot;] --&gt;|intercept| Tools
 </code></pre>
 <p>Skills sit above the deterministic layer — they orchestrate CLI and MCP tools,
 not alongside them. Rules load passively into the agent's context, shaping how
