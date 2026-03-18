@@ -1,10 +1,13 @@
 (ns blog.markdown
   (:require [clj-yaml.core :as yaml]
-            [clojure.string :as str]
-            [markdown.core :as md])
+            [clojure.string :as str])
   (:import [java.time Instant ZoneOffset]
            [java.time.format DateTimeFormatter]
-           [java.util Date]))
+           [java.util Date]
+           [org.commonmark.parser Parser]
+           [org.commonmark.renderer.html HtmlRenderer]
+           [org.commonmark.ext.heading.anchor HeadingAnchorExtension]
+           [org.commonmark.ext.gfm.tables TablesExtension]))
 
 (defn parse-frontmatter
   "Splits YAML frontmatter from markdown body. Returns [metadata body]."
@@ -92,10 +95,25 @@
      (when (>= (count (filter #(= 2 (:level %)) headings)) min-headings)
        headings))))
 
+(def ^:private extensions
+  [(HeadingAnchorExtension/create)
+   (TablesExtension/create)])
+
+(def ^:private parser
+  (-> (Parser/builder)
+      (.extensions extensions)
+      (.build)))
+
+(def ^:private renderer
+  (-> (HtmlRenderer/builder)
+      (.extensions extensions)
+      (.build)))
+
 (defn render-markdown
   "Converts markdown string to HTML."
   [text]
-  (md/md-to-html-string text :heading-anchors true))
+  (->> (.parse parser text)
+       (.render renderer)))
 
 (def ^:private ^DateTimeFormatter iso-date
   (DateTimeFormatter/ISO_LOCAL_DATE))

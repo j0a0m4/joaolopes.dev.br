@@ -56,7 +56,7 @@
       [:script (h/raw "document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el)));")]
       [:script {:type "module"}
        (h/raw "import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-        document.querySelectorAll('pre > code.mermaid').forEach(code => {
+        document.querySelectorAll('pre > code.language-mermaid').forEach(code => {
           const pre = code.parentElement;
           const div = document.createElement('pre');
           div.className = 'mermaid';
