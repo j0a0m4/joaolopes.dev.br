@@ -193,6 +193,14 @@
      "About" nil
      (layout/about-layout html-body))))
 
+(defn- render-tags-overview
+  "Renders the /tags/ overview page listing all tags."
+  [tag-map]
+  (layout/base-layout
+   "Tags"
+   "All tags."
+   (layout/tags-overview-layout tag-map)))
+
 (defn- render-404 []
   (layout/base-layout
    "Not Found" nil
@@ -208,6 +216,7 @@
         _ (validate-series series-map)]
     (merge
      {"/" (fn [_] (render-index posts))
+      "/tags/" (fn [_] (render-tags-overview tag-map))
       "/about/" (fn [_] (render-about))
       "/feed.xml" (fn [_] (render-rss posts))
       "/sitemap.xml" (fn [_] (render-sitemap posts series-map tag-map))

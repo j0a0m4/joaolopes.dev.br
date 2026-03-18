@@ -431,6 +431,39 @@ footer a:hover { color: var(--accent); }
   margin: 0;
 }
 
+/* Tags overview page */
+.tags-overview { margin-top: 1rem; }
+.tags-overview h1 { margin-bottom: 1.5rem; }
+
+.tags-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 1rem;
+  color: var(--accent);
+  background: rgba(15, 182, 214, 0.15);
+  padding: 0.35em 0.75em;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background 200ms ease;
+}
+
+.tag-pill:hover {
+  background: rgba(15, 182, 214, 0.3);
+  color: var(--accent-hover);
+}
+
+.tag-count {
+  font-size: 0.8em;
+  color: var(--muted);
+}
+
 /* Tag index page */
 .tag-index { margin-top: 1rem; }
 .tag-index h1 { margin-bottom: 0.5rem; }

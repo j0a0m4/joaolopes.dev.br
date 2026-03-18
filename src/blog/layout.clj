@@ -75,6 +75,7 @@
          site-title]
         [:span.nav-links
          [:a {:href (href "/")} "Posts"]
+         [:a {:href (href "/tags/")} "Tags"]
          [:a {:href (href "/about/")} "About"]
          [:a {:href (href "/feed.xml")} "RSS"]]]]
       [:main body]
@@ -158,6 +159,17 @@
        [:time {:datetime (str (:published-on p))} (str (:published-on p))]
        (when (:description p)
          [:p.description (:description p)])])]])
+
+(defn tags-overview-layout
+  "All-tags overview page. Shows every tag as a pill with post count. Returns hiccup."
+  [tag-map]
+  [:div.tags-overview
+   [:h1 "Tags"]
+   [:div.tags-cloud
+    (for [[tag posts] tag-map]
+      [:a.tag-pill {:href (href (tag-path tag))}
+       (str "#" tag)
+       [:span.tag-count (str (count posts))]])]])
 
 (defn- toc-nav
   "Table of contents from extracted headings. Returns hiccup or nil."
