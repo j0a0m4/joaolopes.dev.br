@@ -28,10 +28,7 @@ do you use each one? Once that clicks, the rest follows.
 An agent is a loop where the model plans, acts, and self-corrects — not just
 responding to a prompt, but executing a sequence of decisions. The loop:
 
-```mermaid
-graph LR
-  G["Gather"] --> A["Act"] --> O["Observe"] --> G
-```
+![The agent loop: Gather → Act → Observe → repeat](/assets/agent-loop.svg)
 
 Here's that loop running a pre-PR pipeline on a branch with 24 changed files:
 
@@ -130,18 +127,7 @@ that async coordination — none of it is possible through MCP, which blocks on
 every call. Skills run inside the model's context, which means the model can
 plan, branch, and react in real time.
 
-```mermaid
-graph TD
-  Skill["/pre-pr skill"]
-  Skill --> Lint["Sub-agent: Lint"]
-  Skill --> Unit["Sub-agent: Unit tests"]
-  Skill --> Integration["Sub-agent: Integration"]
-  Skill --> Review["Sub-agent: Code review"]
-  Lint --> CLI1["CLI: lint-fix + lint"]
-  Unit --> CLI2["CLI: lein test"]
-  Integration --> CLI3["CLI: lein integration"]
-  Review --> MCP1["MCP: search + read"]
-```
+![Skill orchestration: /pre-pr dispatches 4 sub-agents to CLI and MCP tools](/assets/skill-orchestration.svg)
 
 Here's the thing about skills: I didn't write most of mine by hand. I described
 the workflow in conversation — "when I say `/meeting-prep`, gather the last two
@@ -175,15 +161,7 @@ Each MCP tool is self-describing — it carries its name, description, and
 parameter schema. The agent reads the descriptions, decides which tools are
 relevant, and calls them with structured parameters.
 
-```mermaid
-graph LR
-  Client["Claude Code<br/>(client)"]
-  Search["enterprise-search<br/>· search<br/>· read_document"]
-  API["your-api-server<br/>· query"]
-
-  Client <-->|JSON-RPC| Search
-  Client <-->|JSON-RPC| API
-```
+![MCP architecture: client connects to servers over JSON-RPC](/assets/mcp-architecture.svg)
 
 **The first tradeoff is context cost.** MCP tool responses are often verbose
 JSON — a single search result can return thousands of tokens of metadata the
@@ -230,13 +208,7 @@ the foundation for enforcement _and_ observability.
 
 The five layers split along one axis:
 
-```mermaid
-graph TB
-  Rules["🧠 Rules<br/><i>non-deterministic</i>"] -.->|shape| Agent["Agent"]
-  Skills["🧠 Skills<br/><i>non-deterministic</i>"] -->|direct| Agent
-  Agent -->|calls| Tools["⚙️ Tools<br/>(Bash, Write, MCP, …)<br/><i>deterministic</i>"]
-  Hooks["⚙️ Hooks<br/><i>deterministic</i>"] -->|intercept| Tools
-```
+![The intelligence-determinism split: Rules and Skills shape the Agent, which calls Tools that Hooks intercept](/assets/intelligence-determinism-split.svg)
 
 Skills sit above the deterministic layer — they orchestrate CLI and MCP tools,
 not alongside them. Rules load passively into the agent's context, shaping how

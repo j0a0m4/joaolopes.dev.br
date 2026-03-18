@@ -99,6 +99,7 @@
         html-body (-> body
                       (markdown/transform-obsidian slugs)
                       markdown/render-markdown
+                      markdown/inline-svgs
                       (cond-> toc inject-toc-backlinks))]
     (layout/base-layout
      (:title post)
