@@ -158,11 +158,32 @@ result, debug the command. If the agent makes a bad decision, look at the skill
 or rule that shaped the decision.</p>
 <a class="toc-back" href="#toc">↑ Contents</a><h2 id="why-this-architecture-runs-on-markdown">Why this architecture runs on markdown</h2>
 <p>Three of the five layers are just markdown files:</p>
-<p>| File        | What it is           | What it <em>also</em> is                    |
-| ----------- | -------------------- | ------------------------------------ |
-| <code>SKILL.md</code>  | Human-readable guide | Agent's workflow instructions        |
-| <code>CLAUDE.md</code> | Project README       | AI's identity file                   |
-| <code>RULES.md</code>  | Coding standards     | Passive context loaded every session |</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>What it is</th>
+<th>What it <em>also</em> is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SKILL.md</code></td>
+<td>Human-readable guide</td>
+<td>Agent's workflow instructions</td>
+</tr>
+<tr>
+<td><code>CLAUDE.md</code></td>
+<td>Project README</td>
+<td>AI's identity file</td>
+</tr>
+<tr>
+<td><code>RULES.md</code></td>
+<td>Coding standards</td>
+<td>Passive context loaded every session</td>
+</tr>
+</tbody>
+</table>
 <p>This is not accidental. Markdown is the default format for AI agents for the
 same reason JSON became the default for web APIs: every LLM was trained on
 vast amounts of markdown, they generate it natively, and humans can read and
@@ -184,13 +205,36 @@ unreadable. YAML is not documentation.</p>
 <p>Here's the number that reframed how I use all of this: of the skills I've
 built, only 36% are about writing or reviewing code. The other 64% handle
 everything else an engineer does:</p>
-<p>| Category              | What they do                                                      |
-| --------------------- | ----------------------------------------------------------------- |
-| Morning briefing      | Synthesize calendar, active issues, messages → prioritized day plan |
-| Meeting prep          | Relationship-first 1:1 prep from notes, issues, comm history      |
-| Standup generation    | Yesterday's journal + today's plan → paste-ready async update     |
-| Career growth         | Career level gap analysis, expectations drafting, evidence synthesis |
-| Issue triage          | Search mentions by priority, draft replies                        |</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>What they do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Morning briefing</td>
+<td>Synthesize calendar, active issues, messages → prioritized day plan</td>
+</tr>
+<tr>
+<td>Meeting prep</td>
+<td>Relationship-first 1:1 prep from notes, issues, comm history</td>
+</tr>
+<tr>
+<td>Standup generation</td>
+<td>Yesterday's journal + today's plan → paste-ready async update</td>
+</tr>
+<tr>
+<td>Career growth</td>
+<td>Career level gap analysis, expectations drafting, evidence synthesis</td>
+</tr>
+<tr>
+<td>Issue triage</td>
+<td>Search mentions by priority, draft replies</td>
+</tr>
+</tbody>
+</table>
 <p>Every one of these skills was written by the agent. I described the workflow;
 it drafted the file.</p>
 <p>These are the tasks that eat your day in 15-minute slices: context-switching
