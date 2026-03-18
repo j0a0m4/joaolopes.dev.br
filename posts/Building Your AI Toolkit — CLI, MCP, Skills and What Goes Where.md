@@ -230,13 +230,7 @@ the foundation for enforcement _and_ observability.
 
 The five layers split along one axis:
 
-```mermaid
-graph TB
-  Rules["🧠 Rules<br/><i>non-deterministic</i>"] -.->|shape| Agent["Agent"]
-  Skills["🧠 Skills<br/><i>non-deterministic</i>"] -->|direct| Agent
-  Agent -->|calls| Tools["⚙️ Tools<br/>(Bash, Write, MCP, …)<br/><i>deterministic</i>"]
-  Hooks["⚙️ Hooks<br/><i>deterministic</i>"] -->|intercept| Tools
-```
+![Intelligence-determinism split](/assets/intelligence-determinism-split.svg)
 
 Skills sit above the deterministic layer — they orchestrate CLI and MCP tools,
 not alongside them. Rules load passively into the agent's context, shaping how
