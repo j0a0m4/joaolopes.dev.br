@@ -48,9 +48,10 @@
       [:link {:rel "stylesheet"
               :href "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css"}]
       [:script {:src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"}]
-      [:script "document.querySelectorAll('pre code:not(.mermaid)').forEach(el => hljs.highlightElement(el));"]
+      [:script "document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('pre code:not(.mermaid)').forEach(el => hljs.highlightElement(el)));"]
       [:script {:type "module"}
        "import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: false, theme: 'dark' });
         document.querySelectorAll('pre > code.mermaid').forEach(code => {
           const pre = code.parentElement;
           const div = document.createElement('pre');
@@ -58,7 +59,7 @@
           div.textContent = code.textContent;
           pre.replaceWith(div);
         });
-        mermaid.initialize({ startOnLoad: true, theme: 'dark' });"]]
+        await mermaid.run({ querySelector: 'pre.mermaid' });"]]
      [:body
       [:header
        [:nav
