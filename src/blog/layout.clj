@@ -74,6 +74,9 @@
   // Hide on mobile only — not server-rendered, so desktop without JS sees links
   if (window.matchMedia('(max-width: 480px)').matches) {
     menu.setAttribute('hidden', '');
+    // TOC starts open (server-rendered); close it on mobile
+    const toc = document.querySelector('.toc-details');
+    if (toc) toc.removeAttribute('open');
   }
 
   btn.addEventListener('click', () => {
@@ -212,7 +215,7 @@
   (when (seq headings)
     (let [h2s           (filter #(= 2 (:level %)) headings)
           section-count (str (count h2s) " sections")]
-      [:details.toc-details
+      [:details.toc.toc-details {:open true}
        [:summary.toc-label {:data-count section-count} "Contents"]
        [:nav {:id "toc"}
         [:ul
