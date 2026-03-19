@@ -205,22 +205,27 @@
        [:span.tag-count (str (count posts))]])]])
 
 (defn- toc-nav
-  "Table of contents from extracted headings. Returns hiccup or nil."
+  "Table of contents from extracted headings. Returns hiccup or nil.
+   Uses <details>/<summary> for native collapse on mobile — no JS needed.
+   Desktop CSS forces it open via min-width: 481px override."
   [headings]
   (when (seq headings)
-    [:nav.toc {:id "toc"}
-     [:p.toc-label "Contents"]
-     [:ul
-      (for [{:keys [level text anchor]} headings
-            :when (= 2 level)]
-        (let [subs (take-while #(= 3 (:level %))
-                               (rest (drop-while #(not= anchor (:anchor %)) headings)))]
-          [:li
-           [:a {:href (str "#" anchor)} text]
-           (when (seq subs)
-             [:ul
-              (for [s subs]
-                [:li [:a {:href (str "#" (:anchor s))} (:text s)]])])]))]]))
+    (let [h2s           (filter #(= 2 (:level %)) headings)
+          section-count (str (count h2s) " sections")]
+      [:details.toc-details
+       [:summary.toc-label {:data-count section-count} "Contents"]
+       [:nav {:id "toc"}
+        [:ul
+         (for [{:keys [level text anchor]} headings
+               :when (= 2 level)]
+           (let [subs (take-while #(= 3 (:level %))
+                                  (rest (drop-while #(not= anchor (:anchor %)) headings)))]
+             [:li
+              [:a {:href (str "#" anchor)} text]
+              (when (seq subs)
+                [:ul
+                 (for [s subs]
+                   [:li [:a {:href (str "#" (:anchor s))} (:text s)]])])]))]]])))
 
 (defn- icon-link
   "Renders an anchor with an inline SVG icon + label. Centered via flex."
