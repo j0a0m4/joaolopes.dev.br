@@ -1,0 +1,137 @@
+<h2>Design: Sections 2 & 3 — Diagram pages + Nav/Index</h2>
+<p class="subtitle">Section 2: the dedicated <code>/diagrams/agent-loop/</code> page. Section 3: nav entry + <code>/diagrams/</code> index.</p>
+
+<div class="section">
+  <p class="label">Section 2 — Diagram page: <code>/diagrams/&lt;slug&gt;/</code></p>
+
+  <div class="mockup">
+    <div class="mockup-header">/diagrams/agent-loop/ — full layout</div>
+    <div class="mockup-body" style="background:#100e17;padding:0;font-family:system-ui;font-size:0.85rem">
+      <!-- Nav (same as blog) -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem;border-bottom:1px solid rgba(14,210,247,0.08)">
+        <a style="color:#0fb6d6;font-weight:600;font-size:1.1rem">∞ João Lopes</a>
+        <span style="display:flex;gap:1.25rem;font-size:0.82rem;color:#7a7a8e">Posts · Tags · <strong style="color:#0fb6d6">Diagrams</strong> · About</span>
+      </div>
+      <!-- Content -->
+      <div style="padding:1.5rem 1rem 2rem">
+        <a style="font-size:0.82rem;color:#7a7a8e;text-decoration:none">← Building Your AI Toolkit</a>
+        <h1 style="color:#0fb6d6;font-size:1.6rem;font-weight:700;margin:0.4rem 0 1.25rem">Agent Loop</h1>
+        <!-- SVG -->
+        <div style="border:1px solid rgba(14,210,247,0.12);border-radius:6px;padding:1rem;background:#191621">
+          <svg viewBox="0 0 760 220" width="100%" style="display:block">
+            <rect x="40" y="40" width="180" height="80" rx="6" fill="#100e17" stroke="rgba(14,210,247,0.2)" stroke-width="1.5"/>
+            <text x="130" y="75" text-anchor="middle" fill="#0fb6d6" font-size="21" font-weight="600" font-family="system-ui">Gather</text>
+            <text x="130" y="97" text-anchor="middle" fill="#7a7a8e" font-size="14" font-family="system-ui">Read context, scan tools</text>
+            <text x="130" y="112" text-anchor="middle" fill="#7a7a8e" font-size="14" font-family="system-ui">assess state</text>
+            <defs><marker id="p2arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#7a7a8e"/></marker></defs>
+            <line x1="220" y1="80" x2="280" y2="80" stroke="#7a7a8e" stroke-width="1.5" marker-end="url(#p2arr)"/>
+            <rect x="290" y="40" width="180" height="80" rx="6" fill="#100e17" stroke="rgba(14,210,247,0.2)" stroke-width="1.5"/>
+            <text x="380" y="75" text-anchor="middle" fill="#0fb6d6" font-size="21" font-weight="600" font-family="system-ui">Act</text>
+            <text x="380" y="97" text-anchor="middle" fill="#7a7a8e" font-size="14" font-family="system-ui">Plan steps, call tools</text>
+            <line x1="470" y1="80" x2="530" y2="80" stroke="#7a7a8e" stroke-width="1.5" marker-end="url(#p2arr)"/>
+            <rect x="540" y="40" width="180" height="80" rx="6" fill="#100e17" stroke="rgba(14,210,247,0.2)" stroke-width="1.5"/>
+            <text x="630" y="75" text-anchor="middle" fill="#0fb6d6" font-size="21" font-weight="600" font-family="system-ui">Observe</text>
+            <text x="630" y="97" text-anchor="middle" fill="#7a7a8e" font-size="14" font-family="system-ui">Check results</text>
+            <path d="M630 120 Q630 175 380 175 Q130 175 130 120" stroke="#f4569d" stroke-width="1.5" fill="none" stroke-dasharray="6,4"/>
+            <text x="380" y="195" text-anchor="middle" fill="#f4569d" font-size="13" font-style="italic" font-family="system-ui">repeat</text>
+          </svg>
+        </div>
+        <!-- Transcript -->
+        <details style="margin-top:1rem;border:1px solid rgba(14,210,247,0.1);border-radius:6px;padding:0.6rem 0.875rem">
+          <summary style="color:#7a7a8e;font-size:0.82rem;cursor:pointer;list-style:none">Diagram description</summary>
+          <p style="color:#7a7a8e;font-size:0.85rem;margin-top:0.5rem;line-height:1.5">A loop with three steps: Gather (read context, scan tools, assess state), Act (plan steps, call tools, execute), and Observe (check results, decide next move). An arrow labeled "repeat" returns from Observe back to Gather.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:0.75rem;background:rgba(14,210,247,0.04);border:1px solid rgba(14,210,247,0.12);border-radius:6px;padding:0.75rem 1rem;font-size:0.85rem;color:#bebebe">
+    <strong style="color:#0fb6d6">How it's generated:</strong> <code>pages.clj</code> scans <code>/assets/*.svg</code> at build time. For each SVG, it finds which post(s) reference it (back-link), derives the title from the filename, and generates a <code>/diagrams/&lt;slug&gt;/</code> page. The alt text from the referencing post's <code>&lt;img&gt;</code> tag becomes the transcript text.
+  </div>
+</div>
+
+<hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:1.5rem 0">
+
+<div class="section">
+  <p class="label">Section 3 — Nav + Diagrams index</p>
+
+  <div class="split" style="gap:0.75rem;align-items:flex-start">
+    <div class="mockup" style="flex:1">
+      <div class="mockup-header">Nav (desktop)</div>
+      <div class="mockup-body" style="background:#100e17;padding:0.6rem 1rem;font-family:system-ui">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <a style="color:#0fb6d6;font-weight:600;font-size:1rem">∞ João Lopes</a>
+          <span style="display:flex;gap:1.25rem;font-size:0.8rem;color:#7a7a8e">
+            <a style="color:#7a7a8e">Posts</a>
+            <a style="color:#7a7a8e">Tags</a>
+            <a style="color:#7a7a8e">Diagrams</a>
+            <a style="color:#7a7a8e">About</a>
+            <a style="color:#7a7a8e">RSS</a>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="mockup" style="flex:1">
+      <div class="mockup-header">Nav (mobile — hamburger open)</div>
+      <div class="mockup-body" style="background:#100e17;padding:0.4rem 0;font-family:system-ui;font-size:0.85rem">
+        <div style="padding:0.5rem 1rem;border-bottom:1px solid rgba(14,210,247,0.06);color:#bebebe">Posts</div>
+        <div style="padding:0.5rem 1rem;border-bottom:1px solid rgba(14,210,247,0.06);color:#bebebe">Tags</div>
+        <div style="padding:0.5rem 1rem;border-bottom:1px solid rgba(14,210,247,0.06);color:#bebebe">Diagrams</div>
+        <div style="padding:0.5rem 1rem;border-bottom:1px solid rgba(14,210,247,0.06);color:#bebebe">About</div>
+        <div style="padding:0.5rem 1rem;color:#7a7a8e;font-size:0.8rem">RSS</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup" style="margin-top:0.75rem">
+    <div class="mockup-header">/diagrams/ index page</div>
+    <div class="mockup-body" style="background:#100e17;padding:1rem;font-family:system-ui">
+      <h1 style="color:#bebebe;font-size:1.4rem;font-weight:700;margin-bottom:1.25rem">Diagrams</h1>
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <!-- Diagram card -->
+        <div style="border:1px solid rgba(14,210,247,0.12);border-radius:6px;overflow:hidden">
+          <div style="background:#191621;padding:0.6rem 0.75rem">
+            <svg viewBox="0 0 760 220" width="100%" style="display:block;max-height:80px">
+              <rect x="40" y="40" width="180" height="80" rx="6" fill="#100e17" stroke="rgba(14,210,247,0.2)" stroke-width="1.5"/>
+              <text x="130" y="80" text-anchor="middle" fill="#0fb6d6" font-size="21" font-weight="600" font-family="system-ui">Gather</text>
+              <defs><marker id="idxarr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#7a7a8e"/></marker></defs>
+              <line x1="220" y1="80" x2="280" y2="80" stroke="#7a7a8e" stroke-width="1.5" marker-end="url(#idxarr)"/>
+              <rect x="290" y="40" width="180" height="80" rx="6" fill="#100e17" stroke="rgba(14,210,247,0.2)" stroke-width="1.5"/>
+              <text x="380" y="80" text-anchor="middle" fill="#0fb6d6" font-size="21" font-weight="600" font-family="system-ui">Act</text>
+              <line x1="470" y1="80" x2="530" y2="80" stroke="#7a7a8e" stroke-width="1.5" marker-end="url(#idxarr)"/>
+              <rect x="540" y="40" width="180" height="80" rx="6" fill="#100e17" stroke="rgba(14,210,247,0.2)" stroke-width="1.5"/>
+              <text x="630" y="80" text-anchor="middle" fill="#0fb6d6" font-size="21" font-weight="600" font-family="system-ui">Observe</text>
+            </svg>
+          </div>
+          <div style="padding:0.6rem 0.75rem">
+            <a style="color:#bebebe;font-weight:500;text-decoration:none;font-size:0.95rem">Agent Loop</a>
+            <div style="font-size:0.78rem;color:#7a7a8e;margin-top:0.2rem">From: <a style="color:#7a7a8e">Building Your AI Toolkit</a></div>
+          </div>
+        </div>
+        <div style="border:1px solid rgba(14,210,247,0.12);border-radius:6px;padding:0.6rem 0.75rem">
+          <div style="color:#7a7a8e;font-size:0.8rem;text-align:center">MCP Architecture · Hooks Lifecycle · … (4 more)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:0.75rem;background:rgba(14,210,247,0.04);border:1px solid rgba(14,210,247,0.12);border-radius:6px;padding:0.75rem 1rem;font-size:0.85rem;color:#bebebe">
+    <strong style="color:#0fb6d6">Index cards</strong> show a thumbnail preview (SVG cropped to ~80px height), the diagram title, and the parent post it came from. Cards link to the individual diagram page.
+  </div>
+</div>
+
+<hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:1.5rem 0">
+
+<div class="section">
+  <p class="label">Files to change</p>
+  <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.88rem">
+    <div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:0.6rem 0.875rem;color:#bebebe"><code style="color:#0fb6d6">src/blog/markdown.clj</code> — extend <code>inline-svgs</code> to extract alt text, inject <code>&lt;title&gt;</code> + <code>&lt;desc&gt;</code>, wrap in <code>&lt;figure&gt;</code> with caption + transcript</div>
+    <div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:0.6rem 0.875rem;color:#bebebe"><code style="color:#0fb6d6">src/blog/layout.clj</code> — add "Diagrams" to nav links; add <code>diagram-page-layout</code> and <code>diagrams-index-layout</code> functions</div>
+    <div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:0.6rem 0.875rem;color:#bebebe"><code style="color:#0fb6d6">src/blog/pages.clj</code> — scan <code>/assets/*.svg</code>, build diagram metadata map, generate <code>/diagrams/</code> and <code>/diagrams/&lt;slug&gt;/</code> pages</div>
+    <div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:0.6rem 0.875rem;color:#bebebe"><code style="color:#0fb6d6">resources/public/css/style.css</code> — <code>.diagram-figure</code>, <code>.diagram-link</code>, hover overlay, <code>.diagram-transcript</code>, index card styles</div>
+  </div>
+</div>
+
+<div style="margin-top:1.5rem;background:rgba(14,210,247,0.04);border:1px solid rgba(14,210,247,0.12);border-radius:6px;padding:0.75rem 1rem;color:#bebebe;font-size:0.9rem">
+  Does this full design look right? Approve and I'll write the spec doc.
+</div>

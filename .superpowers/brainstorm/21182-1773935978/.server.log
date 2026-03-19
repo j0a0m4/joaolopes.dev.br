@@ -1,0 +1,11 @@
+{"type":"server-started","port":58711,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:58711","screen_dir":"/Users/joao.lopes/dev/joaolopes.dev.br/.superpowers/brainstorm/21182-1773935978"}
+{"type":"screen-added","file":"/Users/joao.lopes/dev/joaolopes.dev.br/.superpowers/brainstorm/21182-1773935978/current-issues.html"}
+{"source":"user-event","type":"click","text":"A\n    \n      Collapse to hamburger menu\n      Logo stays left, ☰ button right. Tap to reveal Posts / Tags / About / RSS in a dropdown. Common pattern, clean on small screens. Adds a small JS requirement.","choice":"collapse","id":null,"timestamp":1773936452544}
+{"source":"user-event","type":"click","text":"A\n    \n      Collapse to hamburger menu\n      Logo stays left, ☰ button right. Tap to reveal Posts / Tags / About / RSS in a dropdown. Common pattern, clean on small screens. Adds a small JS requirement.","choice":"collapse","id":null,"timestamp":1773936516802}
+{"source":"user-event","type":"click","text":"A\n    \n      Collapse to hamburger menu\n      Logo stays left, ☰ button right. Tap to reveal Posts / Tags / About / RSS in a dropdown. Common pattern, clean on small screens. Adds a small JS requirement.","choice":"collapse","id":null,"timestamp":1773936517223}
+{"type":"screen-added","file":"/Users/joao.lopes/dev/joaolopes.dev.br/.superpowers/brainstorm/21182-1773935978/toc-question.html"}
+{"source":"user-event","type":"click","text":"A\n    \n      Collapse by default on mobile\n      TOC starts closed, tap \"Contents ▸\" to expand. Saves ~400px of scroll on long posts. Desktop stays always open. Needs a small CSS toggle or JS.","choice":"collapse-toc","id":null,"timestamp":1773936688819}
+{"type":"screen-added","file":"/Users/joao.lopes/dev/joaolopes.dev.br/.superpowers/brainstorm/21182-1773935978/approaches.html"}
+{"type":"screen-added","file":"/Users/joao.lopes/dev/joaolopes.dev.br/.superpowers/brainstorm/21182-1773935978/design-nav.html"}
+{"type":"screen-added","file":"/Users/joao.lopes/dev/joaolopes.dev.br/.superpowers/brainstorm/21182-1773935978/design-toc-css.html"}
+{"type":"server-stopped","reason":"idle timeout"}

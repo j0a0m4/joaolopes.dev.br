@@ -1,20 +1,19 @@
 ---
-title: "Building Your AI Toolkit"
+title: Building Your AI Toolkit
 created: 2026-03-17
 published-on: 2026-03-17
-description:
-  "AI agents are runtime loops, not autocomplete. The five building blocks —
-  CLI, MCP, Skills, Rules, and Hooks — and why the role shifts from writing code
-  to designing workflows."
+description: AI agents are runtime loops, not autocomplete. The five building blocks — CLI, MCP, Skills, Rules, and Hooks — and why the role shifts from writing code to designing workflows.
 tags:
-  - ai-workflow
-  - architecture
-  - cli
+  - ai-first-engineering
+  - rules
+  - skills
   - mcp
-  - agent-design
+  - hooks
+  - cli
 series: ai-first-engineering
 series-order: 1
-series-title: "AI-First Engineering"
+series-title: AI-First Engineering
+linkedin-url: https://www.linkedin.com/posts/j0a0m4_building-your-ai-toolkit-activity-7440505530844069888-LBlw
 ---
 
 # Building Your AI Toolkit
@@ -153,8 +152,9 @@ it belongs in CLI.
 ### MCP — the cross-client protocol
 
 MCP (Model Context Protocol) lets AI agents call external tools over a
-standardized JSON-RPC (Remote Procedure Call) interface. You define a server once; it works in Claude
-Code, Cursor, VS Code, and any other MCP-compatible client. Anthropic
+standardized JSON-RPC (Remote Procedure Call) interface. You define a server
+once; it works in Claude Code, Cursor, VS Code, and any other MCP-compatible
+client. Anthropic
 [describes it as USB-C for AI](https://www.anthropic.com/news/model-context-protocol).
 
 Each MCP tool is self-describing — it carries its name, description, and
@@ -172,10 +172,10 @@ dumps.
 
 **The second tradeoff is blocking.** Every MCP tool call blocks the agent until
 it returns — no progress updates, no intermediate state, no parallelism in
-standard implementations. A CLI
-command can run in the background while the agent continues working. A skill can
-dispatch sub-agents that run concurrently. MCP can't. The moment a workflow
-needs duration or parallelism, MCP breaks the experience.
+standard implementations. A CLI command can run in the background while the
+agent continues working. A skill can dispatch sub-agents that run concurrently.
+MCP can't. The moment a workflow needs duration or parallelism, MCP breaks the
+experience.
 
 Use MCP when you need cross-client portability, when the AI should discover
 available capabilities at runtime, or when you're bridging to external systems
@@ -305,3 +305,7 @@ Rules, and Hooks are the building blocks. Markdown is the format they share.
 
 _Next in this series: how to model agent behavior without prompting — rules as
 silent context injection._
+
+## Discussion
+
+- [LinkedIn (PT-BR)](https://www.linkedin.com/posts/j0a0m4_building-your-ai-toolkit-activity-7440505530844069888-LBlw)
