@@ -105,16 +105,25 @@ Title is derived by splitting on `-` and capitalising each word (Clojure: `(->> 
 
 - Derive slug from src path: `(-> src-path (str/replace #"^/assets/" "") (str/replace #"\.svg$" ""))`
 - Derive title from slug: `(->> (str/split slug #"-") (map str/capitalize) (str/join " "))`
-- Inject `<title>` + `<desc>` by inserting after the first `>` in the SVG opening tag (i.e., immediately after `<svg ...>`):
+- Inject ARIA attributes onto the `<svg>` opening tag AND insert `<title>`/`<desc>` as first children — in one `str/replace` pass. `role`, `aria-labelledby`, and (conditionally) `aria-describedby` are all added here:
   ```clojure
-  (str/replace svg-content #"(<svg[^>]*>)"
-               (fn [[_ open]]
-                 (str open
+  ;; Splits the <svg> open tag into the tag name and the rest of the attributes+close
+  ;; so ARIA attributes can be inserted before the closing >.
+  (str/replace svg-content #"(<svg)([ \t\n][^>]*)?(>)"
+               (fn [[_ tag attrs close]]
+                 (str tag
+                      (or attrs "")
+                      " role=\"img\""
+                      " aria-labelledby=\"diag-" slug "-title\""
+                      (when (seq alt)
+                        (str " aria-describedby=\"diag-" slug "-desc\""))
+                      close
                       "<title id=\"diag-" slug "-title\">" title "</title>"
                       (when (seq alt)
                         (str "<desc id=\"diag-" slug "-desc\">" alt "</desc>")))))
   ```
-- If `alt` is empty or absent: omit `<desc>` and `<details>` transcript. Do not emit empty accessibility elements.
+- If `alt` is empty or absent: `aria-describedby` is NOT emitted on `<svg>` and `<desc>` is NOT emitted as a child. A stranded `aria-describedby` pointing at a non-existent id is an ARIA error — never emit it without a matching `<desc>`.
+- If `alt` is empty or absent: also omit the `<details>` transcript block. Do not emit empty accessibility elements.
 - `inline-svgs` signature stays the same (takes `html-body` string, returns string).
 
 **A11y contract:**
