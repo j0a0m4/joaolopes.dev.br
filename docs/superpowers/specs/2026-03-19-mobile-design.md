@@ -39,7 +39,7 @@ The blog has zero `@media (max-width: ...)` breakpoints. Five concrete issues at
 
 **HTML changes** (`layout.clj` — `base-layout`):
 
-Replace the current `[:span.nav-links ...]` with a button + conditionally-hidden list:
+Replace the current `[:span.nav-links ...]` with a button + list. The nav links are **not** hidden in server-rendered HTML — JS sets the initial hidden state on mobile after checking the viewport. This ensures desktop users without JS always see the links.
 
 ```clojure
 ;; In <nav>: add toggle button before the links span
@@ -49,8 +49,8 @@ Replace the current `[:span.nav-links ...]` with a button + conditionally-hidden
   :aria-label "Menu"}
  [:span.hamburger-icon {:aria-hidden "true"} "☰"]]
 
-;; Give nav-links an id and hidden attribute
-[:span#nav-menu.nav-links {:hidden ""}
+;; Give nav-links an id — NO hidden attribute here
+[:span#nav-menu.nav-links
  [:a {:href (href "/")} "Posts"]
  [:a {:href (href "/tags/")} "Tags"]
  [:a {:href (href "/about/")} "About"]
@@ -61,19 +61,25 @@ Replace the current `[:span.nav-links ...]` with a button + conditionally-hidden
 
 - `<button>` (not div/span) — native keyboard focus, click events, screen reader role
 - `aria-expanded="false"` — toggled to `"true"` on open; screen readers announce "Menu, collapsed" / "Menu, expanded"
-- `aria-controls="nav-menu"` — links button to the element it controls; VoiceOver/TalkBack can jump to the menu
+- `aria-controls="nav-menu"` — links button to the element it controls per ARIA APG; jump-to-menu behavior is AT-dependent and not universally supported (VoiceOver on iOS does not act on it)
 - `hidden` attribute (not CSS `display:none`) — removes items from accessibility tree when closed; keyboard users cannot tab to hidden links
 - Escape key closes menu and returns focus to the toggle button (ARIA APG disclosure navigation pattern)
 - Touch target ≥ 44×44px on the toggle button (WCAG 2.5.5)
 - No focus trap — disclosure nav (not modal); Tab flows naturally through open items then out
 
-**JS (~20 lines, inline in `base-layout`):**
+**JS (~25 lines, inline in `base-layout`):**
 
 ```javascript
 document.addEventListener('DOMContentLoaded', () => {
   const btn = document.querySelector('.nav-toggle');
   const menu = document.getElementById('nav-menu');
   if (!btn || !menu) return;
+
+  // Set initial state: hide menu on mobile viewports only.
+  // Not server-rendered so desktop users without JS always see the links.
+  if (window.matchMedia('(max-width: 480px)').matches) {
+    menu.setAttribute('hidden', '');
+  }
 
   btn.addEventListener('click', () => {
     const open = btn.getAttribute('aria-expanded') === 'true';
@@ -141,7 +147,13 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 ```
 
-The `<nav>` element needs `position: relative` to anchor the dropdown.
+The `<nav>` element needs `position: relative` to anchor the dropdown — include this in the mobile media query:
+
+```css
+@media (max-width: 480px) {
+  nav { position: relative; }
+}
+```
 
 ---
 
@@ -149,39 +161,42 @@ The `<nav>` element needs `position: relative` to anchor the dropdown.
 
 **HTML changes** (`layout.clj` — `toc-nav`):
 
-Wrap the TOC content in `<details>/<summary>`. The `open` attribute is rendered server-side (always open in HTML); CSS removes it on mobile so it starts collapsed.
+Wrap the TOC content in `<details>/<summary>`. Do **not** server-render the `open` attribute — the `<details>` element starts collapsed by default (native browser behaviour). CSS forces it open on desktop via `display: block` override.
 
 ```clojure
-[:details.toc-details {:open true}
- [:summary.toc-label "Contents"]
+[:details.toc-details
+ [:summary.toc-label
+  {:data-count (str (count h2-headings) " sections")}
+  "Contents"]
  [:ul
   (for [...] ...)]]
 ```
 
-Pass the section count as a `data-count` attribute on the summary for the collapsed label:
-
-```clojure
-[:summary.toc-label {:data-count (str (count h2-headings) " sections")} "Contents"]
-```
+The `data-count` attribute feeds the collapsed hint via CSS `attr()`.
 
 **Accessibility:** `<details>/<summary>` has implicit ARIA roles (`group`/`button`). VoiceOver announces "Contents, collapsed, button" with no manual ARIA needed.
 
 **CSS:**
 
 ```css
-/* Desktop: details always open, summary non-interactive */
+/* Desktop: force open, summary non-interactive */
+@media (min-width: 481px) { /* mirrors max-width: 480px mobile breakpoint */
+  .toc-details > ul { display: block; }
+  .toc-details > summary {
+    pointer-events: none;
+    cursor: default;
+  }
+}
+
+/* All viewports: hide native marker, style summary */
 .toc-details > summary {
   list-style: none;
-  cursor: default;
   font-weight: 600;
 }
 .toc-details > summary::-webkit-details-marker { display: none; }
 
+/* Mobile: collapsed by default (native), show affordance */
 @media (max-width: 480px) {
-  /* Remove the server-rendered open attribute effect */
-  .toc-details:not([open]) > ul { display: none; }
-
-  /* Show section count hint when collapsed */
   .toc-details:not([open]) > summary::after {
     content: " ▸ " attr(data-count);
     color: var(--muted);
@@ -213,6 +228,8 @@ Pass the section count as a `data-count` attribute on the summary for the collap
 ```
 
 **② Code block overflow indicator**
+
+A right-edge fade gradient on all `pre` blocks. Applied unconditionally — short blocks that don't overflow will also show the fade. This is a known cosmetic tradeoff: the CSS approach is simpler than a JS `scrollWidth` check and acceptable given that most code blocks on this blog do overflow on phone widths.
 
 ```css
 pre {
