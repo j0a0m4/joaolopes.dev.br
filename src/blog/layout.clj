@@ -64,7 +64,34 @@
           div.textContent = code.textContent;
           pre.replaceWith(div);
         });
-        mermaid.initialize({ startOnLoad: true, theme: 'dark' });")]]
+        mermaid.initialize({ startOnLoad: true, theme: 'dark' });")]
+      [:script
+       (h/raw "document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.querySelector('.nav-toggle');
+  const menu = document.getElementById('nav-menu');
+  if (!btn || !menu) return;
+
+  // Hide on mobile only — not server-rendered, so desktop without JS sees links
+  if (window.matchMedia('(max-width: 480px)').matches) {
+    menu.setAttribute('hidden', '');
+  }
+
+  btn.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+    menu.toggleAttribute('hidden');
+    btn.querySelector('.hamburger-icon').textContent = open ? '\\u2630' : '\\u2715';
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') {
+      btn.setAttribute('aria-expanded', 'false');
+      menu.setAttribute('hidden', '');
+      btn.querySelector('.hamburger-icon').textContent = '\\u2630';
+      btn.focus();
+    }
+  });
+});")]]
      [:body
       [:header
        [:nav
