@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1" name="viewport" /><title>Intelligence Determinism Split — Diagram — João Lopes</title><meta content="The intelligence-determinism split: Rules and Skills shape the Agent, which calls Tools that Hooks intercept" name="description" /><link href="https://fonts.googleapis.com" rel="preconnect" /><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" /><link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&amp;display=swap" rel="stylesheet" /><link href="/preview/css/style.css" rel="stylesheet" /><link href="/preview/favicon.svg" rel="icon" type="image/svg+xml" /><link href="/preview/feed.xml" rel="alternate" title="João Lopes" type="application/rss+xml" /><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css" rel="stylesheet" /><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script>document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el)));</script><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        document.querySelectorAll('pre > code.language-mermaid').forEach(code => {
+          const pre = code.parentElement;
+          const div = document.createElement('pre');
+          div.className = 'mermaid';
+          div.textContent = code.textContent;
+          pre.replaceWith(div);
+        });
+        mermaid.initialize({ startOnLoad: true, theme: 'dark' });</script><script>document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.querySelector('.nav-toggle');
+  const menu = document.getElementById('nav-menu');
+  if (!btn || !menu) return;
+
+  // Hide on mobile only — not server-rendered, so desktop without JS sees links
+  if (window.matchMedia('(max-width: 480px)').matches) {
+    menu.setAttribute('hidden', '');
+    // TOC starts open (server-rendered); close it on mobile
+    const toc = document.querySelector('.toc-details');
+    if (toc) toc.removeAttribute('open');
+  }
+
+  btn.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+    menu.toggleAttribute('hidden');
+    btn.querySelector('.hamburger-icon').textContent = open ? '\u2630' : '\u2715';
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') {
+      btn.setAttribute('aria-expanded', 'false');
+      menu.setAttribute('hidden', '');
+      btn.querySelector('.hamburger-icon').textContent = '\u2630';
+      btn.focus();
+    }
+  });
+});</script></head><body><header><nav><a class="site-logo" href="/preview/"><svg aria-hidden="true" class="logo" height="40" viewBox="0 0 32 32" width="40"><path class="logo-path" d="M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>João Lopes</a><button aria-controls="nav-menu" aria-expanded="false" aria-label="Menu" class="nav-toggle"><span aria-hidden="true" class="hamburger-icon">☰</span></button><span class="nav-links" id="nav-menu"><a href="/preview/">Posts</a><a href="/preview/tags/">Tags</a><a href="/preview/diagrams/">Diagrams</a><a href="/preview/about/">About</a><a href="/preview/feed.xml">RSS</a></span></nav></header><main><div class="diagram-page"><a class="diagram-back" href="/preview/posts/building-your-ai-toolkit/">← Building Your AI Toolkit</a><h1 class="diagram-title">Intelligence Determinism Split</h1><div class="diagram-full"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 520" role="img" aria-labelledby="diag-intelligence-determinism-split-title" aria-describedby="diag-intelligence-determinism-split-desc"><title id="diag-intelligence-determinism-split-title">Intelligence Determinism Split</title><desc id="diag-intelligence-determinism-split-desc">The intelligence-determinism split: Rules and Skills shape the Agent, which calls Tools that Hooks intercept</desc>
+  <defs>
+    <marker id="id-arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7a7a8e"/>
+    </marker>
+    <marker id="id-arr-accent" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f4569d"/>
+    </marker>
+    <marker id="id-arr-cyan" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0fb6d6"/>
+    </marker>
+  </defs>
+
+  <!-- Non-deterministic group -->
+  <rect x="20" y="15" width="720" height="170" rx="8" fill="none" stroke="rgba(244, 86, 157, 0.2)" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="40" y="35" class="svg-group-label svg-pink">NON-DETERMINISTIC — shapes thinking</text>
+
+  <!-- Rules node -->
+  <rect x="60" y="55" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="190" y="95" text-anchor="middle" class="svg-heading svg-accent">Rules</text>
+  <text x="190" y="120" text-anchor="middle" class="svg-body svg-muted">Passive knowledge — absorbed</text>
+  <text x="190" y="140" text-anchor="middle" class="svg-body svg-muted">not called</text>
+
+  <!-- Skills node -->
+  <rect x="440" y="55" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="570" y="95" text-anchor="middle" class="svg-heading svg-accent">Skills</text>
+  <text x="570" y="120" text-anchor="middle" class="svg-body svg-muted">Workflow brain — invoked</text>
+  <text x="570" y="140" text-anchor="middle" class="svg-body svg-muted">orchestrates</text>
+
+  <!-- Agent node (center) -->
+  <rect x="250" y="220" width="260" height="80" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.3)" stroke-width="2"/>
+  <text x="380" y="258" text-anchor="middle" class="svg-heading svg-accent">Agent</text>
+  <text x="380" y="282" text-anchor="middle" class="svg-body svg-fg">Plans, decides, calls tools</text>
+
+  <!-- Deterministic group -->
+  <rect x="20" y="340" width="720" height="165" rx="8" fill="none" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="40" y="360" class="svg-group-label svg-accent">DETERMINISTIC — executes and enforces</text>
+
+  <!-- Hooks node -->
+  <rect x="60" y="380" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="190" y="420" text-anchor="middle" class="svg-heading svg-accent">Hooks</text>
+  <text x="190" y="446" text-anchor="middle" class="svg-body svg-muted">Structural enforcement —</text>
+  <text x="190" y="466" text-anchor="middle" class="svg-body svg-muted">intercepts tool calls</text>
+
+  <!-- Tools node -->
+  <rect x="440" y="380" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="570" y="420" text-anchor="middle" class="svg-heading svg-accent">Tools</text>
+  <text x="570" y="446" text-anchor="middle" class="svg-body svg-muted">Bash, Write, Read, MCP, …</text>
+
+  <!-- Rules → Agent (dashed, "shape") -->
+  <path d="M 190 155 L 310 220" fill="none" stroke="#f4569d" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#id-arr-accent)"/>
+  <text x="220" y="205" class="svg-label svg-pink">shape</text>
+
+  <!-- Skills → Agent ("direct") -->
+  <line x1="570" y1="155" x2="455" y2="220" stroke="#f4569d" stroke-width="2" marker-end="url(#id-arr-accent)"/>
+  <text x="530" y="205" class="svg-label svg-pink">direct</text>
+
+  <!-- Agent → Tools ("calls") -->
+  <line x1="455" y1="300" x2="545" y2="375" stroke="#7a7a8e" stroke-width="2" marker-end="url(#id-arr)"/>
+  <text x="520" y="340" class="svg-label svg-muted">calls</text>
+
+  <!-- Hooks → Tools ("intercept") -->
+  <line x1="320" y1="430" x2="435" y2="430" stroke="#0fb6d6" stroke-width="2" marker-end="url(#id-arr-cyan)"/>
+  <text x="378" y="422" text-anchor="middle" class="svg-label svg-accent">intercept</text>
+</svg></div><details class="diagram-transcript"><summary>Diagram description</summary><p>The intelligence-determinism split: Rules and Skills shape the Agent, which calls Tools that Hooks intercept</p></details></div></main><footer><p>© 2026 <a href="https://github.com/j0a0m4" rel="noopener noreferrer" target="_blank">João Lopes</a></p><p>Theme inspired by <a href="https://github.com/bennyxguo/Obsidian-Obsidianite" rel="noopener noreferrer" target="_blank">Obsidianite</a></p></footer></body></html>
