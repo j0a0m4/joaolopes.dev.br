@@ -214,7 +214,7 @@
   [headings]
   (when (seq headings)
     (let [h2s           (filter #(= 2 (:level %)) headings)
-          section-count (str (count h2s) " sections")]
+          section-count (let [n (count h2s)] (str n (if (= 1 n) " section" " sections")))]
       [:details.toc.toc-details {:open true}
        [:summary.toc-label {:data-count section-count} "Contents"]
        [:nav {:id "toc"}

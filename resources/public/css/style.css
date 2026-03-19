@@ -109,7 +109,7 @@ nav a {
 
 /* TOC desktop: force open regardless of [open] attribute */
 @media (min-width: 481px) { /* mirrors max-width: 480px mobile breakpoint */
-  .toc-details > ul { display: block; }
+  .toc-details > nav { display: block; }
   .toc-details > summary {
     pointer-events: none;
     cursor: default;
