@@ -682,3 +682,97 @@ footer a:hover { color: var(--accent); }
     align-items: center;
   }
 }
+
+/* ── Diagram figures (inline in posts) ─────────────────────── */
+.diagram-figure { margin: 1.5rem 0; }
+
+.diagram-link {
+  display: block;
+  text-decoration: none;
+  position: relative;
+  cursor: pointer;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.diagram-link::after {
+  content: '\2197';       /* ↗ — safe in all fonts including Rubik */
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(15, 182, 214, 0.15);
+  color: var(--accent);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.diagram-link:hover::after { opacity: 1; }
+.diagram-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.diagram-caption-link {
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 0.35rem;
+}
+.diagram-caption-link:hover { color: var(--accent); }
+
+.diagram-transcript { margin-top: 0.5rem; font-size: 0.82rem; }
+.diagram-transcript > summary {
+  color: var(--muted);
+  cursor: pointer;
+  list-style: none;
+}
+.diagram-transcript > summary::-webkit-details-marker { display: none; }
+.diagram-transcript > p { color: var(--muted); margin-top: 0.4rem; line-height: 1.5; }
+
+/* ── Diagram standalone page ──────────────────────────────── */
+.diagram-page { max-width: var(--max-width); margin: 0 auto; }
+.diagram-back {
+  display: inline-block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+}
+.diagram-back:hover { color: var(--accent); }
+.diagram-title { font-size: 1.6rem; color: var(--accent); margin-bottom: 1.25rem; }
+.diagram-full {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+  background: var(--bg-alt);
+}
+.diagram-full svg { display: block; width: 100%; }
+
+/* ── Diagrams index ───────────────────────────────────────── */
+.diagrams-index h1 { margin-bottom: 1.5rem; }
+.diagram-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.diagram-card {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  text-decoration: none;
+  display: block;
+  transition: border-color 200ms ease;
+}
+.diagram-card:hover { border-color: var(--accent); }
+.diagram-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.diagram-card-thumb {
+  background: var(--bg-alt);
+  padding: 0.75rem;
+  height: 120px;
+  overflow: hidden;
+}
+.diagram-card-thumb svg { width: 100%; }
+.diagram-card-body { padding: 0.75rem; }
+.diagram-card-title { font-size: 1rem; font-weight: 500; color: var(--fg); margin: 0 0 0.25rem; }
+.diagram-card-source { font-size: 0.8rem; color: var(--muted); margin: 0; }
