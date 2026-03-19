@@ -205,7 +205,9 @@
      (when filename
        [:a.raw-link
         {:href (str "https://raw.githubusercontent.com/j0a0m4/joaolopes.dev.br/main/posts/"
-                    (java.net.URLEncoder/encode filename "UTF-8"))
+                    (-> filename
+                        (java.net.URLEncoder/encode "UTF-8")
+                        (str/replace "+" "%20")))
          :target "_blank" :rel "noopener noreferrer"}
         "RAW Markdown"])]
     (when series-ctx
