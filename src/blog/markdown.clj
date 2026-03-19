@@ -71,15 +71,14 @@
   (str/replace body #"(?s)\n## Related\n.*$" ""))
 
 (defn- heading-anchor
-  "Replicates markdown-clj's heading anchor slugification:
-   lowercase → spaces to _ → URL-encode."
+  "Replicates commonmark-java HeadingAnchorExtension slugification:
+   lowercase → spaces to hyphens → strip remaining non-word/non-hyphen chars."
   [text]
   (-> text
       str/lower-case
       str/trim
-      (str/replace " " "_")
-      (java.net.URLEncoder/encode "UTF-8")
-      (str/replace "+" "_")))
+      (str/replace #"\s+" "-")
+      (str/replace #"[^\w-]" "")))
 
 (defn extract-toc
   "Parses ## and ### headings from raw markdown body.
