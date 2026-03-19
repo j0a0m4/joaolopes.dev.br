@@ -162,6 +162,12 @@ article h3 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
   font-size: 0.9rem;
 }
 
+.post-dateline {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
 .tags { display: flex; gap: 0.5rem; }
 
 .tag {
@@ -313,10 +319,30 @@ footer a:hover { color: var(--accent); }
 }
 
 .share-cta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   margin-top: 0.25rem;
-  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+
+.share-label {
   color: var(--muted);
 }
+
+.icon-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.icon-link svg { fill: currentColor; }
+.icon-link:hover { color: var(--accent); }
 
 .raw-link {
   font-size: 0.75rem;
@@ -335,6 +361,7 @@ footer a:hover { color: var(--accent); }
   border: 1px solid rgba(14, 210, 247, 0.15);
   border-radius: 6px;
   padding: 1rem 1.25rem;
+  margin-top: 0.75rem;
   margin-bottom: 2rem;
 }
 
