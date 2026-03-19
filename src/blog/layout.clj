@@ -319,6 +319,38 @@
    [:p "This page doesn't exist."]
    [:p [:a {:href (href "/")} "← Back to posts"]]])
 
+(defn diagram-page-layout
+  "Standalone diagram viewer page. Returns hiccup.
+   diagram map keys: :slug :title :back-post :description :svg-content"
+  [{:keys [title back-post description svg-content]}]
+  [:div.diagram-page
+   (when back-post
+     [:a.diagram-back {:href (href (:url back-post))}
+      (str "\u2190 " (:title back-post))])
+   [:h1.diagram-title title]
+   [:div.diagram-full
+    (h/raw svg-content)]
+   (when (seq description)
+     [:details.diagram-transcript
+      [:summary "Diagram description"]
+      [:p description]])])
+
+(defn diagrams-index-layout
+  "All-diagrams index page. Returns hiccup."
+  [diagrams]
+  [:div.diagrams-index
+   [:h1 "Diagrams"]
+   [:div.diagram-cards
+    (for [{:keys [slug title back-post svg-content]} diagrams]
+      [:a.diagram-card {:href (href (diagram-path slug))}
+       [:div.diagram-card-thumb
+        (h/raw svg-content)]
+       [:div.diagram-card-body
+        [:p.diagram-card-title title]
+        (when back-post
+          [:p.diagram-card-source
+           "From: " (:title back-post)])]])]])
+
 (defn index-layout
   "Post list for the index page. Returns hiccup."
   [posts]
