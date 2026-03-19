@@ -574,3 +574,20 @@ footer a:hover { color: var(--accent); }
 .svg-pink    { fill: var(--sub-accent); }
 .svg-fg      { fill: var(--fg); }
 .svg-muted   { fill: var(--muted); }
+
+/* ── Mobile (≤480px) ────────────────────────────────────────── */
+@media (max-width: 480px) {
+  body {
+    padding: 1.25rem 1rem;
+  }
+
+  .tags {
+    flex-wrap: wrap;
+  }
+
+  .post-dateline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15rem 0.35rem;
+  }
+}
