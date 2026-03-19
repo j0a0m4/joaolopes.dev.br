@@ -30,6 +30,11 @@
   [slug]
   (str "/tags/" slug "/"))
 
+(defn diagram-path
+  "Canonical path for a diagram page."
+  [slug]
+  (str "/diagrams/" slug "/"))
+
 (defn base-layout
   "Full HTML document. body is a hiccup vector to embed in <main>.
    Single serialization boundary — all other layout fns return hiccup data."
@@ -112,6 +117,7 @@
         [:span#nav-menu.nav-links
          [:a {:href (href "/")} "Posts"]
          [:a {:href (href "/tags/")} "Tags"]
+         [:a {:href (href "/diagrams/")} "Diagrams"]
          [:a {:href (href "/about/")} "About"]
          [:a {:href (href "/feed.xml")} "RSS"]]]]
       [:main body]
