@@ -64,7 +64,37 @@
           div.textContent = code.textContent;
           pre.replaceWith(div);
         });
-        mermaid.initialize({ startOnLoad: true, theme: 'dark' });")]]
+        mermaid.initialize({ startOnLoad: true, theme: 'dark' });")]
+      [:script
+       (h/raw "document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.querySelector('.nav-toggle');
+  const menu = document.getElementById('nav-menu');
+  if (!btn || !menu) return;
+
+  // Hide on mobile only — not server-rendered, so desktop without JS sees links
+  if (window.matchMedia('(max-width: 480px)').matches) {
+    menu.setAttribute('hidden', '');
+    // TOC starts open (server-rendered); close it on mobile
+    const toc = document.querySelector('.toc-details');
+    if (toc) toc.removeAttribute('open');
+  }
+
+  btn.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+    menu.toggleAttribute('hidden');
+    btn.querySelector('.hamburger-icon').textContent = open ? '\\u2630' : '\\u2715';
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') {
+      btn.setAttribute('aria-expanded', 'false');
+      menu.setAttribute('hidden', '');
+      btn.querySelector('.hamburger-icon').textContent = '\\u2630';
+      btn.focus();
+    }
+  });
+});")]]
      [:body
       [:header
        [:nav
@@ -74,7 +104,12 @@
                             :fill "none" :stroke "currentColor" :stroke-width "2"
                             :stroke-linecap "round" :stroke-linejoin "round"}]]
          site-title]
-        [:span.nav-links
+        [:button.nav-toggle
+         {:aria-expanded "false"
+          :aria-controls "nav-menu"
+          :aria-label "Menu"}
+         [:span.hamburger-icon {:aria-hidden "true"} "☰"]]
+        [:span#nav-menu.nav-links
          [:a {:href (href "/")} "Posts"]
          [:a {:href (href "/tags/")} "Tags"]
          [:a {:href (href "/about/")} "About"]
@@ -173,22 +208,27 @@
        [:span.tag-count (str (count posts))]])]])
 
 (defn- toc-nav
-  "Table of contents from extracted headings. Returns hiccup or nil."
+  "Table of contents from extracted headings. Returns hiccup or nil.
+   Uses <details>/<summary> for native collapse on mobile — no JS needed.
+   Desktop CSS forces it open via min-width: 481px override."
   [headings]
   (when (seq headings)
-    [:nav.toc {:id "toc"}
-     [:p.toc-label "Contents"]
-     [:ul
-      (for [{:keys [level text anchor]} headings
-            :when (= 2 level)]
-        (let [subs (take-while #(= 3 (:level %))
-                               (rest (drop-while #(not= anchor (:anchor %)) headings)))]
-          [:li
-           [:a {:href (str "#" anchor)} text]
-           (when (seq subs)
-             [:ul
-              (for [s subs]
-                [:li [:a {:href (str "#" (:anchor s))} (:text s)]])])]))]]))
+    (let [h2s           (filter #(= 2 (:level %)) headings)
+          section-count (let [n (count h2s)] (str n (if (= 1 n) " section" " sections")))]
+      [:details.toc.toc-details {:open true}
+       [:summary.toc-label {:data-count section-count} "Contents"]
+       [:nav {:id "toc"}
+        [:ul
+         (for [{:keys [level text anchor]} headings
+               :when (= 2 level)]
+           (let [subs (take-while #(= 3 (:level %))
+                                  (rest (drop-while #(not= anchor (:anchor %)) headings)))]
+             [:li
+              [:a {:href (str "#" anchor)} text]
+              (when (seq subs)
+                [:ul
+                 (for [s subs]
+                   [:li [:a {:href (str "#" (:anchor s))} (:text s)]])])]))]]])))
 
 (defn- icon-link
   "Renders an anchor with an inline SVG icon + label. Centered via flex."

@@ -36,6 +36,7 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 html {
   font-family: var(--font);
@@ -95,6 +96,25 @@ nav a {
 .nav-links { display: flex; gap: 1.5rem; }
 .nav-links a { font-weight: 400; font-size: 0.9rem; color: var(--muted); }
 .nav-links a:hover { color: var(--fg); }
+
+/* Nav toggle — hidden on desktop, shown via mobile media query */
+.nav-toggle { display: none; }
+
+/* TOC details — hide native disclosure marker, non-interactive on desktop */
+.toc-details > summary {
+  list-style: none;
+  font-weight: 600;
+}
+.toc-details > summary::-webkit-details-marker { display: none; }
+
+/* TOC desktop: force open regardless of [open] attribute */
+@media (min-width: 481px) { /* mirrors max-width: 480px mobile breakpoint */
+  .toc-details > nav { display: block; }
+  .toc-details > summary {
+    pointer-events: none;
+    cursor: default;
+  }
+}
 
 /* Main content */
 main { min-height: 60vh; }
@@ -574,3 +594,91 @@ footer a:hover { color: var(--accent); }
 .svg-pink    { fill: var(--sub-accent); }
 .svg-fg      { fill: var(--fg); }
 .svg-muted   { fill: var(--muted); }
+
+/* ── Mobile (≤480px) ────────────────────────────────────────── */
+@media (max-width: 480px) {
+  body {
+    padding: 1.25rem 1rem;
+  }
+
+  .tags {
+    flex-wrap: wrap;
+  }
+
+  .post-dateline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15rem 0.35rem;
+  }
+
+  /* Nav — hamburger button */
+  nav { position: relative; }
+
+  .nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    font-size: 1.1rem;
+    min-width: 44px;
+    min-height: 44px;
+    cursor: pointer;
+  }
+
+  /* Nav links open state — dropdown below nav bar */
+  #nav-menu:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-alt);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+    padding: 0.5rem 0;
+  }
+
+  #nav-menu a {
+    padding: 0.65rem 1rem;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
+  }
+
+  /* Code block overflow indicator */
+  pre { position: relative; }
+  pre::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 2rem;
+    background: linear-gradient(to right, transparent, var(--code-bg));
+    pointer-events: none;
+    border-radius: 0 6px 6px 0;
+  }
+
+  /* TOC — collapsed by default on mobile (native <details> behaviour) */
+  .toc-details:not([open]) > summary::after {
+    content: " ▸ " attr(data-count);
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .toc-details[open] > summary::after {
+    content: " ▾";
+    color: var(--muted);
+  }
+  .toc-details > summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
