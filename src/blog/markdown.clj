@@ -118,17 +118,73 @@
 (def ^:private img-svg-pattern
   #"<img\s+[^>]*src=\"(/assets/[^\"]+\.svg)\"[^>]*>")
 
+(defn- extract-alt
+  "Extracts alt attribute value from an HTML img tag string.
+   Returns nil if absent or empty."
+  [img-tag]
+  (when-let [alt (second (re-find #"alt=\"([^\"]*)\"" img-tag))]
+    (when (seq alt) alt)))
+
+(defn- svg-slug-from-path
+  "Derives diagram slug from SVG src path.
+   Example: /assets/agent-loop.svg → agent-loop"
+  [src-path]
+  (-> src-path
+      (str/replace #"^/assets/" "")
+      (str/replace #"\.svg$" "")))
+
+(defn- inject-svg-a11y
+  "Injects role, aria-labelledby, and (when alt present) aria-describedby onto
+   the <svg> opening tag. Inserts <title> and <desc> as first children.
+   Never emits aria-describedby without a matching <desc>."
+  [svg-content slug title alt]
+  (str/replace svg-content #"(<svg)([ \t\n][^>]*)?(>)"
+               (fn [[_ tag attrs close]]
+                 (str tag
+                      (or attrs "")
+                      " role=\"img\""
+                      " aria-labelledby=\"diag-" slug "-title\""
+                      (when alt
+                        (str " aria-describedby=\"diag-" slug "-desc\""))
+                      close
+                      "<title id=\"diag-" slug "-title\">" title "</title>"
+                      (when alt
+                        (str "<desc id=\"diag-" slug "-desc\">" alt "</desc>"))))))
+
 (defn inline-svgs
-  "Replaces <img> tags pointing to local SVGs with inlined SVG content.
-   SVGs inherit the page's fonts and styles when inlined."
+  "Replaces <img> tags pointing to local SVGs with accessible <figure> elements.
+   Extracts Markdown alt text to inject as SVG <title>/<desc> and visible
+   <details> transcript. SVGs inherit the page's fonts and styles when inlined."
   [html-body]
   (str/replace html-body img-svg-pattern
                (fn [[img-tag src-path]]
                  (let [f (io/file (str "." src-path))]
                    (if (.exists f)
-                     (-> (slurp f)
-                         (str/replace #"<\?xml[^>]*\?>\s*" "")
-                         str/trim)
+                     (let [slug    (svg-slug-from-path src-path)
+                           title   (str/join " " (map str/capitalize (str/split slug #"-")))
+                           alt     (extract-alt img-tag)
+                           svg-raw (-> (slurp f)
+                                       (str/replace #"<\?xml[^>]*\?>\s*" "")
+                                       str/trim)
+                           svg     (inject-svg-a11y svg-raw slug title alt)
+                           base    (or (System/getenv "BASE_PATH") "")
+                           href    (str base "/diagrams/" slug "/")]
+                       (str "<figure class=\"diagram-figure\">"
+                            "<a href=\"" href "\""
+                            " class=\"diagram-link\""
+                            " aria-label=\"View " title " diagram\">"
+                            svg
+                            "</a>"
+                            "<figcaption>"
+                            "<a href=\"" href "\" class=\"diagram-caption-link\">"
+                            "View " title " diagram \u2192"
+                            "</a>"
+                            (when alt
+                              (str "<div class=\"diagram-transcript\">"
+                                   "<p>" alt "</p>"
+                                   "</div>"))
+                            "</figcaption>"
+                            "</figure>"))
                      img-tag)))))
 
 (def ^:private ^DateTimeFormatter iso-date

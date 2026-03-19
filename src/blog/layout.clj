@@ -30,6 +30,11 @@
   [slug]
   (str "/tags/" slug "/"))
 
+(defn diagram-path
+  "Canonical path for a diagram page."
+  [slug]
+  (str "/diagrams/" slug "/"))
+
 (defn base-layout
   "Full HTML document. body is a hiccup vector to embed in <main>.
    Single serialization boundary — all other layout fns return hiccup data."
@@ -94,7 +99,25 @@
       btn.focus();
     }
   });
-});")]]
+});
+
+// Scroll restoration: save position when clicking a diagram link, restore on back
+(function() {
+  if (history.scrollRestoration) history.scrollRestoration = 'manual';
+  const key = 'scroll:' + location.pathname;
+  const saved = sessionStorage.getItem(key);
+  if (saved !== null) {
+    sessionStorage.removeItem(key);
+    // Restore after DOM is parsed and layout is complete
+    document.addEventListener('DOMContentLoaded', () => {
+      requestAnimationFrame(() => window.scrollTo(0, parseInt(saved, 10)));
+    });
+  }
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('.diagram-link, .diagram-caption-link, .diagram-card');
+    if (a) sessionStorage.setItem('scroll:' + location.pathname, window.scrollY);
+  });
+})();")]]
      [:body
       [:header
        [:nav
@@ -112,6 +135,7 @@
         [:span#nav-menu.nav-links
          [:a {:href (href "/")} "Posts"]
          [:a {:href (href "/tags/")} "Tags"]
+         [:a {:href (href "/diagrams/")} "Diagrams"]
          [:a {:href (href "/about/")} "About"]
          [:a {:href (href "/feed.xml")} "RSS"]]]]
       [:main body]
@@ -312,6 +336,37 @@
    [:h1 "404"]
    [:p "This page doesn't exist."]
    [:p [:a {:href (href "/")} "← Back to posts"]]])
+
+(defn diagram-page-layout
+  "Standalone diagram viewer page. Returns hiccup.
+   diagram map keys: :slug :title :back-post :description :svg-content"
+  [{:keys [title back-post description svg-content]}]
+  [:div.diagram-page
+   (when back-post
+     [:a.diagram-back {:href (href (:url back-post))}
+      (str "\u2190 " (:title back-post))])
+   [:h1.diagram-title title]
+   [:div.diagram-full
+    (h/raw svg-content)]
+   (when (seq description)
+     [:div.diagram-transcript
+      [:p description]])])
+
+(defn diagrams-index-layout
+  "All-diagrams index page. Returns hiccup."
+  [diagrams]
+  [:div.diagrams-index
+   [:h1 "Diagrams"]
+   [:div.diagram-cards
+    (for [{:keys [slug title back-post svg-content]} diagrams]
+      [:a.diagram-card {:href (href (diagram-path slug))}
+       [:div.diagram-card-thumb {:aria-hidden "true"}
+        (h/raw svg-content)]
+       [:div.diagram-card-body
+        [:p.diagram-card-title title]
+        (when back-post
+          [:p.diagram-card-source
+           "From: " (:title back-post)])]])]])
 
 (defn index-layout
   "Post list for the index page. Returns hiccup."

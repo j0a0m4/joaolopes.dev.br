@@ -177,11 +177,12 @@
 
 (defn- render-sitemap
   "Generates sitemap.xml."
-  [posts series-map tag-map]
+  [posts series-map tag-map diagrams]
   (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
        "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n"
        "<url><loc>" (layout/absolute-url "/") "</loc></url>\n"
        "<url><loc>" (layout/absolute-url "/about/") "</loc></url>\n"
+       "<url><loc>" (layout/absolute-url "/diagrams/") "</loc></url>\n"
        (str/join
         (for [{:keys [url published-on]} posts]
           (str "<url>"
@@ -200,6 +201,11 @@
                "<loc>" (layout/absolute-url (layout/tag-path tag)) "</loc>"
                "<lastmod>" (:published-on (first posts)) "</lastmod>"
                "</url>\n")))
+       (str/join
+        (for [{:keys [slug]} diagrams]
+          (str "<url>"
+               "<loc>" (layout/absolute-url (layout/diagram-path slug)) "</loc>"
+               "</url>\n")))
        "</urlset>"))
 
 (defn- render-about
@@ -210,6 +216,73 @@
     (layout/base-layout
      "About" nil
      (layout/about-layout html-body))))
+
+(defn- svg-slug
+  "agent-loop.svg → agent-loop"
+  [filename]
+  (str/replace filename #"\.svg$" ""))
+
+(defn- slug->title
+  "agent-loop → Agent Loop"
+  [slug]
+  (->> (str/split slug #"-") (map str/capitalize) (str/join " ")))
+
+(defn- extract-diagram-alt
+  "Finds alt text for src-path in a post body (raw markdown).
+   Matches Markdown image syntax: ![alt text](/assets/foo.svg)
+   Returns nil if alt is absent or empty."
+  [src-path body]
+  (let [q (java.util.regex.Pattern/quote src-path)
+        p (re-pattern (str "!\\[([^\\]]*)\\]\\(" q "\\)"))
+        m (re-find p body)]
+    (when m
+      (let [alt (nth m 1 nil)]
+        (when (seq alt) alt)))))
+
+(defn- inject-diagram-a11y
+  "Injects ARIA attributes and <title>/<desc> into an SVG string for diagram pages.
+   Mirrors markdown/inject-svg-a11y but operates on diagram metadata maps."
+  [svg-content slug title description]
+  (str/replace svg-content #"(<svg)([ \t\n][^>]*)?(>)"
+               (fn [[_ tag attrs close]]
+                 (str tag
+                      (or attrs "")
+                      " role=\"img\""
+                      " aria-labelledby=\"diag-" slug "-title\""
+                      (when description
+                        (str " aria-describedby=\"diag-" slug "-desc\""))
+                      close
+                      "<title id=\"diag-" slug "-title\">" title "</title>"
+                      (when description
+                        (str "<desc id=\"diag-" slug "-desc\">" description "</desc>"))))))
+
+(defn scan-diagrams
+  "Builds diagram metadata from assets-dir/*.svg cross-referenced with posts.
+   assets-dir is a string path (e.g. \"assets\").
+   Returns [{:slug :title :back-post :description :svg-content}]
+   :svg-content is the raw SVG string with XML declaration stripped and ARIA injected."
+  [posts assets-dir]
+  (let [asset-dir (io/file assets-dir)]
+    (if (.isDirectory asset-dir)
+      (->> (.listFiles asset-dir)
+           (filter #(str/ends-with? (.getName %) ".svg"))
+           (map (fn [f]
+                  (let [slug        (svg-slug (.getName f))
+                        title       (slug->title slug)
+                        src         (str "/assets/" (.getName f))
+                        back        (first (filter #(str/includes? (:body %) src) posts))
+                        alt         (when back (extract-diagram-alt src (:body back)))
+                        svg-raw     (-> (slurp f)
+                                        (str/replace #"<\?xml[^>]*\?>\s*" "")
+                                        str/trim)
+                        svg-content (inject-diagram-a11y svg-raw slug title alt)]
+                    {:slug        slug
+                     :title       title
+                     :back-post   (when back {:title (:title back) :url (:url back)})
+                     :description alt
+                     :svg-content svg-content})))
+           vec)
+      [])))
 
 (defn- render-llms-txt
   "Generates llms.txt for AI crawler discoverability."
@@ -247,27 +320,45 @@
    "All tags."
    (layout/tags-overview-layout tag-map)))
 
+(defn- render-diagram-page
+  "Renders a single diagram page to full HTML."
+  [{:keys [title description] :as diagram}]
+  (layout/base-layout
+   (str title " — Diagram")
+   description
+   (layout/diagram-page-layout diagram)))
+
+(defn- render-diagrams-index
+  "Renders the /diagrams/ index page."
+  [diagrams]
+  (layout/base-layout
+   "Diagrams"
+   "Visual diagrams from the blog."
+   (layout/diagrams-index-layout diagrams)))
+
 (defn- render-404 []
   (layout/base-layout
    "Not Found" nil
    (layout/not-found-layout)))
 
 (defn get-pages
-  "Builds the Stasis page map from posts directory."
-  [posts-dir]
-  (let [posts (load-posts posts-dir)
-        slugs (published-slugs posts)
+  "Builds the Stasis page map from posts and assets directories."
+  [posts-dir assets-dir]
+  (let [posts      (load-posts posts-dir)
+        slugs      (published-slugs posts)
         series-map (group-series posts)
-        tag-map (group-tags posts)
-        _ (validate-series series-map)]
+        tag-map    (group-tags posts)
+        diagrams   (scan-diagrams posts assets-dir)
+        _          (validate-series series-map)]
     (merge
      {"/" (fn [_] (render-index posts))
       "/tags/" (fn [_] (render-tags-overview tag-map))
       "/about/" (fn [_] (render-about))
       "/feed.xml" (fn [_] (render-rss posts))
-      "/sitemap.xml" (fn [_] (render-sitemap posts series-map tag-map))
+      "/sitemap.xml" (fn [_] (render-sitemap posts series-map tag-map diagrams))
       "/llms.txt" (fn [_] (render-llms-txt posts))
-      "/404.html" (fn [_] (render-404))}
+      "/404.html" (fn [_] (render-404))
+      "/diagrams/" (fn [_] (render-diagrams-index diagrams))}
      (into {}
            (map (fn [post]
                   [(:url post)
@@ -282,4 +373,9 @@
            (map (fn [[tag posts]]
                   [(layout/tag-path tag)
                    (fn [_] (render-tag-index tag posts))]))
-           tag-map))))
+           tag-map)
+     (into {}
+           (map (fn [d]
+                  [(layout/diagram-path (:slug d))
+                   (fn [_] (render-diagram-page d))])
+                diagrams)))))

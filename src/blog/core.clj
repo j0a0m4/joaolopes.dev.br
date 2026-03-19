@@ -27,7 +27,7 @@
   "Exports static site to public/."
   []
   (println "Building site...")
-  (let [page-map (pages/get-pages posts-dir)]
+  (let [page-map (pages/get-pages posts-dir assets-dir)]
     ;; Export pages via Stasis
     (stasis/empty-directory! public-dir)
     (stasis/export-pages page-map public-dir)
@@ -57,7 +57,7 @@
 (def ^:private app
   "Ring handler. Stasis serves pages (live rebuild). wrap-static-dirs serves
    CSS and assets from filesystem. wrap-content-type sets MIME types."
-  (-> (stasis/serve-pages #(pages/get-pages posts-dir))
+  (-> (stasis/serve-pages #(pages/get-pages posts-dir assets-dir))
       (wrap-static-dirs)
       (wrap-content-type)))
 
