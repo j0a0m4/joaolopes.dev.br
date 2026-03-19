@@ -74,7 +74,12 @@
                             :fill "none" :stroke "currentColor" :stroke-width "2"
                             :stroke-linecap "round" :stroke-linejoin "round"}]]
          site-title]
-        [:span.nav-links
+        [:button.nav-toggle
+         {:aria-expanded "false"
+          :aria-controls "nav-menu"
+          :aria-label "Menu"}
+         [:span.hamburger-icon {:aria-hidden "true"} "☰"]]
+        [:span#nav-menu.nav-links
          [:a {:href (href "/")} "Posts"]
          [:a {:href (href "/tags/")} "Tags"]
          [:a {:href (href "/about/")} "About"]
