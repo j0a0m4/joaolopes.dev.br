@@ -1,0 +1,69 @@
+<h2>Middle ground — nav header + diagram, no footer</h2>
+<p class="subtitle">Blog nav for context, diagram title + back link, SVG at full width. Feels like part of the site without the weight of a full article page.</p>
+
+<div class="mockup" style="margin-top:1rem">
+  <div class="mockup-header">Diagram page — /diagrams/agent-loop/</div>
+  <div class="mockup-body" style="background:#100e17;padding:0;font-family:system-ui;font-size:0.85rem">
+
+    <!-- Nav -->
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem;border-bottom:1px solid rgba(14,210,247,0.08)">
+      <a style="color:#0fb6d6;font-weight:600;font-size:1.1rem;display:flex;align-items:center;gap:0.4rem">∞ João Lopes</a>
+      <span style="display:flex;gap:1.25rem;font-size:0.85rem;color:#7a7a8e">
+        <a style="color:#7a7a8e">Posts</a>
+        <a style="color:#7a7a8e">Tags</a>
+        <a style="color:#7a7a8e">About</a>
+      </span>
+    </div>
+
+    <!-- Diagram content -->
+    <div style="padding:1.5rem 1rem">
+      <div style="margin-bottom:0.5rem">
+        <a style="font-size:0.85rem;color:#7a7a8e;text-decoration:none">← Building Your AI Toolkit</a>
+      </div>
+      <h1 style="color:#0fb6d6;font-size:1.4rem;font-weight:700;margin-bottom:1.25rem">Agent Loop</h1>
+
+      <!-- SVG placeholder -->
+      <div style="border:1px solid rgba(14,210,247,0.12);border-radius:6px;padding:1rem;background:#191621;text-align:center;color:#7a7a8e;font-size:0.8rem">
+        <svg viewBox="0 0 760 220" width="100%" style="max-width:100%;display:block">
+          <rect x="40" y="40" width="180" height="80" rx="6" fill="#191621" stroke="rgba(14,210,247,0.2)" stroke-width="1.5"/>
+          <text x="130" y="75" text-anchor="middle" fill="#0fb6d6" font-size="21" font-weight="600" font-family="system-ui">Gather</text>
+          <text x="130" y="97" text-anchor="middle" fill="#7a7a8e" font-size="14" font-family="system-ui">Read context, scan tools</text>
+          <text x="130" y="112" text-anchor="middle" fill="#7a7a8e" font-size="14" font-family="system-ui">assess state</text>
+          <defs>
+            <marker id="mg-arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#7a7a8e"/>
+            </marker>
+          </defs>
+          <line x1="220" y1="80" x2="280" y2="80" stroke="#7a7a8e" stroke-width="1.5" marker-end="url(#mg-arr)"/>
+          <rect x="290" y="40" width="180" height="80" rx="6" fill="#191621" stroke="rgba(14,210,247,0.2)" stroke-width="1.5"/>
+          <text x="380" y="75" text-anchor="middle" fill="#0fb6d6" font-size="21" font-weight="600" font-family="system-ui">Act</text>
+          <text x="380" y="97" text-anchor="middle" fill="#7a7a8e" font-size="14" font-family="system-ui">Plan steps, call tools</text>
+          <text x="380" y="112" text-anchor="middle" fill="#7a7a8e" font-size="14" font-family="system-ui">execute</text>
+          <line x1="470" y1="80" x2="530" y2="80" stroke="#7a7a8e" stroke-width="1.5" marker-end="url(#mg-arr)"/>
+          <rect x="540" y="40" width="180" height="80" rx="6" fill="#191621" stroke="rgba(14,210,247,0.2)" stroke-width="1.5"/>
+          <text x="630" y="75" text-anchor="middle" fill="#0fb6d6" font-size="21" font-weight="600" font-family="system-ui">Observe</text>
+          <text x="630" y="97" text-anchor="middle" fill="#7a7a8e" font-size="14" font-family="system-ui">Check results</text>
+          <text x="630" y="112" text-anchor="middle" fill="#7a7a8e" font-size="14" font-family="system-ui">decide next move</text>
+          <path d="M630 120 Q630 175 380 175 Q130 175 130 120" stroke="#f4569d" stroke-width="1.5" fill="none" stroke-dasharray="6,4"/>
+          <text x="380" y="195" text-anchor="middle" fill="#f4569d" font-size="13" font-style="italic" font-family="system-ui">repeat</text>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div style="margin-top:1.5rem;background:rgba(14,210,247,0.04);border:1px solid rgba(14,210,247,0.12);border-radius:6px;padding:0.75rem 1rem;font-size:0.88rem;color:#bebebe">
+  <strong style="color:#0fb6d6">What this gives you:</strong> full site nav (can browse to other posts), diagram title, back link to the specific post, SVG at full content width with Obsidianite theme colors. No footer clutter. The diagram page feels like a real page in the site — not a detached viewer, not a full article.
+</div>
+
+<div style="margin-top:1rem;display:flex;gap:0.75rem">
+  <div class="option" data-choice="yes" onclick="toggleSelect(this)" style="flex:1">
+    <div class="letter">✓</div>
+    <div class="content"><h3>Yes, this is the middle ground</h3></div>
+  </div>
+  <div class="option" data-choice="tweak" onclick="toggleSelect(this)" style="flex:1">
+    <div class="letter">~</div>
+    <div class="content"><h3>Close — I want to tweak something</h3></div>
+  </div>
+</div>
