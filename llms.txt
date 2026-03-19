@@ -1,0 +1,36 @@
+# João Lopes — joaolopes.dev.br
+
+> Notes on software, systems, and thinking tools.
+
+## About
+
+João Lopes is a software engineer at Nubank and an AI-first practitioner.
+He builds systems where AI agents are collaborators, not afterthoughts.
+He writes from first-hand experience — no trend summaries, no documentation rewrites.
+
+## Topics
+
+- AI-first engineering: agents, skills, rules, hooks, MCP
+- Knowledge systems: Obsidian vaults, zettelkasten, working memory for AI
+- Developer tooling: Clojure, CLI, static site generation
+- Career and craft: IC5 engineering, thinking tools, deliberate practice
+
+## Blog
+
+URL: https://joaolopes.dev.br
+RSS: https://joaolopes.dev.br/feed.xml
+
+## Posts
+
+- Building Your AI Toolkit
+  https://joaolopes.dev.br/posts/building-your-ai-toolkit/
+  AI agents are runtime loops, not autocomplete. The five building blocks — CLI, MCP, Skills, Rules, and Hooks — and why the role shifts from writing code to designing workflows.
+
+- Hello World
+  https://joaolopes.dev.br/posts/hello-world/
+  First post — what this blog is about, who's behind it, and the Obsidian + Clojure stack that powers it.
+
+## Contact
+
+GitHub: https://github.com/j0a0m4
+LinkedIn: https://www.linkedin.com/in/j0a0m4/
