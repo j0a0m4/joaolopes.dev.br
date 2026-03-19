@@ -190,27 +190,52 @@
               (for [s subs]
                 [:li [:a {:href (str "#" (:anchor s))} (:text s)]])])]))]]))
 
+(defn- icon-link
+  "Renders an anchor with an inline SVG icon + label. Centered via flex."
+  [href label icon-path & [{:keys [target onclick extra-class]}]]
+  [:a (cond-> {:href href :class (str "icon-link" (when extra-class (str " " extra-class)))}
+        target  (assoc :target target :rel "noopener noreferrer")
+        onclick (assoc :onclick onclick))
+   [:svg {:viewBox "0 0 16 16" :width "14" :height "14" :aria-hidden "true"}
+    [:path {:d icon-path}]]
+   label])
+
+(def ^:private icons
+  {:linkedin "M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"
+   :x       "M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75zm-.86 13.028h1.36L4.323 2.145H2.865z"
+   :bluesky "M8 1.5C4.134 1.5 1 4.358 1 7.89c0 2.13 1.129 4.006 2.84 5.12L3.5 14.5l1.68-.672A7.07 7.07 0 0 0 8 14.28a7.07 7.07 0 0 0 2.82-.452L12.5 14.5l-.34-1.49C13.871 11.896 15 10.02 15 7.89 15 4.358 11.866 1.5 8 1.5zM5.5 9a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm3 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm3 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1z"
+   :copy    "M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1zM9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"
+   :github  "M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"})
+
 (defn post-layout
   "Article layout for a single post. Returns hiccup."
   ([post html-body] (post-layout post html-body nil nil))
   ([post html-body series-ctx] (post-layout post html-body series-ctx nil))
   ([{:keys [title published-on updated-on tags slug linkedin-url url filename] :as post} html-body series-ctx toc]
+   (let [post-url   (java.net.URLEncoder/encode (absolute-url url) "UTF-8")
+         post-title (java.net.URLEncoder/encode (str title " ") "UTF-8")
+         raw-url    (when filename
+                      (str "https://raw.githubusercontent.com/j0a0m4/joaolopes.dev.br/main/posts/"
+                           (str/replace (java.net.URLEncoder/encode filename "UTF-8") "+" "%20")))
+         share-links (concat
+                       [(icon-link "#" "Copy link" (:copy icons)
+                                   {:onclick (str "navigator.clipboard.writeText('" (absolute-url url) "');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy link',2000);return false;")})
+                        (icon-link (str "https://www.linkedin.com/sharing/share-offsite/?url=" post-url)
+                                   "LinkedIn" (:linkedin icons) {:target "_blank"})
+                        (icon-link (str "https://x.com/intent/post?url=" post-url "&text=" post-title)
+                                   "Twitter" (:x icons) {:target "_blank"})
+                        (icon-link (str "https://bsky.app/intent/compose?text=" post-title post-url)
+                                   "Bluesky" (:bluesky icons) {:target "_blank"})]
+                       (when raw-url
+                         [(icon-link raw-url "RAW Markdown" (:github icons)
+                                     {:target "_blank" :extra-class "raw-link"})]))]
    [:article {:data-pagefind-body ""}
     [:h1 title]
     [:div.post-dateline
-     [:time {:datetime (str published-on)} (str published-on)]
+     "Published " [:time {:datetime (str published-on)} (str published-on)]
      (when updated-on
-       (list " · Updated " [:time {:datetime (str updated-on)} (str updated-on)]))
-     (when filename
-       (list " | "
-             [:a.raw-link
-              {:href (str "https://raw.githubusercontent.com/j0a0m4/joaolopes.dev.br/main/posts/"
-                          (str/replace (java.net.URLEncoder/encode filename "UTF-8") "+" "%20"))
-               :target "_blank" :rel "noopener noreferrer"}
-              [:svg {:viewBox "0 0 16 16" :width "12" :height "12"
-                     :style "vertical-align:middle;margin-right:3px;fill:currentColor"}
-               [:path {:d "M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"}]]
-              "RAW Markdown"]))]
+       (list " · Updated " [:time {:datetime (str updated-on)} (str updated-on)]))]
+    (into [:div.share-cta [:span.share-label "Share"]] share-links)
     (when (seq tags)
       [:div.tags
        (for [tag tags]
@@ -227,25 +252,11 @@
      (when linkedin-url
        (list " · "
              [:a {:href linkedin-url :target "_blank" :rel "noopener noreferrer"} "My LinkedIn post"]))]
-    (let [post-url   (java.net.URLEncoder/encode (absolute-url url) "UTF-8")
-          post-title (java.net.URLEncoder/encode (str title " ") "UTF-8")]
-      [:p.share-cta
-       "Share: "
-       [:a {:href (str "https://www.linkedin.com/sharing/share-offsite/?url=" post-url)
-            :target "_blank" :rel "noopener noreferrer"} "LinkedIn"]
-       " · "
-       [:a {:href (str "https://x.com/intent/post?url=" post-url "&text=" post-title)
-            :target "_blank" :rel "noopener noreferrer"} "X"]
-       " · "
-       [:a {:href (str "https://bsky.app/intent/compose?text=" post-title post-url)
-            :target "_blank" :rel "noopener noreferrer"} "Bluesky"]
-       " · "
-       [:a {:href "#"
-            :onclick (str "navigator.clipboard.writeText('" (absolute-url url) "');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy link',2000);return false;")} "Copy link"]])
+    (into [:div.share-cta [:span.share-label "Share"]] share-links)
     (when series-ctx
       (series-nav series-ctx))
     (when series-ctx
-      (series-json-ld post series-ctx))]))
+      (series-json-ld post series-ctx))])))
 
 (defn about-layout
   "About page content. Returns hiccup."
