@@ -193,7 +193,7 @@
   "Article layout for a single post. Returns hiccup."
   ([post html-body] (post-layout post html-body nil nil))
   ([post html-body series-ctx] (post-layout post html-body series-ctx nil))
-  ([{:keys [title published-on tags slug] :as post} html-body series-ctx toc]
+  ([{:keys [title published-on tags slug linkedin-url url filename] :as post} html-body series-ctx toc]
    [:article {:data-pagefind-body ""}
     [:h1 title]
     [:div.post-meta
@@ -201,7 +201,13 @@
      (when (seq tags)
        [:span.tags
         (for [tag tags]
-          [:a.tag {:href (href (tag-path (name tag)))} (str "#" (name tag))])])]
+          [:a.tag {:href (href (tag-path (name tag)))} (str "#" (name tag))])])
+     (when filename
+       [:a.raw-link
+        {:href (str "https://raw.githubusercontent.com/j0a0m4/joaolopes.dev.br/main/posts/"
+                    (java.net.URLEncoder/encode filename "UTF-8"))
+         :target "_blank" :rel "noopener noreferrer"}
+        "RAW Markdown"])]
     (when series-ctx
       (series-toc series-ctx slug))
     (toc-nav toc)
@@ -210,7 +216,25 @@
      "This post was drafted by an AI agent, reviewed by another, and revised by me."]
     [:p.reply-cta
      "Thoughts? "
-     [:a {:href "mailto:joao@joaolopes.dev.br"} "Reply by email"]]
+     [:a {:href "mailto:joao@joaolopes.dev.br"} "Reply by email"]
+     (when linkedin-url
+       (list " · "
+             [:a {:href linkedin-url :target "_blank" :rel "noopener noreferrer"} "My LinkedIn post"]))]
+    (let [post-url   (java.net.URLEncoder/encode (absolute-url url) "UTF-8")
+          post-title (java.net.URLEncoder/encode (str title " ") "UTF-8")]
+      [:p.share-cta
+       "Share: "
+       [:a {:href (str "https://www.linkedin.com/sharing/share-offsite/?url=" post-url)
+            :target "_blank" :rel "noopener noreferrer"} "LinkedIn"]
+       " · "
+       [:a {:href (str "https://x.com/intent/post?url=" post-url "&text=" post-title)
+            :target "_blank" :rel "noopener noreferrer"} "X"]
+       " · "
+       [:a {:href (str "https://bsky.app/intent/compose?text=" post-title post-url)
+            :target "_blank" :rel "noopener noreferrer"} "Bluesky"]
+       " · "
+       [:a {:href "#"
+            :onclick (str "navigator.clipboard.writeText('" (absolute-url url) "');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy link',2000);return false;")} "Copy link"]])
     (when series-ctx
       (series-nav series-ctx))
     (when series-ctx

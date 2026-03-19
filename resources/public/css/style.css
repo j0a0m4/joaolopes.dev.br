@@ -312,6 +312,22 @@ footer a:hover { color: var(--accent); }
   color: var(--muted);
 }
 
+.share-cta {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.raw-link {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-family: var(--mono);
+  border: 1px solid var(--border);
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+}
+
 /* Table of Contents */
 .toc {
   display: flex;
