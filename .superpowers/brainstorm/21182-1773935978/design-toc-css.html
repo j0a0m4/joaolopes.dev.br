@@ -1,0 +1,116 @@
+<h2>Design: Sections 2 & 3 — TOC + CSS fixes</h2>
+<p class="subtitle">Section 2: collapsible TOC. Section 3: the five CSS-only bug fixes.</p>
+
+<div class="section">
+  <p class="label">Section 2 — Collapsible TOC</p>
+  <h3>Native <code>&lt;details&gt;/&lt;summary&gt;</code> — zero JS, zero ARIA</h3>
+  <p style="margin-top:0.5rem;color:#bebebe">The existing <code>.toc</code> <code>&lt;nav&gt;</code> wraps in a <code>&lt;details&gt;</code>. The <code>&lt;summary&gt;</code> becomes the "Contents" label. Screen readers announce it as expandable natively — no ARIA authoring needed.</p>
+
+  <div class="mockup" style="margin-top:0.75rem">
+    <div class="mockup-header">layout.clj change — toc-nav becomes</div>
+    <div class="mockup-body" style="font-family:monospace;font-size:0.82rem;background:#1a1625;padding:1rem;color:#bebebe;line-height:1.6">
+      <span style="color:#7a7a8e">;; details = native disclosure, no JS needed</span><br>
+      [:details.toc-details {:open true} <span style="color:#7a7a8e">; open on desktop via CSS</span><br>
+      &nbsp;[:summary.toc-label "Contents"]<br>
+      &nbsp;[:ul ...]]
+    </div>
+  </div>
+
+  <div class="mockup" style="margin-top:0.75rem">
+    <div class="mockup-header">CSS — desktop stays open, mobile collapses</div>
+    <div class="mockup-body" style="font-family:monospace;font-size:0.82rem;background:#1a1625;padding:1rem;color:#bebebe;line-height:1.6">
+      <span style="color:#7a7a8e">/* Desktop: always open, hide the triangle */</span><br>
+      .toc-details[open] { display: block; }<br>
+      .toc-details > summary { list-style: none; cursor: default; }<br><br>
+      <span style="color:#7a7a8e">/* Mobile: collapsed by default, show toggle affordance */</span><br>
+      @media (max-width: 480px) {<br>
+      &nbsp;&nbsp;.toc-details:not([open]) > summary::after {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;content: " ▸ " attr(data-count);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;color: var(--muted);<br>
+      &nbsp;&nbsp;}<br>
+      &nbsp;&nbsp;.toc-details > summary { cursor: pointer; }<br>
+      }
+    </div>
+  </div>
+
+  <div class="split" style="margin-top:0.75rem">
+    <div class="mockup">
+      <div class="mockup-header">Mobile — closed</div>
+      <div class="mockup-body" style="background:#100e17;padding:0.75rem 1rem;font-family:system-ui;font-size:0.85rem">
+        <div style="border:1px solid rgba(14,210,247,0.15);border-radius:6px;padding:0.75rem 1rem">
+          <div style="font-weight:600;color:#bebebe;cursor:pointer">Contents <span style="color:#7a7a8e;font-weight:400">▸ 11 sections</span></div>
+        </div>
+        <div style="margin-top:0.5rem;color:#0fb6d6;font-size:0.82rem">AI agents are not text completers…</div>
+        <div style="color:#7a7a8e;font-size:0.75rem;margin-top:0.25rem">↑ content starts immediately</div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">Mobile — open</div>
+      <div class="mockup-body" style="background:#100e17;padding:0.75rem 1rem;font-family:system-ui;font-size:0.85rem">
+        <div style="border:1px solid rgba(14,210,247,0.15);border-radius:6px;padding:0.75rem 1rem">
+          <div style="font-weight:600;color:#bebebe;cursor:pointer;margin-bottom:0.5rem">Contents ▾</div>
+          <div style="color:#0fb6d6;font-size:0.82rem;margin-bottom:0.2rem">What an agent actually is</div>
+          <div style="color:#0fb6d6;font-size:0.82rem;margin-bottom:0.2rem">The five building blocks</div>
+          <div style="color:#0fb6d6;font-size:0.75rem;margin-bottom:0.2rem;padding-left:0.75rem">Rules — the passive knowledge</div>
+          <div style="color:#0fb6d6;font-size:0.75rem;margin-bottom:0.2rem;padding-left:0.75rem">Skills — the workflow brain</div>
+          <div style="color:#7a7a8e;font-size:0.75rem;padding-left:0.75rem">… 7 more</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:0.75rem;background:rgba(14,210,247,0.04);border:1px solid rgba(14,210,247,0.12);border-radius:6px;padding:0.75rem 1rem;font-size:0.85rem;color:#bebebe">
+    <strong style="color:#0fb6d6">A11y note:</strong> <code>&lt;details&gt;/&lt;summary&gt;</code> is ARIA role <code>group</code>/<code>button</code> implicitly. VoiceOver announces "Contents, collapsed, button" — no manual ARIA needed. The <code>open</code> attribute on the server-rendered HTML means desktop gets it open without JS.
+  </div>
+</div>
+
+<hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:1.5rem 0">
+
+<div class="section">
+  <p class="label">Section 3 — Five CSS fixes (all in one <code>@media (max-width: 480px)</code> block)</p>
+
+  <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:0.75rem">
+
+    <div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:0.75rem 1rem;font-size:0.88rem">
+      <div style="color:#0fb6d6;font-weight:600;margin-bottom:0.25rem">① Tags wrap</div>
+      <code style="color:#f4569d">flex-wrap: wrap</code> on <code>.tags</code> — one line. Last tag is no longer clipped.
+    </div>
+
+    <div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:0.75rem 1rem;font-size:0.88rem">
+      <div style="color:#0fb6d6;font-weight:600;margin-bottom:0.25rem">② Code block overflow indicator</div>
+      A <code>::after</code> pseudo-element on <code>pre</code> adds a right-edge fade gradient when the block overflows. Signals "there's more here" without obscuring content.
+    </div>
+
+    <div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:0.75rem 1rem;font-size:0.88rem">
+      <div style="color:#0fb6d6;font-weight:600;margin-bottom:0.25rem">③ Dateline wraps gracefully</div>
+      <code>.post-dateline</code> gets <code>display: flex; flex-wrap: wrap; gap: 0.25rem</code> — "Published …" and "· Updated …" stack cleanly when narrow instead of mid-sentence wrap.
+    </div>
+
+    <div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:0.75rem 1rem;font-size:0.88rem">
+      <div style="color:#0fb6d6;font-weight:600;margin-bottom:0.25rem">④ Body padding</div>
+      <code>body</code> gets <code>padding: 1.25rem 1rem</code> on mobile (down from <code>2rem 1rem</code>) — reduces wasted vertical space at top.
+    </div>
+
+    <div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:0.75rem 1rem;font-size:0.88rem">
+      <div style="color:#0fb6d6;font-weight:600;margin-bottom:0.25rem">⑤ Nav links touch targets</div>
+      <code>.nav-links a</code> gets <code>padding: 0.5rem 0</code> when the menu is open — each link has a ≥44px tap target height (WCAG 2.5.5).
+    </div>
+
+  </div>
+</div>
+
+<hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:1.5rem 0">
+
+<div class="section">
+  <p class="label">What stays unchanged</p>
+  <ul style="color:#7a7a8e;font-size:0.88rem;margin-left:1.25rem">
+    <li style="margin-bottom:0.3rem">Font size (18px) — already good on mobile</li>
+    <li style="margin-bottom:0.3rem">Max-width (42rem) — only kicks in on wider screens</li>
+    <li style="margin-bottom:0.3rem">All 768px+ layouts — no changes, already solid</li>
+    <li>Colors, theme, SVG diagrams — untouched</li>
+  </ul>
+</div>
+
+<div style="margin-top:1.5rem;background:rgba(14,210,247,0.04);border:1px solid rgba(14,210,247,0.12);border-radius:6px;padding:0.75rem 1rem;color:#bebebe;font-size:0.9rem">
+  Does this look right? Say yes and I'll write the spec doc, then the implementation plan.
+</div>

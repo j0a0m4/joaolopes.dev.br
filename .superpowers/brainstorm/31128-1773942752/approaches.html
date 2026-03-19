@@ -1,0 +1,44 @@
+<h2>Implementation approaches</h2>
+<p class="subtitle">Experience is settled. Now: how does the pipeline generate the diagram pages?</p>
+
+<div class="options">
+  <div class="option" data-choice="convention" onclick="toggleSelect(this)">
+    <div class="letter">A ★</div>
+    <div class="content">
+      <h3>Convention-driven — derive everything from filenames</h3>
+      <p>Title: <code>agent-loop.svg</code> → "Agent Loop" (kebab-to-title). Back-link: scan all posts at build time to find which post references each SVG — no author config needed. SVG <code>&lt;title&gt;</code> injected during inlining. Zero new config format.</p>
+      <div class="pros-cons" style="margin-top:0.75rem">
+        <div class="pros"><h4>Pros</h4><ul><li>No config to maintain</li><li>Works for existing SVGs today</li><li>Adding a new SVG auto-generates its page</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Title quality depends on filename</li><li>If an SVG appears in multiple posts, need a tie-breaking rule</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="registry" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Explicit registry — EDN/YAML config file</h3>
+      <p>A <code>diagrams.edn</code> file maps each SVG to its title, description, and parent post. Authoritative, flexible — can write a custom description for each diagram. Requires updating when adding a new diagram.</p>
+      <div class="pros-cons" style="margin-top:0.75rem">
+        <div class="pros"><h4>Pros</h4><ul><li>Rich metadata per diagram</li><li>Explicit and predictable</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Manual maintenance</li><li>Existing SVGs need backfill</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="frontmatter" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Post frontmatter — declare diagrams in the post</h3>
+      <p>Each post lists its diagrams in YAML frontmatter: <code>diagrams: [{file: agent-loop.svg, title: "Agent Loop"}]</code>. The build derives diagram pages from the posts that declare them. Tight coupling between post and its diagrams.</p>
+      <div class="pros-cons" style="margin-top:0.75rem">
+        <div class="pros"><h4>Pros</h4><ul><li>Diagrams stay with their post context</li><li>Natural place for diagram metadata</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Adds YAML to posts already managed in Obsidian</li><li>More frontmatter bloat</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:1.5rem;background:rgba(14,210,247,0.04);border:1px solid rgba(14,210,247,0.12);border-radius:6px;padding:0.75rem 1rem;font-size:0.88rem;color:#bebebe">
+  <strong style="color:#0fb6d6">My recommendation: A.</strong> Convention over configuration fits the existing codebase style. Filenames are already meaningful (<code>mcp-architecture</code>, <code>hooks-lifecycle</code>). Scanning posts to find back-links is a build-time operation that costs nothing at runtime. The 5 existing SVGs all have clean filenames that produce good titles.
+</div>

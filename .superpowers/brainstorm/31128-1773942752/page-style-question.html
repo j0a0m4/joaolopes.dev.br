@@ -1,0 +1,35 @@
+<h2>What should the diagram page look like?</h2>
+<p class="subtitle">The page at <code>/diagrams/agent-loop/</code> — how much chrome does it need?</p>
+
+<div class="options">
+  <div class="option" data-choice="bare" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Bare — SVG fills the viewport</h3>
+      <p>Dark background, SVG centered and scaled to fill the screen. A small "← Back" link in the corner. Nothing else. Best for mobile pinch-to-zoom, feels like a native viewer. Matches the blog's dark theme.</p>
+      <div style="background:#100e17;border-radius:4px;padding:0.5rem 0.75rem;margin-top:0.5rem;font-size:0.8rem;color:#7a7a8e;font-family:monospace">
+        ← back &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+        <div style="color:#0fb6d6;text-align:center;margin-top:0.5rem">[ SVG fills screen ]</div>
+      </div>
+    </div>
+  </div>
+  <div class="option" data-choice="minimal" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Minimal — title + SVG + back link</h3>
+      <p>Shows the diagram's title (e.g. "Agent Loop"), the SVG at full content width, and a "← Back to post" link. Same font/theme as the blog. No full nav bar. Clean context without clutter.</p>
+      <div style="background:#100e17;border-radius:4px;padding:0.5rem 0.75rem;margin-top:0.5rem;font-size:0.8rem;color:#bebebe;font-family:system-ui">
+        <div style="color:#0fb6d6;font-size:1rem;font-weight:600;margin-bottom:0.25rem">Agent Loop</div>
+        <div style="color:#7a7a8e;font-size:0.75rem;margin-bottom:0.5rem">← Back to Building Your AI Toolkit</div>
+        <div style="color:#0fb6d6;text-align:center">[ SVG full width ]</div>
+      </div>
+    </div>
+  </div>
+  <div class="option" data-choice="full" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Full blog layout — nav + footer</h3>
+      <p>Uses the same header/nav/footer as every other page. The diagram is the main content. Consistent look but adds weight — probably overkill for a diagram viewer.</p>
+    </div>
+  </div>
+</div>

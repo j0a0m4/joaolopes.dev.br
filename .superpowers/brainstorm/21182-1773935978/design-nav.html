@@ -1,0 +1,70 @@
+<h2>Design: Section 1 of 3 — Hamburger nav</h2>
+<p class="subtitle">Approach B, a11y-first. Every decision here has a reason rooted in WCAG 2.2 or ARIA APG patterns.</p>
+
+<div class="section">
+  <p class="label">HTML structure</p>
+  <div class="mockup">
+    <div class="mockup-header">layout.clj change — nav becomes</div>
+    <div class="mockup-body" style="font-family:monospace;font-size:0.82rem;background:#1a1625;padding:1rem;color:#bebebe;line-height:1.6">
+      <span style="color:#7a7a8e">;; &lt;button&gt; not &lt;div&gt; — native keyboard + screen reader target</span><br>
+      [:button.nav-toggle <br>
+      &nbsp;&nbsp;{:aria-expanded "false"<br>
+      &nbsp;&nbsp; :aria-controls "nav-menu"<br>
+      &nbsp;&nbsp; :aria-label "Menu"}<br>
+      &nbsp;&nbsp;[:span.hamburger-icon {:aria-hidden "true"} "☰"]]<br><br>
+      <span style="color:#7a7a8e">;; nav-links gets an id + hidden state</span><br>
+      [:span#nav-menu.nav-links {:hidden ""}
+      <br>&nbsp;&nbsp;...]
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <p class="label">A11y contract</p>
+  <ul style="color:#bebebe;font-size:0.9rem;margin-left:1.25rem">
+    <li style="margin-bottom:0.5rem"><strong style="color:#0fb6d6">aria-expanded</strong> toggles true/false on click — screen readers announce "Menu, collapsed" / "Menu, expanded"</li>
+    <li style="margin-bottom:0.5rem"><strong style="color:#0fb6d6">aria-controls="nav-menu"</strong> links button to the list it controls — VoiceOver/TalkBack can jump directly to the menu</li>
+    <li style="margin-bottom:0.5rem"><strong style="color:#0fb6d6">hidden attribute</strong> (not display:none via CSS) — when hidden, the nav items are truly removed from the accessibility tree, not just visually hidden</li>
+    <li style="margin-bottom:0.5rem"><strong style="color:#0fb6d6">Escape key</strong> closes menu, returns focus to button — standard keyboard pattern per ARIA APG disclosure nav</li>
+    <li style="margin-bottom:0.5rem"><strong style="color:#0fb6d6">Touch target ≥44×44px</strong> — hamburger button gets min-height/width: 44px (WCAG 2.5.5)</li>
+    <li><strong style="color:#0fb6d6">No focus trap</strong> — a disclosure nav (not a modal) lets Tab flow naturally through the items then out</li>
+  </ul>
+</div>
+
+<div class="section">
+  <p class="label">Visual mockup — phone (390px)</p>
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">Closed</div>
+      <div class="mockup-body" style="background:#100e17;padding:0.75rem 1rem;font-family:system-ui">
+        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(14,210,247,0.1);padding-bottom:0.75rem">
+          <a style="color:#0fb6d6;font-weight:600;font-size:1.1rem;display:flex;align-items:center;gap:0.4rem">
+            <span style="color:#0fb6d6">∞</span> João Lopes
+          </a>
+          <button style="background:none;border:1px solid rgba(14,210,247,0.2);border-radius:4px;color:#7a7a8e;font-size:1.1rem;padding:0.35rem 0.6rem;min-width:44px;min-height:44px;cursor:pointer">☰</button>
+        </div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">Open (aria-expanded="true")</div>
+      <div class="mockup-body" style="background:#100e17;padding:0.75rem 1rem;font-family:system-ui">
+        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(14,210,247,0.1);padding-bottom:0.75rem">
+          <a style="color:#0fb6d6;font-weight:600;font-size:1.1rem;display:flex;align-items:center;gap:0.4rem">
+            <span style="color:#0fb6d6">∞</span> João Lopes
+          </a>
+          <button style="background:rgba(14,210,247,0.08);border:1px solid rgba(14,210,247,0.3);border-radius:4px;color:#0fb6d6;font-size:1.1rem;padding:0.35rem 0.6rem;min-width:44px;min-height:44px;cursor:pointer">✕</button>
+        </div>
+        <div style="display:flex;flex-direction:column;padding:0.75rem 0;gap:0;border-bottom:1px solid rgba(14,210,247,0.08)">
+          <a style="color:#bebebe;text-decoration:none;padding:0.6rem 0.25rem;font-size:1rem;border-bottom:1px solid rgba(255,255,255,0.05)">Posts</a>
+          <a style="color:#bebebe;text-decoration:none;padding:0.6rem 0.25rem;font-size:1rem;border-bottom:1px solid rgba(255,255,255,0.05)">Tags</a>
+          <a style="color:#bebebe;text-decoration:none;padding:0.6rem 0.25rem;font-size:1rem;border-bottom:1px solid rgba(255,255,255,0.05)">About</a>
+          <a style="color:#7a7a8e;text-decoration:none;padding:0.6rem 0.25rem;font-size:0.9rem">RSS</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="background:rgba(14,210,247,0.04);border:1px solid rgba(14,210,247,0.12);border-radius:6px;padding:0.75rem 1rem">
+  <p style="color:#bebebe;font-size:0.9rem">⟶ Does this look right? Tell me in the terminal — or scroll to see Section 2 (TOC).</p>
+</div>
