@@ -41,7 +41,7 @@ do you use each one? Once that clicks, the rest follows.</p>
 <a class="toc-back" href="#toc">↑ Contents</a><h2 id="what-an-agent-actually-is">What an agent actually is</h2>
 <p>An agent is a loop where the model plans, acts, and self-corrects — not just
 responding to a prompt, but executing a sequence of decisions. The loop:</p>
-<p><figure class="diagram-figure"><a href="/diagrams/agent-loop/" class="diagram-link" aria-label="View Agent Loop diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 220" role="img" aria-labelledby="diag-agent-loop-title" aria-describedby="diag-agent-loop-desc"><title id="diag-agent-loop-title">Agent Loop</title><desc id="diag-agent-loop-desc">The agent loop: Gather → Act → Observe → repeat</desc>
+<p><figure class="diagram-figure"><a href="/preview/diagrams/agent-loop/" class="diagram-link" aria-label="View Agent Loop diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 220" role="img" aria-labelledby="diag-agent-loop-title" aria-describedby="diag-agent-loop-desc"><title id="diag-agent-loop-title">Agent Loop</title><desc id="diag-agent-loop-desc">The agent loop: Gather → Act → Observe → repeat</desc>
   <defs>
     <marker id="al-arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#7a7a8e"/>
@@ -79,7 +79,7 @@ responding to a prompt, but executing a sequence of decisions. The loop:</p>
   <path d="M 640 120 L 640 170 Q 640 190 620 190 L 160 190 Q 140 190 140 170 L 140 120"
         fill="none" stroke="#f4569d" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#al-arr-pink)"/>
   <text x="390" y="207" text-anchor="middle" class="svg-label svg-pink">repeat</text>
-</svg></a><figcaption><a href="/diagrams/agent-loop/" class="diagram-caption-link">View Agent Loop diagram →</a><details class="diagram-transcript"><summary>Diagram description</summary><p>The agent loop: Gather → Act → Observe → repeat</p></details></figcaption></figure></p>
+</svg></a><figcaption><a href="/preview/diagrams/agent-loop/" class="diagram-caption-link">View Agent Loop diagram →</a><details class="diagram-transcript"><summary>Diagram description</summary><p>The agent loop: Gather → Act → Observe → repeat</p></details></figcaption></figure></p>
 <p>Here's that loop running a pre-PR pipeline on a branch with 24 changed files:</p>
 <pre><code>User: &quot;let's wrap this up&quot;
 
@@ -159,7 +159,7 @@ narrates progress and synthesizes results. That parallelism, that narration,
 that async coordination — none of it is possible through MCP, which blocks on
 every call. Skills run inside the model's context, which means the model can
 plan, branch, and react in real time.</p>
-<p><figure class="diagram-figure"><a href="/diagrams/skill-orchestration/" class="diagram-link" aria-label="View Skill Orchestration diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 800 460" role="img" aria-labelledby="diag-skill-orchestration-title" aria-describedby="diag-skill-orchestration-desc"><title id="diag-skill-orchestration-title">Skill Orchestration</title><desc id="diag-skill-orchestration-desc">Skill orchestration: /pre-pr dispatches 4 sub-agents to CLI and MCP tools</desc>
+<p><figure class="diagram-figure"><a href="/preview/diagrams/skill-orchestration/" class="diagram-link" aria-label="View Skill Orchestration diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 800 460" role="img" aria-labelledby="diag-skill-orchestration-title" aria-describedby="diag-skill-orchestration-desc"><title id="diag-skill-orchestration-title">Skill Orchestration</title><desc id="diag-skill-orchestration-desc">Skill orchestration: /pre-pr dispatches 4 sub-agents to CLI and MCP tools</desc>
   <defs>
     <marker id="so-arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#7a7a8e"/>
@@ -223,7 +223,7 @@ plan, branch, and react in real time.</p>
 
   <!-- Legend -->
   <text x="400" y="440" text-anchor="middle" class="svg-sub svg-muted">4 sub-agents run in parallel — the skill narrates progress and synthesizes results</text>
-</svg></a><figcaption><a href="/diagrams/skill-orchestration/" class="diagram-caption-link">View Skill Orchestration diagram →</a><details class="diagram-transcript"><summary>Diagram description</summary><p>Skill orchestration: /pre-pr dispatches 4 sub-agents to CLI and MCP tools</p></details></figcaption></figure></p>
+</svg></a><figcaption><a href="/preview/diagrams/skill-orchestration/" class="diagram-caption-link">View Skill Orchestration diagram →</a><details class="diagram-transcript"><summary>Diagram description</summary><p>Skill orchestration: /pre-pr dispatches 4 sub-agents to CLI and MCP tools</p></details></figcaption></figure></p>
 <p>Here's the thing about skills: I didn't write most of mine by hand. I described
 the workflow in conversation — &quot;when I say <code>/meeting-prep</code>, gather the last two
 weeks of notes, check the issue tracker, read the person file&quot; — and the agent
@@ -248,7 +248,7 @@ Code, Cursor, VS Code, and any other MCP-compatible client. Anthropic
 <p>Each MCP tool is self-describing — it carries its name, description, and
 parameter schema. The agent reads the descriptions, decides which tools are
 relevant, and calls them with structured parameters.</p>
-<p><figure class="diagram-figure"><a href="/diagrams/mcp-architecture/" class="diagram-link" aria-label="View Mcp Architecture diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 700 300" role="img" aria-labelledby="diag-mcp-architecture-title" aria-describedby="diag-mcp-architecture-desc"><title id="diag-mcp-architecture-title">Mcp Architecture</title><desc id="diag-mcp-architecture-desc">MCP architecture: client connects to servers over JSON-RPC</desc>
+<p><figure class="diagram-figure"><a href="/preview/diagrams/mcp-architecture/" class="diagram-link" aria-label="View Mcp Architecture diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 700 300" role="img" aria-labelledby="diag-mcp-architecture-title" aria-describedby="diag-mcp-architecture-desc"><title id="diag-mcp-architecture-title">Mcp Architecture</title><desc id="diag-mcp-architecture-desc">MCP architecture: client connects to servers over JSON-RPC</desc>
   <defs>
     <marker id="biarr-r" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#0fb6d6"/>
@@ -285,7 +285,7 @@ relevant, and calls them with structured parameters.</p>
 
   <!-- Single JSON-RPC label centered between the two arrows -->
   <text x="328" y="138" text-anchor="middle" class="svg-code svg-accent">JSON-RPC</text>
-</svg></a><figcaption><a href="/diagrams/mcp-architecture/" class="diagram-caption-link">View Mcp Architecture diagram →</a><details class="diagram-transcript"><summary>Diagram description</summary><p>MCP architecture: client connects to servers over JSON-RPC</p></details></figcaption></figure></p>
+</svg></a><figcaption><a href="/preview/diagrams/mcp-architecture/" class="diagram-caption-link">View Mcp Architecture diagram →</a><details class="diagram-transcript"><summary>Diagram description</summary><p>MCP architecture: client connects to servers over JSON-RPC</p></details></figcaption></figure></p>
 <p><strong>The first tradeoff is context cost.</strong> MCP tool responses are often verbose
 JSON — a single search result can return thousands of tokens of metadata the
 agent doesn't need. Every token in a tool response competes with your
@@ -308,7 +308,7 @@ the correct mental model: skills as the workflow brain on top of both.</p>
 <p>Hooks fire at lifecycle points — before a tool runs, after it succeeds, when the
 session ends. A <code>PreToolUse</code> hook can block operations before they execute. A
 <code>PostToolUse</code> hook can redirect behavior after a tool call.</p>
-<p><figure class="diagram-figure"><a href="/diagrams/hooks-lifecycle/" class="diagram-link" aria-label="View Hooks Lifecycle diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 900" role="img" aria-labelledby="diag-hooks-lifecycle-title" aria-describedby="diag-hooks-lifecycle-desc"><title id="diag-hooks-lifecycle-title">Hooks Lifecycle</title><desc id="diag-hooks-lifecycle-desc">Hooks lifecycle: Agent → PreToolUse (block / annotate / pass) → Tool call → PostToolUse → Side effect</desc>
+<p><figure class="diagram-figure"><a href="/preview/diagrams/hooks-lifecycle/" class="diagram-link" aria-label="View Hooks Lifecycle diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 900" role="img" aria-labelledby="diag-hooks-lifecycle-title" aria-describedby="diag-hooks-lifecycle-desc"><title id="diag-hooks-lifecycle-title">Hooks Lifecycle</title><desc id="diag-hooks-lifecycle-desc">Hooks lifecycle: Agent → PreToolUse (block / annotate / pass) → Tool call → PostToolUse → Side effect</desc>
   <defs>
     <marker id="hl-arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#7a7a8e"/>
@@ -378,7 +378,7 @@ session ends. A <code>PreToolUse</code> hook can block operations before they ex
   <rect x="250" y="780" width="260" height="100" rx="8" fill="#191621" stroke="rgba(244, 86, 157, 0.4)" stroke-width="1.5"/>
   <text x="380" y="822" text-anchor="middle" class="svg-heading svg-accent">Side effect</text>
   <text x="380" y="848" text-anchor="middle" class="svg-body svg-muted">Update terminal · Log event</text>
-</svg></a><figcaption><a href="/diagrams/hooks-lifecycle/" class="diagram-caption-link">View Hooks Lifecycle diagram →</a><details class="diagram-transcript"><summary>Diagram description</summary><p>Hooks lifecycle: Agent → PreToolUse (block / annotate / pass) → Tool call → PostToolUse → Side effect</p></details></figcaption></figure></p>
+</svg></a><figcaption><a href="/preview/diagrams/hooks-lifecycle/" class="diagram-caption-link">View Hooks Lifecycle diagram →</a><details class="diagram-transcript"><summary>Diagram description</summary><p>Hooks lifecycle: Agent → PreToolUse (block / annotate / pass) → Tool call → PostToolUse → Side effect</p></details></figcaption></figure></p>
 <p>The critical insight: <strong>instructions are suggestions the model may ignore under
 pressure. Hooks are structural enforcement.</strong></p>
 <p>A <code>CLAUDE.md</code> instruction like &quot;always run tests before committing&quot; competes
@@ -393,7 +393,7 @@ call becomes an observable event you can log, validate, and react to. Hooks are
 the foundation for enforcement <em>and</em> observability.</p>
 <h3 id="the-intelligence-determinism-split">The intelligence-determinism split</h3>
 <p>The five layers split along one axis:</p>
-<p><figure class="diagram-figure"><a href="/diagrams/intelligence-determinism-split/" class="diagram-link" aria-label="View Intelligence Determinism Split diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 520" role="img" aria-labelledby="diag-intelligence-determinism-split-title" aria-describedby="diag-intelligence-determinism-split-desc"><title id="diag-intelligence-determinism-split-title">Intelligence Determinism Split</title><desc id="diag-intelligence-determinism-split-desc">The intelligence-determinism split: Rules and Skills shape the Agent, which calls Tools that Hooks intercept</desc>
+<p><figure class="diagram-figure"><a href="/preview/diagrams/intelligence-determinism-split/" class="diagram-link" aria-label="View Intelligence Determinism Split diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 520" role="img" aria-labelledby="diag-intelligence-determinism-split-title" aria-describedby="diag-intelligence-determinism-split-desc"><title id="diag-intelligence-determinism-split-title">Intelligence Determinism Split</title><desc id="diag-intelligence-determinism-split-desc">The intelligence-determinism split: Rules and Skills shape the Agent, which calls Tools that Hooks intercept</desc>
   <defs>
     <marker id="id-arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#7a7a8e"/>
@@ -457,7 +457,7 @@ the foundation for enforcement <em>and</em> observability.</p>
   <!-- Hooks → Tools ("intercept") -->
   <line x1="320" y1="430" x2="435" y2="430" stroke="#0fb6d6" stroke-width="2" marker-end="url(#id-arr-cyan)"/>
   <text x="378" y="422" text-anchor="middle" class="svg-label svg-accent">intercept</text>
-</svg></a><figcaption><a href="/diagrams/intelligence-determinism-split/" class="diagram-caption-link">View Intelligence Determinism Split diagram →</a><details class="diagram-transcript"><summary>Diagram description</summary><p>The intelligence-determinism split: Rules and Skills shape the Agent, which calls Tools that Hooks intercept</p></details></figcaption></figure></p>
+</svg></a><figcaption><a href="/preview/diagrams/intelligence-determinism-split/" class="diagram-caption-link">View Intelligence Determinism Split diagram →</a><details class="diagram-transcript"><summary>Diagram description</summary><p>The intelligence-determinism split: Rules and Skills shape the Agent, which calls Tools that Hooks intercept</p></details></figcaption></figure></p>
 <p>Skills sit above the deterministic layer — they orchestrate CLI and MCP tools,
 not alongside them. Rules load passively into the agent's context, shaping how
 skills reason. Hooks intercept tool calls from below, enforcing constraints
