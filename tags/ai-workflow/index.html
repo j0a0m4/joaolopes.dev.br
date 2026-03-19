@@ -7,4 +7,32 @@
           div.textContent = code.textContent;
           pre.replaceWith(div);
         });
-        mermaid.initialize({ startOnLoad: true, theme: 'dark' });</script></head><body><header><nav><a class="site-logo" href="/"><svg aria-hidden="true" class="logo" height="40" viewBox="0 0 32 32" width="40"><path class="logo-path" d="M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>João Lopes</a><span class="nav-links"><a href="/">Posts</a><a href="/tags/">Tags</a><a href="/about/">About</a><a href="/feed.xml">RSS</a></span></nav></header><main><div class="tag-index"><h1>#ai-workflow</h1><p class="series-count">1 post with this tag</p><ul class="tag-full-toc"><li><a href="/posts/building-your-ai-toolkit/">Building Your AI Toolkit</a><time datetime="2026-03-17">2026-03-17</time><p class="description">AI agents are runtime loops, not autocomplete. The five building blocks — CLI, MCP, Skills, Rules, and Hooks — and why the role shifts from writing code to designing workflows.</p></li></ul></div></main><footer><p>© 2026 <a href="https://github.com/j0a0m4" rel="noopener noreferrer" target="_blank">João Lopes</a></p><p>Theme inspired by <a href="https://github.com/bennyxguo/Obsidian-Obsidianite" rel="noopener noreferrer" target="_blank">Obsidianite</a></p></footer></body></html>
+        mermaid.initialize({ startOnLoad: true, theme: 'dark' });</script><script>document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.querySelector('.nav-toggle');
+  const menu = document.getElementById('nav-menu');
+  if (!btn || !menu) return;
+
+  // Hide on mobile only — not server-rendered, so desktop without JS sees links
+  if (window.matchMedia('(max-width: 480px)').matches) {
+    menu.setAttribute('hidden', '');
+    // TOC starts open (server-rendered); close it on mobile
+    const toc = document.querySelector('.toc-details');
+    if (toc) toc.removeAttribute('open');
+  }
+
+  btn.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+    menu.toggleAttribute('hidden');
+    btn.querySelector('.hamburger-icon').textContent = open ? '\u2630' : '\u2715';
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') {
+      btn.setAttribute('aria-expanded', 'false');
+      menu.setAttribute('hidden', '');
+      btn.querySelector('.hamburger-icon').textContent = '\u2630';
+      btn.focus();
+    }
+  });
+});</script></head><body><header><nav><a class="site-logo" href="/"><svg aria-hidden="true" class="logo" height="40" viewBox="0 0 32 32" width="40"><path class="logo-path" d="M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>João Lopes</a><button aria-controls="nav-menu" aria-expanded="false" aria-label="Menu" class="nav-toggle"><span aria-hidden="true" class="hamburger-icon">☰</span></button><span class="nav-links" id="nav-menu"><a href="/">Posts</a><a href="/tags/">Tags</a><a href="/about/">About</a><a href="/feed.xml">RSS</a></span></nav></header><main><div class="tag-index"><h1>#ai-workflow</h1><p class="series-count">1 post with this tag</p><ul class="tag-full-toc"><li><a href="/posts/building-your-ai-toolkit/">Building Your AI Toolkit</a><time datetime="2026-03-17">2026-03-17</time><p class="description">AI agents are runtime loops, not autocomplete. The five building blocks — CLI, MCP, Skills, Rules, and Hooks — and why the role shifts from writing code to designing workflows.</p></li></ul></div></main><footer><p>© 2026 <a href="https://github.com/j0a0m4" rel="noopener noreferrer" target="_blank">João Lopes</a></p><p>Theme inspired by <a href="https://github.com/bennyxguo/Obsidian-Obsidianite" rel="noopener noreferrer" target="_blank">Obsidianite</a></p></footer></body></html>
