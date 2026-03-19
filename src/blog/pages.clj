@@ -177,11 +177,12 @@
 
 (defn- render-sitemap
   "Generates sitemap.xml."
-  [posts series-map tag-map]
+  [posts series-map tag-map diagrams]
   (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
        "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n"
        "<url><loc>" (layout/absolute-url "/") "</loc></url>\n"
        "<url><loc>" (layout/absolute-url "/about/") "</loc></url>\n"
+       "<url><loc>" (layout/absolute-url "/diagrams/") "</loc></url>\n"
        (str/join
         (for [{:keys [url published-on]} posts]
           (str "<url>"
@@ -199,6 +200,11 @@
           (str "<url>"
                "<loc>" (layout/absolute-url (layout/tag-path tag)) "</loc>"
                "<lastmod>" (:published-on (first posts)) "</lastmod>"
+               "</url>\n")))
+       (str/join
+        (for [{:keys [slug]} diagrams]
+          (str "<url>"
+               "<loc>" (layout/absolute-url (layout/diagram-path slug)) "</loc>"
                "</url>\n")))
        "</urlset>"))
 
@@ -295,27 +301,45 @@
    "All tags."
    (layout/tags-overview-layout tag-map)))
 
+(defn- render-diagram-page
+  "Renders a single diagram page to full HTML."
+  [{:keys [title description] :as diagram}]
+  (layout/base-layout
+   (str title " — Diagram")
+   description
+   (layout/diagram-page-layout diagram)))
+
+(defn- render-diagrams-index
+  "Renders the /diagrams/ index page."
+  [diagrams]
+  (layout/base-layout
+   "Diagrams"
+   "Visual diagrams from the blog."
+   (layout/diagrams-index-layout diagrams)))
+
 (defn- render-404 []
   (layout/base-layout
    "Not Found" nil
    (layout/not-found-layout)))
 
 (defn get-pages
-  "Builds the Stasis page map from posts directory."
-  [posts-dir]
-  (let [posts (load-posts posts-dir)
-        slugs (published-slugs posts)
+  "Builds the Stasis page map from posts and assets directories."
+  [posts-dir assets-dir]
+  (let [posts      (load-posts posts-dir)
+        slugs      (published-slugs posts)
         series-map (group-series posts)
-        tag-map (group-tags posts)
-        _ (validate-series series-map)]
+        tag-map    (group-tags posts)
+        diagrams   (scan-diagrams posts assets-dir)
+        _          (validate-series series-map)]
     (merge
      {"/" (fn [_] (render-index posts))
       "/tags/" (fn [_] (render-tags-overview tag-map))
       "/about/" (fn [_] (render-about))
       "/feed.xml" (fn [_] (render-rss posts))
-      "/sitemap.xml" (fn [_] (render-sitemap posts series-map tag-map))
+      "/sitemap.xml" (fn [_] (render-sitemap posts series-map tag-map diagrams))
       "/llms.txt" (fn [_] (render-llms-txt posts))
-      "/404.html" (fn [_] (render-404))}
+      "/404.html" (fn [_] (render-404))
+      "/diagrams/" (fn [_] (render-diagrams-index diagrams))}
      (into {}
            (map (fn [post]
                   [(:url post)
@@ -330,4 +354,9 @@
            (map (fn [[tag posts]]
                   [(layout/tag-path tag)
                    (fn [_] (render-tag-index tag posts))]))
-           tag-map))))
+           tag-map)
+     (into {}
+           (map (fn [d]
+                  [(layout/diagram-path (:slug d))
+                   (fn [_] (render-diagram-page d))])
+                diagrams)))))
