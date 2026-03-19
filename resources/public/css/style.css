@@ -649,4 +649,35 @@ footer a:hover { color: var(--accent); }
     border-bottom: 1px solid var(--border);
     font-size: 1rem;
   }
+
+  /* Code block overflow indicator */
+  pre { position: relative; }
+  pre::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 2rem;
+    background: linear-gradient(to right, transparent, var(--code-bg));
+    pointer-events: none;
+    border-radius: 0 6px 6px 0;
+  }
+
+  /* TOC — collapsed by default on mobile (native <details> behaviour) */
+  .toc-details:not([open]) > summary::after {
+    content: " ▸ " attr(data-count);
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .toc-details[open] > summary::after {
+    content: " ▾";
+    color: var(--muted);
+  }
+  .toc-details > summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
 }
