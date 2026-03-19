@@ -194,6 +194,34 @@
      "About" nil
      (layout/about-layout html-body))))
 
+(defn- render-llms-txt
+  "Generates llms.txt for AI crawler discoverability."
+  [posts]
+  (let [published (filter :published-on posts)]
+    (str "# João Lopes — joaolopes.dev.br\n\n"
+         "> Notes on software, systems, and thinking tools.\n\n"
+         "## About\n\n"
+         "João Lopes is a software engineer at Nubank and an AI-first practitioner.\n"
+         "He builds systems where AI agents are collaborators, not afterthoughts.\n"
+         "He writes from first-hand experience — no trend summaries, no documentation rewrites.\n\n"
+         "## Topics\n\n"
+         "- AI-first engineering: agents, skills, rules, hooks, MCP\n"
+         "- Knowledge systems: Obsidian vaults, zettelkasten, working memory for AI\n"
+         "- Developer tooling: Clojure, CLI, static site generation\n"
+         "- Career and craft: IC5 engineering, thinking tools, deliberate practice\n\n"
+         "## Blog\n\n"
+         "URL: " layout/site-url "\n"
+         "RSS: " (layout/absolute-url "/feed.xml") "\n\n"
+         "## Posts\n\n"
+         (str/join "\n"
+          (for [{:keys [title url description published-on]} published]
+            (str "- " title "\n"
+                 "  " (layout/absolute-url url) "\n"
+                 (when description (str "  " description "\n")))))
+         "\n## Contact\n\n"
+         "GitHub: https://github.com/j0a0m4\n"
+         "LinkedIn: https://www.linkedin.com/in/j0a0m4/\n")))
+
 (defn- render-tags-overview
   "Renders the /tags/ overview page listing all tags."
   [tag-map]
@@ -221,6 +249,7 @@
       "/about/" (fn [_] (render-about))
       "/feed.xml" (fn [_] (render-rss posts))
       "/sitemap.xml" (fn [_] (render-sitemap posts series-map tag-map))
+      "/llms.txt" (fn [_] (render-llms-txt posts))
       "/404.html" (fn [_] (render-404))}
      (into {}
            (map (fn [post]

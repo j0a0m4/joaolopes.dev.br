@@ -208,6 +208,9 @@
     (h/raw html-body)
     [:aside.colophon
      "This post was drafted by an AI agent, reviewed by another, and revised by me."]
+    [:p.reply-cta
+     "Thoughts? "
+     [:a {:href "mailto:joao@joaolopes.dev.br"} "Reply by email"]]
     (when series-ctx
       (series-nav series-ctx))
     (when series-ctx
