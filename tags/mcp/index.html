@@ -35,4 +35,22 @@
       btn.focus();
     }
   });
-});</script></head><body><header><nav><a class="site-logo" href="/"><svg aria-hidden="true" class="logo" height="40" viewBox="0 0 32 32" width="40"><path class="logo-path" d="M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>João Lopes</a><button aria-controls="nav-menu" aria-expanded="false" aria-label="Menu" class="nav-toggle"><span aria-hidden="true" class="hamburger-icon">☰</span></button><span class="nav-links" id="nav-menu"><a href="/">Posts</a><a href="/tags/">Tags</a><a href="/about/">About</a><a href="/feed.xml">RSS</a></span></nav></header><main><div class="tag-index"><h1>#mcp</h1><p class="series-count">1 post with this tag</p><ul class="tag-full-toc"><li><a href="/posts/building-your-ai-toolkit/">Building Your AI Toolkit</a><time datetime="2026-03-17">2026-03-17</time><p class="description">AI agents are runtime loops, not autocomplete. The five building blocks — CLI, MCP, Skills, Rules, and Hooks — and why the role shifts from writing code to designing workflows.</p></li></ul></div></main><footer><p>© 2026 <a href="https://github.com/j0a0m4" rel="noopener noreferrer" target="_blank">João Lopes</a></p><p>Theme inspired by <a href="https://github.com/bennyxguo/Obsidian-Obsidianite" rel="noopener noreferrer" target="_blank">Obsidianite</a></p></footer></body></html>
+});
+
+// Scroll restoration: save position when clicking a diagram link, restore on back
+(function() {
+  if (history.scrollRestoration) history.scrollRestoration = 'manual';
+  const key = 'scroll:' + location.pathname;
+  const saved = sessionStorage.getItem(key);
+  if (saved !== null) {
+    sessionStorage.removeItem(key);
+    // Restore after DOM is parsed and layout is complete
+    document.addEventListener('DOMContentLoaded', () => {
+      requestAnimationFrame(() => window.scrollTo(0, parseInt(saved, 10)));
+    });
+  }
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('.diagram-link, .diagram-caption-link, .diagram-card');
+    if (a) sessionStorage.setItem('scroll:' + location.pathname, window.scrollY);
+  });
+})();</script></head><body><header><nav><a class="site-logo" href="/"><svg aria-hidden="true" class="logo" height="40" viewBox="0 0 32 32" width="40"><path class="logo-path" d="M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>João Lopes</a><button aria-controls="nav-menu" aria-expanded="false" aria-label="Menu" class="nav-toggle"><span aria-hidden="true" class="hamburger-icon">☰</span></button><span class="nav-links" id="nav-menu"><a href="/">Posts</a><a href="/tags/">Tags</a><a href="/diagrams/">Diagrams</a><a href="/about/">About</a><a href="/feed.xml">RSS</a></span></nav></header><main><div class="tag-index"><h1>#mcp</h1><p class="series-count">1 post with this tag</p><ul class="tag-full-toc"><li><a href="/posts/building-your-ai-toolkit/">Building Your AI Toolkit</a><time datetime="2026-03-17">2026-03-17</time><p class="description">AI agents are runtime loops, not autocomplete. The five building blocks — CLI, MCP, Skills, Rules, and Hooks — and why the role shifts from writing code to designing workflows.</p></li></ul></div></main><footer><p>© 2026 <a href="https://github.com/j0a0m4" rel="noopener noreferrer" target="_blank">João Lopes</a></p><p>Theme inspired by <a href="https://github.com/bennyxguo/Obsidian-Obsidianite" rel="noopener noreferrer" target="_blank">Obsidianite</a></p></footer></body></html>
