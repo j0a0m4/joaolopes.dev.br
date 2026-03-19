@@ -99,7 +99,22 @@
       btn.focus();
     }
   });
-});")]]
+});
+
+// Scroll restoration: save position when clicking a diagram link, restore on back
+(function() {
+  if (history.scrollRestoration) history.scrollRestoration = 'manual';
+  const key = 'scroll:' + location.pathname;
+  const saved = sessionStorage.getItem(key);
+  if (saved !== null) {
+    window.scrollTo(0, parseInt(saved, 10));
+    sessionStorage.removeItem(key);
+  }
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('.diagram-link, .diagram-caption-link, .diagram-card');
+    if (a) sessionStorage.setItem('scroll:' + location.pathname, window.scrollY);
+  });
+})();")]]
      [:body
       [:header
        [:nav
@@ -331,8 +346,7 @@
    [:div.diagram-full
     (h/raw svg-content)]
    (when (seq description)
-     [:details.diagram-transcript
-      [:summary "Diagram description"]
+     [:div.diagram-transcript
       [:p description]])])
 
 (defn diagrams-index-layout

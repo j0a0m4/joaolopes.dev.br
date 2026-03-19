@@ -722,13 +722,7 @@ footer a:hover { color: var(--accent); }
 .diagram-caption-link:hover { color: var(--accent); }
 
 .diagram-transcript { margin-top: 0.5rem; font-size: 0.82rem; }
-.diagram-transcript > summary {
-  color: var(--muted);
-  cursor: pointer;
-  list-style: none;
-}
-.diagram-transcript > summary::-webkit-details-marker { display: none; }
-.diagram-transcript > p { color: var(--muted); margin-top: 0.4rem; line-height: 1.5; }
+.diagram-transcript > p { color: var(--muted); margin-top: 0; line-height: 1.5; }
 
 /* ── Diagram standalone page ──────────────────────────────── */
 .diagram-page { max-width: var(--max-width); margin: 0 auto; }

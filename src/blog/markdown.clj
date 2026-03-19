@@ -180,10 +180,9 @@
                             "View " title " diagram \u2192"
                             "</a>"
                             (when alt
-                              (str "<details class=\"diagram-transcript\">"
-                                   "<summary>Diagram description</summary>"
+                              (str "<div class=\"diagram-transcript\">"
                                    "<p>" alt "</p>"
-                                   "</details>"))
+                                   "</div>"))
                             "</figcaption>"
                             "</figure>"))
                      img-tag)))))
