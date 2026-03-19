@@ -167,7 +167,8 @@
                                        (str/replace #"<\?xml[^>]*\?>\s*" "")
                                        str/trim)
                            svg     (inject-svg-a11y svg-raw slug title alt)
-                           href    (str "/diagrams/" slug "/")]
+                           base    (or (System/getenv "BASE_PATH") "")
+                           href    (str base "/diagrams/" slug "/")]
                        (str "<figure class=\"diagram-figure\">"
                             "<a href=\"" href "\""
                             " class=\"diagram-link\""
