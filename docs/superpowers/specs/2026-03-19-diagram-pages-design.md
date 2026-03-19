@@ -38,6 +38,8 @@ SVG diagrams in posts render at ~354px wide on phone (46% of their 760px design 
 
 Title is derived by splitting on `-` and capitalising each word (Clojure: `(->> (str/split slug #"-") (map str/capitalize) (str/join " "))`).
 
+**Known limitation:** Acronyms in filenames produce mixed-case titles — `mcp-architecture.svg` → `"Mcp Architecture"`. This is an accepted tradeoff of the convention-driven approach. Rename the SVG file if the auto-generated title is unacceptable (e.g. rename to `MCP-architecture.svg` is not practical; prefer a post-processing step if needed in future).
+
 ---
 
 ## Design
@@ -57,6 +59,7 @@ Title is derived by splitting on `-` and capitalising each word (Clojure: `(->> 
      aria-label="View Agent Loop diagram">
     <svg role="img"
          aria-labelledby="diag-agent-loop-title"
+         aria-describedby="diag-agent-loop-desc"
          width="100%"
          viewBox="0 0 760 220">
       <title id="diag-agent-loop-title">Agent Loop</title>
@@ -116,7 +119,8 @@ Title is derived by splitting on `-` and capitalising each word (Clojure: `(->> 
 
 **A11y contract:**
 - `role="img"` — SVG is treated as a single image, not a tree of shapes
-- `aria-labelledby` → `<title id>` — short name announced by screen reader
+- `aria-labelledby` → `<title id>` — short name (accessible name) announced by screen reader
+- `aria-describedby` → `<desc id>` — long description read after the name when alt text is present; omit both attributes when alt is absent
 - `aria-label` on outer `<a>` — full descriptive link text for keyboard nav ("View Agent Loop diagram")
 - `<figcaption>` — associated with `<figure>` by semantic HTML; read by screen readers
 - `<details>/<summary>` transcript — accessible to all users, keyboard-navigable natively
@@ -142,52 +146,77 @@ At build time, before rendering posts, scan `/assets/*.svg` and cross-reference 
       (or (when (seq alt1) alt1) (when (seq alt2) alt2)))))
 
 (defn scan-diagrams
-  "Builds diagram metadata from /assets/*.svg cross-referenced with posts.
-   Returns [{:slug :title :back-post :description}]"
-  [posts]
-  (let [asset-dir (io/file "./assets")]
-    (when (.isDirectory asset-dir)
+  "Builds diagram metadata from assets-dir/*.svg cross-referenced with posts.
+   assets-dir is the string path passed from core/assets-dir (default: \"assets\").
+   Returns [{:slug :title :back-post :description :svg-content}]
+   :svg-content is the raw SVG string with XML declaration stripped, ready for inlining."
+  [posts assets-dir]
+  (let [asset-dir (io/file assets-dir)]
+    (if (.isDirectory asset-dir)
       (->> (.listFiles asset-dir)
            (filter #(str/ends-with? (.getName %) ".svg"))
            (map (fn [f]
-                  (let [slug  (svg-slug (.getName f))
-                        title (slug->title slug)
-                        src   (str "/assets/" (.getName f))
+                  (let [slug        (svg-slug (.getName f))
+                        title       (slug->title slug)
+                        src         (str "/assets/" (.getName f))
                         ;; Find first post that references this SVG
-                        back  (first (filter #(str/includes? (:body %) src) posts))
-                        alt   (when back (extract-diagram-alt src (:body back)))]
+                        back        (first (filter #(str/includes? (:body %) src) posts))
+                        alt         (when back (extract-diagram-alt src (:body back)))
+                        svg-content (-> (slurp f)
+                                        (str/replace #"<\?xml[^>]*\?>\s*" "")
+                                        str/trim)]
                     {:slug        slug
                      :title       title
                      :back-post   (when back {:title (:title back) :url (:url back)})
-                     :description alt})))
-           vec))))
+                     :description alt
+                     :svg-content svg-content})))
+           vec)
+      [])))
 ```
 
 ---
 
 ### 3. Diagram page layout (`layout.clj` — new functions)
 
-**`diagram-page-layout`** — renders a single diagram page:
+**`diagram-page-layout`** — renders a single diagram page. Receives the full diagram map including `:svg-content` (the raw SVG string with XML declaration stripped, produced by `scan-diagrams`). The SVG has `<title>` and `<desc>` injected by `pages.clj` before passing to layout, same logic as `inline-svgs`.
 
 ```clojure
 (defn diagram-page-layout
-  "Standalone diagram viewer page. Returns hiccup."
-  [{:keys [slug title back-post description]}]
+  "Standalone diagram viewer page. Returns hiccup.
+   diagram map keys: :slug :title :back-post :description :svg-content (raw SVG string)"
+  [{:keys [slug title back-post description svg-content]}]
   [:div.diagram-page
    (when back-post
      [:a.diagram-back {:href (href (:url back-post))}
       (str "\u2190 " (:title back-post))])
    [:h1.diagram-title title]
    [:div.diagram-full
-    ;; SVG inlined here — pages.clj passes the SVG content
-    ]
+    (h/raw svg-content)]   ;; svg-content has <title>/<desc> already injected
    (when (seq description)
      [:details.diagram-transcript
       [:summary "Diagram description"]
       [:p description]])])
 ```
 
-The SVG content is inlined directly — same `inline-svgs`-style injection but without the `<figure>` wrapper (the page itself is the container).
+`pages.clj` calls `layout/base-layout` wrapping `diagram-page-layout`, identical pattern to `render-tag-index` and all other page renderers:
+
+```clojure
+(defn- render-diagram-page
+  "Renders a single diagram page to full HTML."
+  [{:keys [title description] :as diagram}]
+  (layout/base-layout
+   (str title " — Diagram")
+   description
+   (layout/diagram-page-layout diagram)))
+
+(defn- render-diagrams-index
+  "Renders the /diagrams/ index page."
+  [diagrams]
+  (layout/base-layout
+   "Diagrams"
+   "Visual diagrams from the blog."
+   (layout/diagrams-index-layout diagrams)))
+```
 
 **`diagrams-index-layout`** — renders `/diagrams/` index:
 
@@ -203,7 +232,7 @@ The SVG content is inlined directly — same `inline-svgs`-style injection but w
        [:div.diagram-card-thumb
         (h/raw svg-content)]    ;; SVG thumbnail, CSS clips height
        [:div.diagram-card-body
-        [:h2.diagram-card-title title]
+        [:p.diagram-card-title title]   ;; <p> not <h2> — cards are navigation, not document structure
         (when back-post
           [:p.diagram-card-source
            "From: " (:title back-post)])]])]])
@@ -217,19 +246,42 @@ Add helper: `(defn diagram-path [slug] (str "/diagrams/" slug "/"))`.
 
 ### 4. Page generation (`pages.clj` — `get-pages`)
 
+**`get-pages` signature change:** Add `assets-dir` as a second parameter, passed from `core.clj`'s `assets-dir` constant (`"assets"`). Update `core.clj` caller: `(pages/get-pages posts-dir assets-dir)`. The dev server lambda also passes it: `(stasis/serve-pages #(pages/get-pages posts-dir assets-dir))`.
+
 ```clojure
-;; In get-pages, after scanning diagrams:
-(let [diagrams (scan-diagrams posts)]
-  (merge existing-pages
-    {"/diagrams/" (fn [_] (render-diagrams-index diagrams))}
-    (into {}
-      (map (fn [d]
-             [(diagram-path (:slug d))
-              (fn [_] (render-diagram-page d))])
-           diagrams))))
+(defn get-pages
+  "Builds the Stasis page map. assets-dir is the path to SVG assets (e.g. \"assets\")."
+  [posts-dir assets-dir]
+  (let [posts      (load-posts posts-dir)
+        slugs      (published-slugs posts)
+        series-map (group-series posts)
+        tag-map    (group-tags posts)
+        diagrams   (scan-diagrams posts assets-dir)   ;; new
+        _          (validate-series series-map)]
+    (merge
+     { ... existing entries ... }
+     {"/diagrams/" (fn [_] (render-diagrams-index diagrams))}
+     (into {}
+       (map (fn [d]
+              [(layout/diagram-path (:slug d))
+               (fn [_] (render-diagram-page d))])
+            diagrams)))))
 ```
 
-Add `/diagrams/` entries to `render-sitemap`.
+**`render-sitemap` signature change:** Add `diagrams` as a fourth parameter and emit `/diagrams/` + each `/diagrams/<slug>/` URL:
+
+```clojure
+(defn- render-sitemap
+  [posts series-map tag-map diagrams]
+  (str ...existing...
+       "<url><loc>" (layout/absolute-url "/diagrams/") "</loc></url>\n"
+       (str/join
+        (for [{:keys [slug]} diagrams]
+          (str "<url><loc>" (layout/absolute-url (layout/diagram-path slug)) "</loc></url>\n")))
+       "</urlset>"))
+```
+
+Update the call site in `get-pages` accordingly.
 
 ---
 
@@ -249,7 +301,7 @@ Add `/diagrams/` entries to `render-sitemap`.
 }
 
 .diagram-link::after {
-  content: '\2922';          /* ⤢ zoom icon */
+  content: '\2197';          /* ↗ arrow — safe in all fonts including Rubik */
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
@@ -329,6 +381,7 @@ Add `/diagrams/` entries to `render-sitemap`.
   transition: border-color 200ms ease;
 }
 .diagram-card:hover { border-color: var(--accent); }
+.diagram-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .diagram-card-thumb {
   background: var(--bg-alt);
   padding: 0.75rem;
@@ -369,3 +422,7 @@ Add `/diagrams/` entries to `render-sitemap`.
 - All existing post rendering, TOC, series, tag pages
 - SVG files in `/assets/` — read-only at build time, not modified
 - Stasis/Clojure build pipeline — no new dependencies
+
+## Dev server note
+
+`core.clj`'s `wrap-static-dirs` maps `/css/` and `/assets/` only. The `/diagrams/` routes are served by Stasis's `serve-pages` handler (which rebuilds on every request) — no handler change needed. The `get-pages` signature change requires updating both the `build` call and the `serve-pages` lambda in `core.clj`.
