@@ -211,6 +211,54 @@
      "About" nil
      (layout/about-layout html-body))))
 
+(defn- svg-slug
+  "agent-loop.svg → agent-loop"
+  [filename]
+  (str/replace filename #"\.svg$" ""))
+
+(defn- slug->title
+  "agent-loop → Agent Loop"
+  [slug]
+  (->> (str/split slug #"-") (map str/capitalize) (str/join " ")))
+
+(defn- extract-diagram-alt
+  "Finds alt text for src-path in a post body string.
+   Handles both attribute orderings: alt before src, src before alt."
+  [src-path body]
+  (let [q (java.util.regex.Pattern/quote src-path)
+        p (re-pattern (str "(?:alt=\"([^\"]*)\"[^>]*src=\"" q "\"|src=\"" q "\"[^>]*alt=\"([^\"]*)\")"))
+        m (re-find p body)]
+    (when m
+      (let [alt (or (nth m 1 nil) (nth m 2 nil))]
+        (when (seq alt) alt)))))
+
+(defn scan-diagrams
+  "Builds diagram metadata from assets-dir/*.svg cross-referenced with posts.
+   assets-dir is a string path (e.g. \"assets\").
+   Returns [{:slug :title :back-post :description :svg-content}]
+   :svg-content is the raw SVG string with XML declaration stripped."
+  [posts assets-dir]
+  (let [asset-dir (io/file assets-dir)]
+    (if (.isDirectory asset-dir)
+      (->> (.listFiles asset-dir)
+           (filter #(str/ends-with? (.getName %) ".svg"))
+           (map (fn [f]
+                  (let [slug        (svg-slug (.getName f))
+                        title       (slug->title slug)
+                        src         (str "/assets/" (.getName f))
+                        back        (first (filter #(str/includes? (:body %) src) posts))
+                        alt         (when back (extract-diagram-alt src (:body back)))
+                        svg-content (-> (slurp f)
+                                        (str/replace #"<\?xml[^>]*\?>\s*" "")
+                                        str/trim)]
+                    {:slug        slug
+                     :title       title
+                     :back-post   (when back {:title (:title back) :url (:url back)})
+                     :description alt
+                     :svg-content svg-content})))
+           vec)
+      [])))
+
 (defn- render-llms-txt
   "Generates llms.txt for AI crawler discoverability."
   [posts]
