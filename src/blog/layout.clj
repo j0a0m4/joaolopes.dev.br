@@ -343,7 +343,7 @@
    [:div.diagram-cards
     (for [{:keys [slug title back-post svg-content]} diagrams]
       [:a.diagram-card {:href (href (diagram-path slug))}
-       [:div.diagram-card-thumb
+       [:div.diagram-card-thumb {:aria-hidden "true"}
         (h/raw svg-content)]
        [:div.diagram-card-body
         [:p.diagram-card-title title]

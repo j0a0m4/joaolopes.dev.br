@@ -228,21 +228,39 @@
   (->> (str/split slug #"-") (map str/capitalize) (str/join " ")))
 
 (defn- extract-diagram-alt
-  "Finds alt text for src-path in a post body string.
-   Handles both attribute orderings: alt before src, src before alt."
+  "Finds alt text for src-path in a post body (raw markdown).
+   Matches Markdown image syntax: ![alt text](/assets/foo.svg)
+   Returns nil if alt is absent or empty."
   [src-path body]
   (let [q (java.util.regex.Pattern/quote src-path)
-        p (re-pattern (str "(?:alt=\"([^\"]*)\"[^>]*src=\"" q "\"|src=\"" q "\"[^>]*alt=\"([^\"]*)\")"))
+        p (re-pattern (str "!\\[([^\\]]*)\\]\\(" q "\\)"))
         m (re-find p body)]
     (when m
-      (let [alt (or (nth m 1 nil) (nth m 2 nil))]
+      (let [alt (nth m 1 nil)]
         (when (seq alt) alt)))))
+
+(defn- inject-diagram-a11y
+  "Injects ARIA attributes and <title>/<desc> into an SVG string for diagram pages.
+   Mirrors markdown/inject-svg-a11y but operates on diagram metadata maps."
+  [svg-content slug title description]
+  (str/replace svg-content #"(<svg)([ \t\n][^>]*)?(>)"
+               (fn [[_ tag attrs close]]
+                 (str tag
+                      (or attrs "")
+                      " role=\"img\""
+                      " aria-labelledby=\"diag-" slug "-title\""
+                      (when description
+                        (str " aria-describedby=\"diag-" slug "-desc\""))
+                      close
+                      "<title id=\"diag-" slug "-title\">" title "</title>"
+                      (when description
+                        (str "<desc id=\"diag-" slug "-desc\">" description "</desc>"))))))
 
 (defn scan-diagrams
   "Builds diagram metadata from assets-dir/*.svg cross-referenced with posts.
    assets-dir is a string path (e.g. \"assets\").
    Returns [{:slug :title :back-post :description :svg-content}]
-   :svg-content is the raw SVG string with XML declaration stripped."
+   :svg-content is the raw SVG string with XML declaration stripped and ARIA injected."
   [posts assets-dir]
   (let [asset-dir (io/file assets-dir)]
     (if (.isDirectory asset-dir)
@@ -254,9 +272,10 @@
                         src         (str "/assets/" (.getName f))
                         back        (first (filter #(str/includes? (:body %) src) posts))
                         alt         (when back (extract-diagram-alt src (:body back)))
-                        svg-content (-> (slurp f)
+                        svg-raw     (-> (slurp f)
                                         (str/replace #"<\?xml[^>]*\?>\s*" "")
-                                        str/trim)]
+                                        str/trim)
+                        svg-content (inject-diagram-a11y svg-raw slug title alt)]
                     {:slug        slug
                      :title       title
                      :back-post   (when back {:title (:title back) :url (:url back)})
