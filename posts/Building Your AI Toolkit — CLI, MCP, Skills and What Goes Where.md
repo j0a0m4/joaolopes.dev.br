@@ -303,5 +303,5 @@ I acted as architect — defining what each workflow needed, where the human gat
 belong, what information to gather. The agent implemented it. CLI, MCP, Skills,
 Rules, and Hooks are the building blocks. Markdown is the format they share.
 
-_Next in this series: why filling your knowledge base with notes makes your AI
-agents less accurate — not more._
+_Next in this series: how to model agent behavior without prompting — rules as
+silent context injection._
