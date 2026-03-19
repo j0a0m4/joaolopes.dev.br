@@ -8,6 +8,18 @@
            [java.time.format DateTimeFormatter]
            [java.util Locale]))
 
+(defn- git-last-modified
+  "Returns the last git commit date for a file as a YYYY-MM-DD string, or nil."
+  [file]
+  (try
+    (let [result (-> (ProcessBuilder. ["git" "log" "-1" "--format=%cs" (.getAbsolutePath file)])
+                     (.start)
+                     (.getInputStream)
+                     (slurp)
+                     (str/trim))]
+      (when (seq result) result))
+    (catch Exception _ nil)))
+
 (defn load-posts
   "Loads all markdown files from dir, parses them, returns sorted by published-on desc."
   [dir]
@@ -16,7 +28,12 @@
       (->> (.listFiles d)
            (filter #(str/ends-with? (.getName %) ".md"))
            (map (fn [f]
-                  (markdown/parse-post (.getName f) (slurp f))))
+                  (let [post     (markdown/parse-post (.getName f) (slurp f))
+                        modified (git-last-modified f)]
+                    (if (and modified (:published-on post)
+                             (pos? (compare modified (str (:published-on post)))))
+                      (assoc post :updated-on modified)
+                      post))))
            (filter :published-on)
            (sort-by :published-on #(compare %2 %1))
            vec)
