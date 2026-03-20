@@ -45,14 +45,17 @@
   (into #{} (map :slug posts)))
 
 (defn- extract-definition-text
-  "Extracts the ## Definition section from a glossary entry body as plain text."
+  "Extracts the first paragraph of the ## Definition section as plain text.
+   Stops at the first blank line (paragraph break) or next heading."
   [body]
-  (when-let [[_ section] (re-find #"(?s)## Definition\n\n(.*?)(?=\n##|\z)" body)]
+  (when-let [[_ section] (re-find #"## Definition\n\n([^\n]+(?:\n[^\n]+)*)" body)]
     (-> section str/trim (str/replace #"\n+" " "))))
 
 (defn load-glossary
   "Loads all markdown files from glossary-dir with format: definition and publish: true.
-   Returns [{:title :slug :definition :html-body :related-links}] sorted by title."
+   Returns [{:title :slug :definition :raw-body :related-links}] sorted by title.
+   Bodies are NOT rendered here — render them in get-pages after defs are available
+   so wikilinks can be resolved via transform-obsidian."
   [glossary-dir]
   (let [d (io/file glossary-dir)]
     (if (.isDirectory d)
@@ -63,14 +66,18 @@
                          title       (:title meta)
                          slug        (:slug meta (markdown/slugify title))
                          definition  (extract-definition-text body)
-                         clean-body  (str/replace body #"(?s)## Definition\n\n.*?(?=\n##|\z)" "")
-                         html-body   (markdown/render-markdown clean-body)
+                         ;; Strip leading H1, Definition section first paragraph, Related section
+                         clean-body  (-> body
+                                         (str/replace #"(?m)^# .+\n*" "")
+                                         (str/replace #"## Definition\n\n[^\n]+(?:\n[^\n]+)*\n?" "")
+                                         (str/replace #"(?s)\n## Related\n.*$" "")
+                                         str/trim)
                          related     (or (:related meta) [])]
                      (when (and title (:publish meta) (= "definition" (name (or (:format meta) ""))))
                        {:title         title
                         :slug          slug
                         :definition    definition
-                        :html-body     html-body
+                        :raw-body      clean-body
                         :related-links (mapv (fn [r] {:label r
                                                        :slug  (markdown/slugify r)})
                                              related)}))))
@@ -262,6 +269,15 @@
      "About" nil
      (layout/about-layout html-body))))
 
+(defn- render-glossary-body
+  "Renders a glossary entry's raw-body to html-body using transform-obsidian
+   so wikilinks (both post and glossary) are resolved correctly."
+  [entry slugs glossary-defs]
+  (assoc entry :html-body
+         (-> (:raw-body entry)
+             (markdown/transform-obsidian slugs glossary-defs)
+             markdown/render-markdown)))
+
 (defn- render-glossary-entry
   "Renders a single glossary entry page."
   [entry]
@@ -408,10 +424,12 @@
 (defn get-pages
   "Builds the Stasis page map from posts and assets directories."
   [posts-dir assets-dir]
-  (let [posts         (load-posts posts-dir)
-        glossary      (load-glossary "glossary")
-        defs          (glossary-defs-map glossary)
-        slugs         (published-slugs posts)
+  (let [posts           (load-posts posts-dir)
+        glossary-raw    (load-glossary "glossary")
+        defs            (glossary-defs-map glossary-raw)
+        slugs           (published-slugs posts)
+        ;; Render glossary bodies now that defs + slugs are available
+        glossary        (mapv #(render-glossary-body % slugs defs) glossary-raw)
         series-map    (group-series posts)
         tag-map       (group-tags posts)
         diagrams      (scan-diagrams posts assets-dir)
