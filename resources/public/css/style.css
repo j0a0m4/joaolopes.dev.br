@@ -787,44 +787,21 @@ footer a:hover { color: var(--accent); }
   overflow-x: auto;
 }
 
-/* ─── Glossary terms — click-to-reveal definitions ───────────────── */
-details.glossary-term { display: inline; }
-
-details.glossary-term summary {
-  display: inline;
-  color: var(--accent);
+/* ─── Glossary terms — abbr with title tooltip + link ────────────── */
+abbr.glossary-term {
   text-decoration: underline;
   text-decoration-style: dotted;
-  cursor: pointer;
-  list-style: none;
-}
-details.glossary-term summary::-webkit-details-marker { display: none; }
-details.glossary-term summary::marker { display: none; }
-
-details.glossary-term[open] summary {
-  color: var(--accent-hover);
-  text-decoration-color: var(--accent-hover);
+  text-decoration-color: var(--accent);
+  cursor: help;
 }
 
-details.glossary-term > div {
-  display: block;
-  background: var(--bg-alt);
-  border-left: 3px solid var(--accent);
-  border-radius: 0 6px 6px 0;
-  padding: 12px 16px;
-  margin: 10px 0 4px;
-  font-size: 0.875rem;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-details.glossary-term > div strong {
-  display: block;
+abbr.glossary-term a {
   color: var(--accent);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 4px;
+  text-decoration: none;
+}
+
+abbr.glossary-term a:hover {
+  color: var(--accent-hover);
 }
 
 /* ─── Glossary index page ─────────────────────────────────────────── */
@@ -880,4 +857,29 @@ details.glossary-term > div strong {
 
 .glossary-related a {
   color: var(--accent);
+}
+
+/* ─── Glossary tooltip (JS-powered click-to-show) ────────────────── */
+#glossary-tip {
+  position: absolute;
+  z-index: 100;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  padding: 10px 14px;
+  max-width: 280px;
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.5;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+#glossary-tip[hidden] { display: none; }
+
+#glossary-tip a {
+  color: var(--accent);
+  text-decoration: none;
+  margin-left: 4px;
+  white-space: nowrap;
 }

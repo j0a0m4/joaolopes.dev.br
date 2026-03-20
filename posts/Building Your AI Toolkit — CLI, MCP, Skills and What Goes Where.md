@@ -18,7 +18,7 @@ linkedin-url: https://www.linkedin.com/posts/j0a0m4_building-your-ai-toolkit-act
 
 # Building Your AI Toolkit
 
-**AI agents are not text completers. They are runtime loops.** What's an agent?
+**[[glossary:AI agent|AI agents]] are not text completers. They are runtime loops.** What's an agent?
 How is it different from autocomplete? What are rules, skills, hooks — and when
 do you use each one? Once that clicks, the rest follows.
 
@@ -96,7 +96,7 @@ The agent is the runtime. What it composes from are five layers.
 ### Rules — the passive knowledge
 
 Rules are markdown files that load into context automatically. The agent never
-"calls" them — it absorbs them. Your project `CLAUDE.md` describes conventions.
+"calls" them — it absorbs them. Your project [[glossary:claude-md|CLAUDE.md]] describes conventions.
 An architecture doc describes your layering rules. A coding standards file
 describes naming conventions.
 
@@ -106,7 +106,7 @@ from them without you repeating yourself.
 
 ### Skills — the workflow brain
 
-Skills are prompt files (`SKILL.md`) that teach the agent how to think about a
+[[glossary:Skills]] are prompt files (`SKILL.md`) that teach the agent how to think about a
 task. They're actively invoked by name: `/pre-pr`, `/meeting-prep`, `/standup`.
 They orchestrate multi-step workflows, define what information to gather, and
 specify where human checkpoints belong.
@@ -119,7 +119,7 @@ for anything blocked, read the person file for context — then draft, don't
 deliver." That's a skill.
 
 Skills are the orchestration layer above CLI and MCP. This is what makes the
-pre-PR pipeline possible — the skill tells the agent to dispatch four sub-agents
+pre-PR pipeline possible — the skill tells the agent to dispatch four [[glossary:subagent|sub-agents]]
 in parallel, each running CLI commands in the background, while the agent
 narrates progress and synthesizes results. That parallelism, that narration,
 that async coordination — none of it is possible through MCP, which blocks on
@@ -137,7 +137,7 @@ to validate, no deployment.
 
 ### CLI — the deterministic anchor
 
-CLI tools are predetermined operations. `git commit` commits. `lein test` runs
+[[glossary:CLI]] tools are predetermined operations. `git commit` commits. `lein test` runs
 tests. Same input, same output, every time.
 
 The agent _chooses when_ to call them — but the command does the same thing
@@ -151,7 +151,7 @@ it belongs in CLI.
 
 ### MCP — the cross-client protocol
 
-MCP (Model Context Protocol) lets AI agents call external tools over a
+[[glossary:MCP]] (Model Context Protocol) lets AI agents call external tools over a
 standardized JSON-RPC (Remote Procedure Call) interface. You define a server
 once; it works in Claude Code, Cursor, VS Code, and any other MCP-compatible
 client. Anthropic
@@ -166,7 +166,7 @@ relevant, and calls them with structured parameters.
 **The first tradeoff is context cost.** MCP tool responses are often verbose
 JSON — a single search result can return thousands of tokens of metadata the
 agent doesn't need. Every token in a tool response competes with your
-conversation, your code, and your instructions for space in the context window.
+conversation, your code, and your instructions for space in the [[glossary:context window]].
 When using MCP, design your servers to return focused responses, not raw API
 dumps.
 
@@ -186,7 +186,7 @@ the correct mental model: skills as the workflow brain on top of both.
 
 ### Hooks — the structural enforcer
 
-Hooks fire at lifecycle points — before a tool runs, after it succeeds, when the
+[[glossary:Hooks]] fire at lifecycle points — before a tool runs, after it succeeds, when the
 session ends. A `PreToolUse` hook can block operations before they execute. A
 `PostToolUse` hook can redirect behavior after a tool call.
 

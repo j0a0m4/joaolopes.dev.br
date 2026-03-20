@@ -45,9 +45,9 @@
 
 (defn- transform-glossary-links
   "[[glossary:Term]] or [[glossary:Term|display]] →
-   <details class='glossary-term'> with inline definition baked in.
-   glossary-defs is {slug → definition-text}.
-   Falls back to plain <a href> if no entry found.
+   <abbr> with definition in title attribute + link to glossary entry.
+   Uses <abbr> (inline element) so it works inside markdown paragraphs.
+   <details> is block-level and breaks CommonMark paragraph parsing.
    MUST run before transform-wikilinks (ordering constraint)."
   [text glossary-defs]
   (str/replace text #"\[\[glossary:([^\]|]+)(?:\|([^\]]+))?\]\]"
@@ -56,10 +56,9 @@
             slug  (slugify target)
             defn  (get glossary-defs slug)]
         (if defn
-          (str "<details class=\"glossary-term\">"
-               "<summary>" label "</summary>"
-               "<div><strong>" target "</strong> " defn "</div>"
-               "</details>")
+          (str "<abbr class=\"glossary-term\" title=\""
+               (str/replace defn "\"" "&quot;")
+               "\"><a href=\"/glossary/" slug "/\">" label "</a></abbr>")
           (str "<a href=\"/glossary/" slug "/\">" label "</a>"))))))
 
 (defn- transform-wikilinks
