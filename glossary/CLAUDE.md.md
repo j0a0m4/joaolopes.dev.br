@@ -12,10 +12,7 @@ publish: true
 
 ## Definition
 
-The instructions file Claude Code loads at session start. Contains behavioral
-rules, conventions, and context for the current project. Lives in the project
-root or ~/.claude/ for global rules. Instructions model behavior — they do
-not enforce it.
+The instructions file Claude Code loads at session start. It models behavior — it does not enforce it.
 
 
 `CLAUDE.md` is the file Claude Code reads at the start of every session to load project-specific instructions. It can live in the project root (project-scoped), in `~/.claude/` (global, loaded in every session), or in subdirectories (scoped to that part of the codebase).

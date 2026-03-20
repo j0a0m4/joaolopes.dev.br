@@ -12,9 +12,7 @@ publish: true
 
 ## Definition
 
-A runtime loop where an LLM plans, acts, and self-corrects across multiple
-steps — not responding to a single prompt, but executing a sequence of
-decisions using tools. Gather, act, observe, repeat.
+An agent is a model running in a loop — gather context, act with tools, observe results, repeat. Unlike autocomplete, it plans across multiple steps.
 
 
 An AI agent is a model running as a loop: gather context, act using tools, observe the results, decide what to do next, repeat. Unlike autocomplete — where the model responds once to a prompt — an agent plans, acts, and self-corrects across an extended task.
