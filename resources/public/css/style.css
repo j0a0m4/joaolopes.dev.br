@@ -786,3 +786,43 @@ footer a:hover { color: var(--accent); }
   padding: 0.75rem 1rem;
   overflow-x: auto;
 }
+
+/* ─── Glossary terms — click-to-reveal definitions ───────────────── */
+details.glossary-term { display: inline; }
+
+details.glossary-term summary {
+  display: inline;
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+  list-style: none;
+}
+details.glossary-term summary::-webkit-details-marker { display: none; }
+details.glossary-term summary::marker { display: none; }
+
+details.glossary-term[open] summary {
+  color: var(--accent-hover);
+  text-decoration-color: var(--accent-hover);
+}
+
+details.glossary-term > div {
+  display: block;
+  background: var(--bg-alt);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  padding: 12px 16px;
+  margin: 10px 0 4px;
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+details.glossary-term > div strong {
+  display: block;
+  color: var(--accent);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
