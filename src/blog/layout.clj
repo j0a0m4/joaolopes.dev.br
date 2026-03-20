@@ -35,6 +35,45 @@
   [slug]
   (str "/diagrams/" slug "/"))
 
+(defn glossary-path
+  "Canonical path for a glossary entry page."
+  [slug]
+  (str "/glossary/" slug "/"))
+
+(defn glossary-index-layout
+  "A-Z sorted list of all published glossary entries."
+  [entries]
+  (let [sorted  (sort-by #(str/lower-case (:title %)) entries)
+        grouped (group-by #(str/upper-case (subs (:title %) 0 1)) sorted)]
+    [:article.glossary-index
+     [:h1 "Glossary"]
+     [:p.subtitle "Definitions for terms used across the blog."]
+     (for [[letter entries] (sort-by first grouped)]
+       [:section.glossary-letter {:id (str/lower-case letter)}
+        [:h2 letter]
+        [:ul
+         (for [{:keys [title slug definition]} entries]
+           [:li
+            [:a {:href (href (glossary-path slug))} title]
+            " — "
+            definition])]])]))
+
+(defn glossary-entry-layout
+  "Single glossary entry page — article-style.
+   entry has :title :html-body and :related-links [{:label :slug}]."
+  [entry]
+  [:article.glossary-entry
+   [:h1 (:title entry)]
+   [:p.glossary-back [:a {:href (href "/glossary/")} "← Glossary"]]
+   [:div.glossary-body
+    (h/raw (:html-body entry))]
+   (when (seq (:related-links entry))
+     [:nav.glossary-related
+      [:span "Related: "]
+      (interpose " · "
+        (for [{:keys [label slug]} (:related-links entry)]
+          [:a {:href (href (glossary-path slug))} label]))])])
+
 (defn base-layout
   "Full HTML document. body is a hiccup vector to embed in <main>.
    Single serialization boundary — all other layout fns return hiccup data."

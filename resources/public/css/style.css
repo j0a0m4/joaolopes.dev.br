@@ -177,7 +177,7 @@ article h3 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   color: var(--muted);
   font-size: 0.9rem;
 }
@@ -382,7 +382,7 @@ footer a:hover { color: var(--accent); }
   border-radius: 6px;
   padding: 1rem 1.25rem;
   margin-top: 0.75rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .toc .toc-label {
@@ -419,7 +419,7 @@ footer a:hover { color: var(--accent); }
   border: 1px solid rgba(14, 210, 247, 0.15);
   border-radius: 6px;
   padding: 1rem 1.25rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .series-toc .series-label {
@@ -581,10 +581,10 @@ footer a:hover { color: var(--accent); }
 .not-found h1 { font-size: 4rem; margin-bottom: 1rem; }
 
 /* SVG diagrams — inlined at build time, inherit page CSS and variables */
-.svg-heading    { font-family: var(--font); font-size: 21px; font-weight: 600; }
-.svg-body       { font-family: var(--font); font-size: 14px; }
-.svg-sub        { font-family: var(--font); font-size: 13px; }
-.svg-label      { font-family: var(--font); font-size: 13px; font-style: italic; }
+.svg-heading    { font-family: var(--font); font-size: 21px; font-weight: 600; fill: var(--fg); }
+.svg-body       { font-family: var(--font); font-size: 14px; fill: var(--fg); }
+.svg-sub        { font-family: var(--font); font-size: 13px; fill: var(--muted); }
+.svg-label      { font-family: var(--font); font-size: 13px; font-style: italic; fill: var(--muted); }
 .svg-code       { font-family: var(--mono); font-size: 12px; }
 .svg-small      { font-family: var(--font); font-size: 11px; }
 .svg-tag        { font-family: var(--font); font-size: 12px; font-weight: 500; letter-spacing: 1px; }
@@ -785,4 +785,99 @@ footer a:hover { color: var(--accent); }
   border-radius: 6px;
   padding: 0.75rem 1rem;
   overflow-x: auto;
+}
+
+/* ─── Glossary terms — click-to-reveal definitions ───────────────── */
+details.glossary-term { display: inline; }
+
+details.glossary-term summary {
+  display: inline;
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+  list-style: none;
+}
+details.glossary-term summary::-webkit-details-marker { display: none; }
+details.glossary-term summary::marker { display: none; }
+
+details.glossary-term[open] summary {
+  color: var(--accent-hover);
+  text-decoration-color: var(--accent-hover);
+}
+
+details.glossary-term > div {
+  display: block;
+  background: var(--bg-alt);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  padding: 12px 16px;
+  margin: 10px 0 4px;
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+details.glossary-term > div strong {
+  display: block;
+  color: var(--accent);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+/* ─── Glossary index page ─────────────────────────────────────────── */
+.glossary-index {
+  max-width: 65ch;
+}
+
+.glossary-letter {
+  margin-bottom: 3rem;
+}
+
+.glossary-letter h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+
+.glossary-index ul {
+  padding-left: 1.25rem;
+  margin: 0;
+}
+
+.glossary-index li {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+/* ─── Glossary entry page ─────────────────────────────────────────── */
+.glossary-entry h1 {
+  margin-bottom: 0.25rem;
+}
+
+.glossary-back {
+  margin-bottom: 3rem;
+  font-size: 0.9rem;
+}
+
+.glossary-body {
+  max-width: 65ch;
+}
+
+.glossary-related {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.glossary-related a {
+  color: var(--accent);
 }
