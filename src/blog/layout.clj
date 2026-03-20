@@ -45,7 +45,7 @@
   [entries]
   (let [sorted  (sort-by #(str/lower-case (:title %)) entries)
         grouped (group-by #(str/upper-case (subs (:title %) 0 1)) sorted)]
-    [:div.glossary-index
+    [:article.glossary-index
      [:h1 "Glossary"]
      [:p.subtitle "Definitions for terms used across the blog."]
      (for [[letter entries] (sort-by first grouped)]

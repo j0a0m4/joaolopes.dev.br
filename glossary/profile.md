@@ -17,7 +17,7 @@ how to render them per severity level, and which files to distribute the
 output to. Running canonic compose renders and distributes to all targets.
 
 
-A profile is the top-level composition unit in [Canonic](https://github.com/j0a0m4/canonic). It answers three questions: which rulesets to include, how to render each severity level, and where to send the output.
+A profile is the top-level composition unit in Canonic. It answers three questions: which rulesets to include, how to render each severity level, and where to send the output.
 
 A profile named `calcifer` might include the `agent-behavior`, `blog`, and `obsidian-vault-behavior` rulesets, render critical rules with `title + description + example` and guidance rules with `title + description` only, and distribute the result to `~/dev/Calcifer/CLAUDE.md`.
 

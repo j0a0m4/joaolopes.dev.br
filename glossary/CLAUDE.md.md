@@ -24,7 +24,7 @@ The file is plain markdown. It contains behavioral rules, coding conventions, wo
 
 `CLAUDE.md` is [[behavioral modeling]], not enforcement. The agent reads and internalizes the instructions, but nothing prevents it from ignoring them under pressure or as context fills. For enforcement, see [[Hooks]].
 
-Tools like [Canonic](https://github.com/j0a0m4/canonic) treat `CLAUDE.md` as rendered output — a distribution target — rather than a source of truth. Rules are authored and versioned independently, then composed and distributed to `CLAUDE.md` files.
+Tools like Canonic treat `CLAUDE.md` as rendered output — a distribution target — rather than a source of truth. Rules are authored and versioned independently, then composed and distributed to `CLAUDE.md` files.
 
 ## Related
 
