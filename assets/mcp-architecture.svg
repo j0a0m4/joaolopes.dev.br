@@ -1,31 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 22.22 760 441">
-<defs>
-  <marker id="mcp-architecture-arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-    <path d="M0,0 L0,6 L8,3 z" fill="#0fb6d6"/>
-  </marker>
-  <marker id="mcp-architecture-arr-pink" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-    <path d="M0,0 L0,6 L8,3 z" fill="#f4569d"/>
-  </marker>
-</defs>
-<g>
-  <rect x="42.22" y="190.00" width="232.22" height="105.56" rx="8" fill="var(--bg-alt)" stroke="rgba(14,210,247,0.15)" stroke-width="1.5"/>
-  <text x="158.33" y="226.94" class="svg-body" text-anchor="middle">Claude Code</text>
-  <text x="158.33" y="245.94" class="svg-sub" text-anchor="middle">(client)</text>
-</g>
-<g>
-  <rect x="464.44" y="42.22" width="253.33" height="200.56" rx="8" fill="var(--bg-alt)" stroke="rgba(14,210,247,0.15)" stroke-width="1.5"/>
-  <text x="591.11" y="112.42" class="svg-body" text-anchor="middle">enterprise-search</text>
-  <text x="591.11" y="131.42" class="svg-sub" text-anchor="middle">· search</text>
-  <text x="591.11" y="150.42" class="svg-sub" text-anchor="middle">· read_document</text>
-</g>
-<g>
-  <rect x="464.44" y="295.56" width="253.33" height="147.78" rx="8" fill="var(--bg-alt)" stroke="rgba(14,210,247,0.15)" stroke-width="1.5"/>
-  <text x="591.11" y="347.28" class="svg-body" text-anchor="middle">internal-api</text>
-  <text x="591.11" y="366.28" class="svg-sub" text-anchor="middle">· get_customer</text>
-  <text x="591.11" y="385.28" class="svg-sub" text-anchor="middle">· create_order</text>
-</g>
-<path d="M 274.44 242.78 C 360.38 242.78, 550.38 142.50, 464.44 142.50" fill="none" stroke="rgba(14,210,247,0.6)" stroke-width="1.5" marker-end="url(#mcp-architecture-arr)"/>
-<text x="433.90" y="180.64" class="svg-label" text-anchor="middle">JSON-RPC</text>
-<path d="M 274.44 242.78 C 365.79 242.78, 555.79 369.44, 464.44 369.44" fill="none" stroke="rgba(14,210,247,0.6)" stroke-width="1.5" marker-end="url(#mcp-architecture-arr)"/>
-<text x="437.95" y="294.11" class="svg-label" text-anchor="middle">JSON-RPC</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 700 300">
+  <defs>
+    <marker id="biarr-r" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0fb6d6"/>
+    </marker>
+    <marker id="biarr-l" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+      <polygon points="10 0, 0 3.5, 10 7" fill="#0fb6d6"/>
+    </marker>
+  </defs>
+
+  <!-- Client node -->
+  <rect x="40" y="80" width="200" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="140" y="120" text-anchor="middle" class="svg-heading svg-accent">Claude Code</text>
+  <text x="140" y="145" text-anchor="middle" class="svg-body svg-muted">(client)</text>
+
+  <!-- enterprise-search server -->
+  <rect x="420" y="25" width="240" height="115" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="540" y="56" text-anchor="middle" class="svg-heading svg-accent">enterprise-search</text>
+  <text x="540" y="82" text-anchor="middle" class="svg-body svg-fg">· search</text>
+  <text x="540" y="102" text-anchor="middle" class="svg-body svg-fg">· read_document</text>
+  <text x="540" y="128" text-anchor="middle" class="svg-small svg-muted">(MCP server)</text>
+
+  <!-- internal-api server -->
+  <rect x="420" y="160" width="240" height="115" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="540" y="192" text-anchor="middle" class="svg-heading svg-accent">internal-api</text>
+  <text x="540" y="218" text-anchor="middle" class="svg-body svg-fg">· get_customer</text>
+  <text x="540" y="238" text-anchor="middle" class="svg-body svg-fg">· create_order</text>
+  <text x="540" y="264" text-anchor="middle" class="svg-small svg-muted">(MCP server)</text>
+
+  <!-- Client ↔ enterprise-search -->
+  <line x1="240" y1="110" x2="415" y2="80" stroke="#0fb6d6" stroke-width="2" marker-end="url(#biarr-r)" marker-start="url(#biarr-l)"/>
+
+  <!-- Client ↔ internal-api -->
+  <line x1="240" y1="150" x2="415" y2="200" stroke="#0fb6d6" stroke-width="2" marker-end="url(#biarr-r)" marker-start="url(#biarr-l)"/>
+
+  <!-- Single JSON-RPC label centered between the two arrows -->
+  <text x="328" y="138" text-anchor="middle" class="svg-code svg-accent">JSON-RPC</text>
 </svg>

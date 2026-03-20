@@ -1,43 +1,65 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 20.00 760 580">
-<defs>
-  <marker id="intelligence-determinism-split-arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-    <path d="M0,0 L0,6 L8,3 z" fill="#0fb6d6"/>
-  </marker>
-  <marker id="intelligence-determinism-split-arr-pink" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-    <path d="M0,0 L0,6 L8,3 z" fill="#f4569d"/>
-  </marker>
-</defs>
-<g>
-  <rect x="40.00" y="40.00" width="300.00" height="100.00" rx="8" fill="var(--bg-alt)" stroke="rgba(14,210,247,0.4)" stroke-width="1.5"/>
-  <text x="190.00" y="75.00" class="svg-heading svg-accent" text-anchor="middle">Rules</text>
-  <text x="190.00" y="93.00" class="svg-sub" text-anchor="middle">Passive knowledge — absorbed, not called</text>
-</g>
-<g>
-  <rect x="420.00" y="40.00" width="300.00" height="100.00" rx="8" fill="var(--bg-alt)" stroke="rgba(14,210,247,0.4)" stroke-width="1.5"/>
-  <text x="570.00" y="75.00" class="svg-heading svg-accent" text-anchor="middle">Skills</text>
-  <text x="570.00" y="93.00" class="svg-sub" text-anchor="middle">Workflow brain — invoked, orchestrates</text>
-</g>
-<g>
-  <rect x="260.00" y="240.00" width="240.00" height="100.00" rx="8" fill="var(--bg-alt)" stroke="rgba(14,210,247,0.15)" stroke-width="1.5"/>
-  <text x="380.00" y="275.00" class="svg-body" text-anchor="middle">Agent</text>
-  <text x="380.00" y="293.00" class="svg-sub" text-anchor="middle">Plans, decides, calls tools</text>
-</g>
-<g>
-  <rect x="40.00" y="480.00" width="300.00" height="100.00" rx="8" fill="var(--bg-alt)" stroke="rgba(14,210,247,0.15)" stroke-width="1.5"/>
-  <text x="190.00" y="515.00" class="svg-body" text-anchor="middle">Hooks</text>
-  <text x="190.00" y="533.00" class="svg-sub" text-anchor="middle">Intercepts tool calls</text>
-</g>
-<g>
-  <rect x="420.00" y="480.00" width="300.00" height="100.00" rx="8" fill="var(--bg-alt)" stroke="rgba(14,210,247,0.15)" stroke-width="1.5"/>
-  <text x="570.00" y="515.00" class="svg-body" text-anchor="middle">Tools</text>
-  <text x="570.00" y="533.00" class="svg-sub" text-anchor="middle">Bash, Write, Read, MCP, …</text>
-</g>
-<path d="M 190.00 140.00 C 190.00 225.88, 380.00 325.88, 380.00 240.00" fill="none" stroke="rgba(14,210,247,0.6)" stroke-width="1.5" marker-end="url(#intelligence-determinism-split-arr)"/>
-<text x="285.00" y="242.41" class="svg-label" text-anchor="middle">shape</text>
-<path d="M 570.00 140.00 C 570.00 225.88, 380.00 325.88, 380.00 240.00" fill="none" stroke="rgba(14,210,247,0.6)" stroke-width="1.5" marker-end="url(#intelligence-determinism-split-arr)"/>
-<text x="475.00" y="242.41" class="svg-label" text-anchor="middle">direct</text>
-<path d="M 500.00 290.00 C 580.99 290.00, 570.00 560.99, 570.00 480.00" fill="none" stroke="rgba(14,210,247,0.6)" stroke-width="1.5" marker-end="url(#intelligence-determinism-split-arr)"/>
-<text x="565.37" y="403.37" class="svg-label" text-anchor="middle">calls</text>
-<path d="M 340.00 530.00 C 372.00 530.00, 452.00 530.00, 420.00 530.00" fill="none" stroke="rgba(14,210,247,0.6)" stroke-width="1.5" marker-end="url(#intelligence-determinism-split-arr)"/>
-<text x="404.00" y="518.00" class="svg-label" text-anchor="middle">intercept</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 520">
+  <defs>
+    <marker id="id-arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7a7a8e"/>
+    </marker>
+    <marker id="id-arr-accent" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f4569d"/>
+    </marker>
+    <marker id="id-arr-cyan" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0fb6d6"/>
+    </marker>
+  </defs>
+
+  <!-- Non-deterministic group -->
+  <rect x="20" y="15" width="720" height="170" rx="8" fill="none" stroke="rgba(244, 86, 157, 0.2)" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="40" y="35" class="svg-group-label svg-pink">NON-DETERMINISTIC — shapes thinking</text>
+
+  <!-- Rules node -->
+  <rect x="60" y="55" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="190" y="95" text-anchor="middle" class="svg-heading svg-accent">Rules</text>
+  <text x="190" y="120" text-anchor="middle" class="svg-body svg-muted">Passive knowledge — absorbed</text>
+  <text x="190" y="140" text-anchor="middle" class="svg-body svg-muted">not called</text>
+
+  <!-- Skills node -->
+  <rect x="440" y="55" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="570" y="95" text-anchor="middle" class="svg-heading svg-accent">Skills</text>
+  <text x="570" y="120" text-anchor="middle" class="svg-body svg-muted">Workflow brain — invoked</text>
+  <text x="570" y="140" text-anchor="middle" class="svg-body svg-muted">orchestrates</text>
+
+  <!-- Agent node (center) -->
+  <rect x="250" y="220" width="260" height="80" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.3)" stroke-width="2"/>
+  <text x="380" y="258" text-anchor="middle" class="svg-heading svg-accent">Agent</text>
+  <text x="380" y="282" text-anchor="middle" class="svg-body svg-fg">Plans, decides, calls tools</text>
+
+  <!-- Deterministic group -->
+  <rect x="20" y="340" width="720" height="165" rx="8" fill="none" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="40" y="360" class="svg-group-label svg-accent">DETERMINISTIC — executes and enforces</text>
+
+  <!-- Hooks node -->
+  <rect x="60" y="380" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="190" y="420" text-anchor="middle" class="svg-heading svg-accent">Hooks</text>
+  <text x="190" y="446" text-anchor="middle" class="svg-body svg-muted">Structural enforcement —</text>
+  <text x="190" y="466" text-anchor="middle" class="svg-body svg-muted">intercepts tool calls</text>
+
+  <!-- Tools node -->
+  <rect x="440" y="380" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="570" y="420" text-anchor="middle" class="svg-heading svg-accent">Tools</text>
+  <text x="570" y="446" text-anchor="middle" class="svg-body svg-muted">Bash, Write, Read, MCP, …</text>
+
+  <!-- Rules → Agent (dashed, "shape") -->
+  <path d="M 190 155 L 310 220" fill="none" stroke="#f4569d" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#id-arr-accent)"/>
+  <text x="220" y="205" class="svg-label svg-pink">shape</text>
+
+  <!-- Skills → Agent ("direct") -->
+  <line x1="570" y1="155" x2="455" y2="220" stroke="#f4569d" stroke-width="2" marker-end="url(#id-arr-accent)"/>
+  <text x="530" y="205" class="svg-label svg-pink">direct</text>
+
+  <!-- Agent → Tools ("calls") -->
+  <line x1="455" y1="300" x2="545" y2="375" stroke="#7a7a8e" stroke-width="2" marker-end="url(#id-arr)"/>
+  <text x="520" y="340" class="svg-label svg-muted">calls</text>
+
+  <!-- Hooks → Tools ("intercept") -->
+  <line x1="320" y1="430" x2="435" y2="430" stroke="#0fb6d6" stroke-width="2" marker-end="url(#id-arr-cyan)"/>
+  <text x="378" y="422" text-anchor="middle" class="svg-label svg-accent">intercept</text>
 </svg>

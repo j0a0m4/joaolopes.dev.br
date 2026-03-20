@@ -581,10 +581,10 @@ footer a:hover { color: var(--accent); }
 .not-found h1 { font-size: 4rem; margin-bottom: 1rem; }
 
 /* SVG diagrams — inlined at build time, inherit page CSS and variables */
-.svg-heading    { font-family: var(--font); font-size: 21px; font-weight: 600; }
-.svg-body       { font-family: var(--font); font-size: 14px; }
-.svg-sub        { font-family: var(--font); font-size: 13px; }
-.svg-label      { font-family: var(--font); font-size: 13px; font-style: italic; }
+.svg-heading    { font-family: var(--font); font-size: 21px; font-weight: 600; fill: var(--fg); }
+.svg-body       { font-family: var(--font); font-size: 14px; fill: var(--fg); }
+.svg-sub        { font-family: var(--font); font-size: 13px; fill: var(--muted); }
+.svg-label      { font-family: var(--font); font-size: 13px; font-style: italic; fill: var(--muted); }
 .svg-code       { font-family: var(--mono); font-size: 12px; }
 .svg-small      { font-family: var(--font); font-size: 11px; }
 .svg-tag        { font-family: var(--font); font-size: 12px; font-weight: 500; letter-spacing: 1px; }
