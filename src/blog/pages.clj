@@ -267,20 +267,23 @@
       (->> (.listFiles asset-dir)
            (filter #(str/ends-with? (.getName %) ".svg"))
            (map (fn [f]
-                  (let [slug        (svg-slug (.getName f))
-                        title       (slug->title slug)
-                        src         (str "/assets/" (.getName f))
-                        back        (first (filter #(str/includes? (:body %) src) posts))
-                        alt         (when back (extract-diagram-alt src (:body back)))
-                        svg-raw     (-> (slurp f)
-                                        (str/replace #"<\?xml[^>]*\?>\s*" "")
-                                        str/trim)
-                        svg-content (inject-diagram-a11y svg-raw slug title alt)]
-                    {:slug        slug
-                     :title       title
-                     :back-post   (when back {:title (:title back) :url (:url back)})
-                     :description alt
-                     :svg-content svg-content})))
+                  (let [slug           (svg-slug (.getName f))
+                        title          (slug->title slug)
+                        src            (str "/assets/" (.getName f))
+                        back           (first (filter #(str/includes? (:body %) src) posts))
+                        alt            (when back (extract-diagram-alt src (:body back)))
+                        svg-raw        (-> (slurp f)
+                                           (str/replace #"<\?xml[^>]*\?>\s*" "")
+                                           str/trim)
+                        svg-content    (inject-diagram-a11y svg-raw slug title alt)
+                        mmd-file       (io/file (str/replace (.getAbsolutePath f) #"\.svg$" ".mmd"))
+                        mermaid-source (when (.exists mmd-file) (slurp mmd-file))]
+                    {:slug           slug
+                     :title          title
+                     :back-post      (when back {:title (:title back) :url (:url back)})
+                     :description    alt
+                     :svg-content    svg-content
+                     :mermaid-source mermaid-source})))
            vec)
       [])))
 
