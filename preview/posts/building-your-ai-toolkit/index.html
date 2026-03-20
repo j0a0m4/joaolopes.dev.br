@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1" name="viewport" /><meta content="dark" name="color-scheme" /><title>Building Your AI Toolkit — João Lopes</title><meta content="AI agents are runtime loops, not autocomplete. The five building blocks — CLI, MCP, Skills, Rules, and Hooks — and why the role shifts from writing code to designing workflows." name="description" /><link href="https://fonts.googleapis.com" rel="preconnect" /><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" /><link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&amp;display=swap" rel="stylesheet" /><link href="/preview/css/style.css" rel="stylesheet" /><link href="/preview/favicon.svg" rel="icon" type="image/svg+xml" /><link href="/preview/feed.xml" rel="alternate" title="João Lopes" type="application/rss+xml" /><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css" rel="stylesheet" /><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script>document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el)));</script><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        document.querySelectorAll('pre > code.language-mermaid').forEach(code => {
+          const pre = code.parentElement;
+          const div = document.createElement('pre');
+          div.className = 'mermaid';
+          div.textContent = code.textContent;
+          pre.replaceWith(div);
+        });
+        mermaid.initialize({ startOnLoad: true, theme: 'dark' });</script><script>document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.querySelector('.nav-toggle');
+  const menu = document.getElementById('nav-menu');
+  if (!btn || !menu) return;
+
+  // Hide on mobile only — not server-rendered, so desktop without JS sees links
+  if (window.matchMedia('(max-width: 480px)').matches) {
+    menu.setAttribute('hidden', '');
+    // TOC starts open (server-rendered); close it on mobile
+    const toc = document.querySelector('.toc-details');
+    if (toc) toc.removeAttribute('open');
+  }
+
+  btn.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+    menu.toggleAttribute('hidden');
+    btn.querySelector('.hamburger-icon').textContent = open ? '\u2630' : '\u2715';
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') {
+      btn.setAttribute('aria-expanded', 'false');
+      menu.setAttribute('hidden', '');
+      btn.querySelector('.hamburger-icon').textContent = '\u2630';
+      btn.focus();
+    }
+  });
+});
+
+// Glossary term click-to-show inline definition
+document.addEventListener('DOMContentLoaded', () => {
+  const tip = document.createElement('div');
+  tip.id = 'glossary-tip';
+  tip.setAttribute('role', 'tooltip');
+  tip.setAttribute('hidden', '');
+  document.body.appendChild(tip);
+
+  document.querySelectorAll('abbr.glossary-term').forEach(abbr => {
+    abbr.querySelector('a').addEventListener('click', e => {
+      e.preventDefault();
+      const def = abbr.getAttribute('title');
+      const href = e.currentTarget.getAttribute('href');
+      if (tip._source === abbr && !tip.hasAttribute('hidden')) {
+        tip.setAttribute('hidden', ''); tip._source = null; return;
+      }
+      tip._source = abbr;
+      tip.innerHTML = def + ' <a href="' + href + '">→</a>';
+      tip.removeAttribute('hidden');
+      const r = abbr.getBoundingClientRect();
+      tip.style.top = (r.bottom + window.scrollY + 6) + 'px';
+      tip.style.left = Math.min(r.left + window.scrollX, window.innerWidth - 280) + 'px';
+    });
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('abbr.glossary-term') && !e.target.closest('#glossary-tip'))
+      tip.setAttribute('hidden', '');
+  });
+});
+
+// Scroll restoration: save position when clicking a diagram link, restore on back
+(function() {
+  if (history.scrollRestoration) history.scrollRestoration = 'manual';
+  const key = 'scroll:' + location.pathname;
+  const saved = sessionStorage.getItem(key);
+  if (saved !== null) {
+    sessionStorage.removeItem(key);
+    // Restore after DOM is parsed and layout is complete
+    document.addEventListener('DOMContentLoaded', () => {
+      requestAnimationFrame(() => window.scrollTo(0, parseInt(saved, 10)));
+    });
+  }
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('.diagram-link, .diagram-caption-link, .diagram-card');
+    if (a) sessionStorage.setItem('scroll:' + location.pathname, window.scrollY);
+  });
+})();</script></head><body><header><nav><a class="site-logo" href="/preview/"><svg aria-hidden="true" class="logo" height="40" viewBox="0 0 32 32" width="40"><path class="logo-path" d="M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>João Lopes</a><button aria-controls="nav-menu" aria-expanded="false" aria-label="Menu" class="nav-toggle"><span aria-hidden="true" class="hamburger-icon">☰</span></button><span class="nav-links" id="nav-menu"><a href="/preview/">Posts</a><a href="/preview/tags/">Tags</a><a href="/preview/glossary/">Glossary</a><a href="/preview/diagrams/">Diagrams</a><a href="/preview/about/">About</a><a href="/preview/feed.xml">RSS</a></span></nav></header><main><article data-pagefind-body=""><h1>Building Your AI Toolkit</h1><div class="post-dateline">Published <time datetime="2026-03-17">2026-03-17</time> · Updated <time datetime="2026-03-20">2026-03-20</time></div><div class="share-cta"><span class="share-label">Share</span><a class="icon-link" href="#" onclick="navigator.clipboard.writeText(&apos;https://joaolopes.dev.br/posts/building-your-ai-toolkit/&apos;);this.textContent=&apos;Copied!&apos;;setTimeout(()=&gt;this.textContent=&apos;Copy link&apos;,2000);return false;"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1zM9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"></path></svg>Copy link</a><a class="icon-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fjoaolopes.dev.br%2Fposts%2Fbuilding-your-ai-toolkit%2F" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"></path></svg>LinkedIn</a><a class="icon-link" href="https://x.com/intent/post?url=https%3A%2F%2Fjoaolopes.dev.br%2Fposts%2Fbuilding-your-ai-toolkit%2F&amp;text=Building+Your+AI+Toolkit+" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75zm-.86 13.028h1.36L4.323 2.145H2.865z"></path></svg>Twitter</a><a class="icon-link" href="https://bsky.app/intent/compose?text=Building+Your+AI+Toolkit+https%3A%2F%2Fjoaolopes.dev.br%2Fposts%2Fbuilding-your-ai-toolkit%2F" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M8 1.5C4.134 1.5 1 4.358 1 7.89c0 2.13 1.129 4.006 2.84 5.12L3.5 14.5l1.68-.672A7.07 7.07 0 0 0 8 14.28a7.07 7.07 0 0 0 2.82-.452L12.5 14.5l-.34-1.49C13.871 11.896 15 10.02 15 7.89 15 4.358 11.866 1.5 8 1.5zM5.5 9a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm3 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm3 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1z"></path></svg>Bluesky</a><a class="icon-link raw-link" href="https://raw.githubusercontent.com/j0a0m4/joaolopes.dev.br/main/posts/Building%20Your%20AI%20Toolkit%20%E2%80%94%20CLI%2C%20MCP%2C%20Skills%20and%20What%20Goes%20Where.md" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>RAW Markdown</a></div><div class="tags"><a class="tag" href="/preview/tags/ai-first-engineering/">#ai-first-engineering</a><a class="tag" href="/preview/tags/rules/">#rules</a><a class="tag" href="/preview/tags/skills/">#skills</a><a class="tag" href="/preview/tags/mcp/">#mcp</a><a class="tag" href="/preview/tags/hooks/">#hooks</a><a class="tag" href="/preview/tags/cli/">#cli</a></div><details class="toc toc-details" open="open"><summary class="toc-label" data-count="6 sections">Contents</summary><nav id="toc"><ul><li><a href="#what-an-agent-actually-is">What an agent actually is</a></li><li><a href="#the-five-building-blocks">The five building blocks</a><ul><li><a href="#rules--the-passive-knowledge">Rules — the passive knowledge</a></li><li><a href="#skills--the-workflow-brain">Skills — the workflow brain</a></li><li><a href="#cli--the-deterministic-anchor">CLI — the deterministic anchor</a></li><li><a href="#mcp--the-cross-client-protocol">MCP — the cross-client protocol</a></li><li><a href="#hooks--the-structural-enforcer">Hooks — the structural enforcer</a></li><li><a href="#the-intelligence-determinism-split">The intelligence-determinism split</a></li></ul></li><li><a href="#why-this-architecture-runs-on-markdown">Why this architecture runs on markdown</a></li><li><a href="#36-code-64-everything-else">36% code, 64% everything else</a></li><li><a href="#the-role-shift-from-doer-to-architect">The role shift: from doer to architect</a></li><li><a href="#discussion">Discussion</a></li></ul></nav></details><p><strong><abbr class="glossary-term" title="An agent is a model running in a loop — gather context, act with tools, observe results, repeat. Unlike autocomplete, it plans across multiple steps."><a href="/glossary/ai-agent/">AI agents</a></abbr> are not text completers. They are runtime loops.</strong> What's an agent?
+How is it different from autocomplete? What are rules, skills, hooks — and when
+do you use each one? Once that clicks, the rest follows.</p>
+<a class="toc-back" href="#toc">↑ Contents</a><h2 id="what-an-agent-actually-is">What an agent actually is</h2>
+<p>An agent is a loop where the model plans, acts, and self-corrects — not just
+responding to a prompt, but executing a sequence of decisions. The loop:</p>
+<p><figure class="diagram-figure"><a href="/preview/diagrams/agent-loop/" class="diagram-link" aria-label="View Agent Loop diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 220" role="img" aria-labelledby="diag-agent-loop-title" aria-describedby="diag-agent-loop-desc"><title id="diag-agent-loop-title">Agent Loop</title><desc id="diag-agent-loop-desc">The agent loop: Gather → Act → Observe → repeat</desc>
+  <defs>
+    <marker id="al-arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7a7a8e"/>
+    </marker>
+    <marker id="al-arr-pink" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f4569d"/>
+    </marker>
+  </defs>
+
+  <!-- Gather node -->
+  <rect x="40" y="30" width="200" height="90" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="140" y="68" text-anchor="middle" class="svg-heading svg-accent">Gather</text>
+  <text x="140" y="92" text-anchor="middle" class="svg-sub svg-muted">Read context, scan tools</text>
+  <text x="140" y="110" text-anchor="middle" class="svg-sub svg-muted">assess state</text>
+
+  <!-- Act node -->
+  <rect x="290" y="30" width="200" height="90" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="390" y="68" text-anchor="middle" class="svg-heading svg-accent">Act</text>
+  <text x="390" y="92" text-anchor="middle" class="svg-sub svg-muted">Plan steps, call tools</text>
+  <text x="390" y="110" text-anchor="middle" class="svg-sub svg-muted">execute</text>
+
+  <!-- Observe node -->
+  <rect x="540" y="30" width="200" height="90" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="640" y="68" text-anchor="middle" class="svg-heading svg-accent">Observe</text>
+  <text x="640" y="92" text-anchor="middle" class="svg-sub svg-muted">Check results</text>
+  <text x="640" y="110" text-anchor="middle" class="svg-sub svg-muted">decide next move</text>
+
+  <!-- Gather → Act arrow -->
+  <line x1="240" y1="75" x2="285" y2="75" stroke="#7a7a8e" stroke-width="2" marker-end="url(#al-arr)"/>
+
+  <!-- Act → Observe arrow -->
+  <line x1="490" y1="75" x2="535" y2="75" stroke="#7a7a8e" stroke-width="2" marker-end="url(#al-arr)"/>
+
+  <!-- Observe → Gather return arrow (curves below) -->
+  <path d="M 640 120 L 640 170 Q 640 190 620 190 L 160 190 Q 140 190 140 170 L 140 120"
+        fill="none" stroke="#f4569d" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#al-arr-pink)"/>
+  <text x="390" y="207" text-anchor="middle" class="svg-label svg-pink">repeat</text>
+</svg></a><figcaption><a href="/preview/diagrams/agent-loop/" class="diagram-caption-link">View Agent Loop diagram →</a><div class="diagram-transcript"><p>The agent loop: Gather → Act → Observe → repeat</p></div></figcaption></figure></p>
+<p>Here's that loop running a pre-PR pipeline on a branch with 24 changed files:</p>
+<pre><code>User: &quot;let's wrap this up&quot;
+
+GATHER
+  CLI  git summary → branch · 24 files · 8 backend + 4 test · 2 commits
+
+ACT (4 sub-agents in parallel)
+  Lint        → lint-fix + lint → 0 errors · 0 warnings
+  Unit        → lein test → 21 tests · 151 assertions → PASS
+  Integration → lein integration → 5 tests · 6 assertions → PASS
+  Code review → reads architecture rules + fetches story criteria
+              → 2 warnings: missing validation, undocumented field
+
+OBSERVE
+  ✅ Lint — clean
+  ✅ Unit — 21 pass
+  ✅ Integration — 5 pass
+  ⚠️ Code review — 2 warnings
+  ✅ Story — all criteria met
+
+HUMAN GATE
+  &quot;UserProfile should use strict validation. Here's the fix: ...&quot;
+  [ Accept ] [ Dismiss ]
+</code></pre>
+<p>The agent made a dozen decisions: which tools to run, what to parallelize, how
+to prioritize the warnings, when to stop and ask. It ran a dozen commands. I
+typed seven words.</p>
+<p>Same loop, entirely different task:</p>
+<pre><code>User: &quot;prep for my 1:1 with Ana&quot;
+
+GATHER
+  reads last 14 daily notes
+  searches issue tracker for active cards
+  reads Ana's person file (role, last topics, working style)
+
+ACT
+  synthesizes into a relationship-first prep doc:
+  - Recent context: what you've been working on
+  - Team dynamics: anything relevant to surface
+  - Growth angle: what's worth discussing for career development
+  - Conversation openers: specific, not generic
+
+HUMAN GATE
+  &quot;Here's your prep. Want me to adjust anything?&quot;
+</code></pre>
+<p>Same loop. Same building blocks. No new code — just the same patterns applied to
+a different problem.</p>
+<p><strong>The loop doesn't care what kind of task it's running.</strong> Gather, act, observe,
+repeat. Whether the task is running tests or drafting meeting prep, the
+architecture is identical. Claude Code and Cursor are not autocomplete tools —
+they plan, act, observe, and self-correct. That's what makes them agents.</p>
+<a class="toc-back" href="#toc">↑ Contents</a><h2 id="the-five-building-blocks">The five building blocks</h2>
+<p>The agent is the runtime. What it composes from are five layers.</p>
+<h3 id="rules--the-passive-knowledge">Rules — the passive knowledge</h3>
+<p>Rules are markdown files that load into context automatically. The agent never
+&quot;calls&quot; them — it absorbs them. Your project <abbr class="glossary-term" title="The instructions file Claude Code loads at session start. It models behavior — it does not enforce it."><a href="/glossary/claude-md/">CLAUDE.md</a></abbr> describes conventions.
+An architecture doc describes your layering rules. A coding standards file
+describes naming conventions.</p>
+<p><strong>A short rules file silently prevents an entire class of mistakes.</strong> Put your
+architecture decisions in a rules file once; every session that follows benefits
+from them without you repeating yourself.</p>
+<h3 id="skills--the-workflow-brain">Skills — the workflow brain</h3>
+<p><abbr class="glossary-term" title="SKILL.md files that teach an AI agent how to think about a specific task. Actively invoked by name (/pre-pr, /meeting-prep). They orchestrate multi-step workflows, define what to gather, and specify human checkpoints."><a href="/glossary/skills/">Skills</a></abbr> are prompt files (<code>SKILL.md</code>) that teach the agent how to think about a
+task. They're actively invoked by name: <code>/pre-pr</code>, <code>/meeting-prep</code>, <code>/standup</code>.
+They orchestrate multi-step workflows, define what information to gather, and
+specify where human checkpoints belong.</p>
+<p><strong>Rules are absorbed. Skills are invoked.</strong> Rules shape every session passively.
+Skills activate for specific workflows — they decide <em>what</em> to execute, <em>when</em>
+to connect to external systems, and <em>where</em> to pause for human input. &quot;When
+preparing for a 1:1, gather the last two weeks of notes, check the issue tracker
+for anything blocked, read the person file for context — then draft, don't
+deliver.&quot; That's a skill.</p>
+<p>Skills are the orchestration layer above CLI and MCP. This is what makes the
+pre-PR pipeline possible — the skill tells the agent to dispatch four <abbr class="glossary-term" title="A fresh agent instance dispatched by a parent agent to execute an isolated task. Subagents have clean context, no session history, and run concurrently. The parent coordinates results; subagents do the work."><a href="/glossary/subagent/">sub-agents</a></abbr>
+in parallel, each running CLI commands in the background, while the agent
+narrates progress and synthesizes results. That parallelism, that narration,
+that async coordination — none of it is possible through MCP, which blocks on
+every call. Skills run inside the model's context, which means the model can
+plan, branch, and react in real time.</p>
+<p><figure class="diagram-figure"><a href="/preview/diagrams/skill-orchestration/" class="diagram-link" aria-label="View Skill Orchestration diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 800 460" role="img" aria-labelledby="diag-skill-orchestration-title" aria-describedby="diag-skill-orchestration-desc"><title id="diag-skill-orchestration-title">Skill Orchestration</title><desc id="diag-skill-orchestration-desc">Skill orchestration: /pre-pr dispatches 4 sub-agents to CLI and MCP tools</desc>
+  <defs>
+    <marker id="so-arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7a7a8e"/>
+    </marker>
+    <marker id="so-arr-dispatch" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f4569d"/>
+    </marker>
+  </defs>
+
+  <!-- /pre-pr skill node -->
+  <rect x="200" y="20" width="400" height="65" rx="8" fill="#191621" stroke="rgba(244, 86, 157, 0.3)" stroke-width="1.5"/>
+  <text x="400" y="46" text-anchor="middle" class="svg-tag svg-muted">SKILL</text>
+  <text x="400" y="70" text-anchor="middle" class="svg-heading svg-pink" style="font-family:var(--mono)">/pre-pr</text>
+
+  <!-- Column 1: Lint -->
+  <rect x="20" y="135" width="170" height="275" rx="8" fill="rgba(25, 22, 33, 0.4)" stroke="rgba(14, 210, 247, 0.08)" stroke-width="1"/>
+  <rect x="40" y="155" width="130" height="55" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="105" y="189" text-anchor="middle" class="svg-heading svg-accent">Lint</text>
+  <rect x="40" y="330" width="130" height="60" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="105" y="355" text-anchor="middle" class="svg-body svg-fg" style="font-weight:500">CLI</text>
+  <text x="105" y="376" text-anchor="middle" class="svg-code svg-muted">lint-fix + lint</text>
+
+  <!-- Column 2: Unit tests -->
+  <rect x="210" y="135" width="170" height="275" rx="8" fill="rgba(25, 22, 33, 0.4)" stroke="rgba(14, 210, 247, 0.08)" stroke-width="1"/>
+  <rect x="230" y="155" width="130" height="55" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="295" y="189" text-anchor="middle" class="svg-heading svg-accent">Unit tests</text>
+  <rect x="230" y="330" width="130" height="60" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="295" y="355" text-anchor="middle" class="svg-body svg-fg" style="font-weight:500">CLI</text>
+  <text x="295" y="376" text-anchor="middle" class="svg-code svg-muted">lein test</text>
+
+  <!-- Column 3: Integration -->
+  <rect x="400" y="135" width="170" height="275" rx="8" fill="rgba(25, 22, 33, 0.4)" stroke="rgba(14, 210, 247, 0.08)" stroke-width="1"/>
+  <rect x="420" y="155" width="130" height="55" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="485" y="189" text-anchor="middle" class="svg-heading svg-accent">Integration</text>
+  <rect x="420" y="330" width="130" height="60" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="485" y="355" text-anchor="middle" class="svg-body svg-fg" style="font-weight:500">CLI</text>
+  <text x="485" y="376" text-anchor="middle" class="svg-code svg-muted">lein integration</text>
+
+  <!-- Column 4: Code review -->
+  <rect x="590" y="135" width="190" height="275" rx="8" fill="rgba(25, 22, 33, 0.4)" stroke="rgba(14, 210, 247, 0.08)" stroke-width="1"/>
+  <rect x="610" y="155" width="150" height="55" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="685" y="189" text-anchor="middle" class="svg-heading svg-accent">Code review</text>
+  <rect x="610" y="330" width="150" height="60" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="685" y="355" text-anchor="middle" class="svg-body svg-fg" style="font-weight:500">MCP</text>
+  <text x="685" y="376" text-anchor="middle" class="svg-code svg-muted">search + read</text>
+
+  <!-- Dispatch arrows: skill → sub-agents -->
+  <line x1="310" y1="85" x2="105" y2="150" stroke="#f4569d" stroke-width="1.5" marker-end="url(#so-arr-dispatch)"/>
+  <line x1="350" y1="85" x2="295" y2="150" stroke="#f4569d" stroke-width="1.5" marker-end="url(#so-arr-dispatch)"/>
+  <line x1="450" y1="85" x2="485" y2="150" stroke="#f4569d" stroke-width="1.5" marker-end="url(#so-arr-dispatch)"/>
+  <line x1="490" y1="85" x2="685" y2="150" stroke="#f4569d" stroke-width="1.5" marker-end="url(#so-arr-dispatch)"/>
+
+  <!-- "dispatch" label — centered above fan-out -->
+  <text x="400" y="110" text-anchor="middle" class="svg-label svg-pink" opacity="0.8">dispatch</text>
+
+  <!-- Sub-agent → tool arrows -->
+  <line x1="105" y1="210" x2="105" y2="325" stroke="#7a7a8e" stroke-width="1.5" marker-end="url(#so-arr)"/>
+  <line x1="295" y1="210" x2="295" y2="325" stroke="#7a7a8e" stroke-width="1.5" marker-end="url(#so-arr)"/>
+  <line x1="485" y1="210" x2="485" y2="325" stroke="#7a7a8e" stroke-width="1.5" marker-end="url(#so-arr)"/>
+  <line x1="685" y1="210" x2="685" y2="325" stroke="#7a7a8e" stroke-width="1.5" marker-end="url(#so-arr)"/>
+
+  <!-- Legend -->
+  <text x="400" y="440" text-anchor="middle" class="svg-sub svg-muted">4 sub-agents run in parallel — the skill narrates progress and synthesizes results</text>
+</svg></a><figcaption><a href="/preview/diagrams/skill-orchestration/" class="diagram-caption-link">View Skill Orchestration diagram →</a><div class="diagram-transcript"><p>Skill orchestration: /pre-pr dispatches 4 sub-agents to CLI and MCP tools</p></div></figcaption></figure></p>
+<p>Here's the thing about skills: I didn't write most of mine by hand. I described
+the workflow in conversation — &quot;when I say <code>/meeting-prep</code>, gather the last two
+weeks of notes, check the issue tracker, read the person file&quot; — and the agent
+drafted the skill file. I refined it, tested it, iterated. The feedback loop is
+minutes: edit a markdown file, reload, try again. No server to build, no schema
+to validate, no deployment.</p>
+<h3 id="cli--the-deterministic-anchor">CLI — the deterministic anchor</h3>
+<p><abbr class="glossary-term" title="The deterministic layer of the agent stack — shell commands that produce the same output every time, regardless of what the model thinks it knows."><a href="/glossary/cli/">CLI</a></abbr> tools are predetermined operations. <code>git commit</code> commits. <code>lein test</code> runs
+tests. Same input, same output, every time.</p>
+<p>The agent <em>chooses when</em> to call them — but the command does the same thing
+regardless. This is the key: CLI is not &quot;simple.&quot; It's <em>deterministic</em>. You use
+CLI when you need the operation to behave identically every time, regardless of
+context or what the model thinks it knows.</p>
+<p>Not limited to code either. Fetch issues from your tracker, generate a standup,
+check your calendar. If it can run in a shell and return a predictable result,
+it belongs in CLI.</p>
+<h3 id="mcp--the-cross-client-protocol">MCP — the cross-client protocol</h3>
+<p><abbr class="glossary-term" title="Model Context Protocol — a standardized JSON-RPC interface for AI agents to call external tools. Define a server once; it works across Claude Code, Cursor, VS Code, and any MCP-compatible client. Anthropic calls it &quot;USB-C for AI.&quot;"><a href="/glossary/mcp/">MCP</a></abbr> (Model Context Protocol) lets AI agents call external tools over a
+standardized JSON-RPC (Remote Procedure Call) interface. You define a server
+once; it works in Claude Code, Cursor, VS Code, and any other MCP-compatible
+client. Anthropic
+<a href="https://www.anthropic.com/news/model-context-protocol">describes it as USB-C for AI</a>.</p>
+<p>Each MCP tool is self-describing — it carries its name, description, and
+parameter schema. The agent reads the descriptions, decides which tools are
+relevant, and calls them with structured parameters.</p>
+<p><figure class="diagram-figure"><a href="/preview/diagrams/mcp-architecture/" class="diagram-link" aria-label="View Mcp Architecture diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 700 300" role="img" aria-labelledby="diag-mcp-architecture-title" aria-describedby="diag-mcp-architecture-desc"><title id="diag-mcp-architecture-title">Mcp Architecture</title><desc id="diag-mcp-architecture-desc">MCP architecture: client connects to servers over JSON-RPC</desc>
+  <defs>
+    <marker id="biarr-r" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0fb6d6"/>
+    </marker>
+    <marker id="biarr-l" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+      <polygon points="10 0, 0 3.5, 10 7" fill="#0fb6d6"/>
+    </marker>
+  </defs>
+
+  <!-- Client node -->
+  <rect x="40" y="80" width="200" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="140" y="120" text-anchor="middle" class="svg-heading svg-accent">Claude Code</text>
+  <text x="140" y="145" text-anchor="middle" class="svg-body svg-muted">(client)</text>
+
+  <!-- enterprise-search server -->
+  <rect x="420" y="25" width="240" height="115" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="540" y="56" text-anchor="middle" class="svg-heading svg-accent">enterprise-search</text>
+  <text x="540" y="82" text-anchor="middle" class="svg-body svg-fg">· search</text>
+  <text x="540" y="102" text-anchor="middle" class="svg-body svg-fg">· read_document</text>
+  <text x="540" y="128" text-anchor="middle" class="svg-small svg-muted">(MCP server)</text>
+
+  <!-- internal-api server -->
+  <rect x="420" y="160" width="240" height="115" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="540" y="192" text-anchor="middle" class="svg-heading svg-accent">internal-api</text>
+  <text x="540" y="218" text-anchor="middle" class="svg-body svg-fg">· get_customer</text>
+  <text x="540" y="238" text-anchor="middle" class="svg-body svg-fg">· create_order</text>
+  <text x="540" y="264" text-anchor="middle" class="svg-small svg-muted">(MCP server)</text>
+
+  <!-- Client ↔ enterprise-search -->
+  <line x1="240" y1="110" x2="415" y2="80" stroke="#0fb6d6" stroke-width="2" marker-end="url(#biarr-r)" marker-start="url(#biarr-l)"/>
+
+  <!-- Client ↔ internal-api -->
+  <line x1="240" y1="150" x2="415" y2="200" stroke="#0fb6d6" stroke-width="2" marker-end="url(#biarr-r)" marker-start="url(#biarr-l)"/>
+
+  <!-- Single JSON-RPC label centered between the two arrows -->
+  <text x="328" y="138" text-anchor="middle" class="svg-code svg-accent">JSON-RPC</text>
+</svg></a><figcaption><a href="/preview/diagrams/mcp-architecture/" class="diagram-caption-link">View Mcp Architecture diagram →</a><div class="diagram-transcript"><p>MCP architecture: client connects to servers over JSON-RPC</p></div></figcaption></figure></p>
+<p><strong>The first tradeoff is context cost.</strong> MCP tool responses are often verbose
+JSON — a single search result can return thousands of tokens of metadata the
+agent doesn't need. Every token in a tool response competes with your
+conversation, your code, and your instructions for space in the <abbr class="glossary-term" title="The finite amount of text an LLM can attend to at inference time — conversation history, instructions, tools, files, and outputs all compete for this budget. When it fills, earlier content is evicted or compressed."><a href="/glossary/context-window/">context window</a></abbr>.
+When using MCP, design your servers to return focused responses, not raw API
+dumps.</p>
+<p><strong>The second tradeoff is blocking.</strong> Every MCP tool call blocks the agent until
+it returns — no progress updates, no intermediate state, no parallelism in
+standard implementations. A CLI command can run in the background while the
+agent continues working. A skill can dispatch sub-agents that run concurrently.
+MCP can't. The moment a workflow needs duration or parallelism, MCP breaks the
+experience.</p>
+<p>Use MCP when you need cross-client portability, when the AI should discover
+available capabilities at runtime, or when you're bridging to external systems
+with atomic, fast operations. Prefer CLI when you need a fast, predictable
+result without the context overhead. Prefer skills when you need orchestration,
+progress, or parallelism — skills orchestrate both CLI and MCP tools, which is
+the correct mental model: skills as the workflow brain on top of both.</p>
+<h3 id="hooks--the-structural-enforcer">Hooks — the structural enforcer</h3>
+<p><abbr class="glossary-term" title="Lifecycle events that fire before and after every tool call. Unlike instructions, hooks run as code — they enforce behavior unconditionally, outside the model's context."><a href="/glossary/hooks/">Hooks</a></abbr> fire at lifecycle points — before a tool runs, after it succeeds, when the
+session ends. A <code>PreToolUse</code> hook can block operations before they execute. A
+<code>PostToolUse</code> hook can redirect behavior after a tool call.</p>
+<p><figure class="diagram-figure"><a href="/preview/diagrams/hooks-lifecycle/" class="diagram-link" aria-label="View Hooks Lifecycle diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 900" role="img" aria-labelledby="diag-hooks-lifecycle-title" aria-describedby="diag-hooks-lifecycle-desc"><title id="diag-hooks-lifecycle-title">Hooks Lifecycle</title><desc id="diag-hooks-lifecycle-desc">Hooks lifecycle: Agent → PreToolUse (block / annotate / pass) → Tool call → PostToolUse → Side effect</desc>
+  <defs>
+    <marker id="hl-arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7a7a8e"/>
+    </marker>
+    <marker id="hl-arr-pink" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f4569d"/>
+    </marker>
+    <marker id="hl-arr-cyan" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0fb6d6"/>
+    </marker>
+  </defs>
+
+  <!-- Agent node -->
+  <rect x="250" y="20" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.3)" stroke-width="2"/>
+  <text x="380" y="62" text-anchor="middle" class="svg-heading svg-accent">Agent</text>
+  <text x="380" y="88" text-anchor="middle" class="svg-body svg-fg">Decides to call a tool</text>
+
+  <!-- Agent → PreToolUse -->
+  <line x1="380" y1="120" x2="380" y2="180" stroke="#7a7a8e" stroke-width="2" marker-end="url(#hl-arr)"/>
+
+  <!-- PreToolUse node -->
+  <rect x="250" y="180" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="380" y="222" text-anchor="middle" class="svg-heading svg-fg">PreToolUse</text>
+  <text x="380" y="248" text-anchor="middle" class="svg-sub svg-muted">Annotate · Block · Validate</text>
+
+  <!-- PreToolUse left → Blocked top -->
+  <path d="M 250,230 C 170,230 125,280 125,320" fill="none" stroke="#f4569d" stroke-width="1.5" marker-end="url(#hl-arr-pink)"/>
+  <text x="168" y="245" text-anchor="middle" class="svg-label svg-pink">block</text>
+
+  <!-- PreToolUse right → Annotated top -->
+  <path d="M 510,230 C 590,230 635,280 635,320" fill="none" stroke="#0fb6d6" stroke-width="1.5" marker-end="url(#hl-arr-cyan)"/>
+  <text x="592" y="245" text-anchor="middle" class="svg-label svg-accent">allow + context</text>
+
+  <!-- PreToolUse bottom → Tool call -->
+  <line x1="380" y1="280" x2="380" y2="440" stroke="#7a7a8e" stroke-width="2" marker-end="url(#hl-arr)"/>
+  <text x="390" y="368" class="svg-label svg-muted">pass</text>
+
+  <!-- Blocked node -->
+  <rect x="20" y="320" width="210" height="100" rx="8" fill="#191621" stroke="rgba(244, 86, 157, 0.4)" stroke-width="1.5"/>
+  <text x="125" y="362" text-anchor="middle" class="svg-heading svg-accent">Blocked</text>
+  <text x="125" y="388" text-anchor="middle" class="svg-body svg-muted">Wrong command denied</text>
+
+  <!-- Annotated node -->
+  <rect x="530" y="320" width="210" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.3)" stroke-width="1.5"/>
+  <text x="635" y="362" text-anchor="middle" class="svg-heading svg-accent">Annotated</text>
+  <text x="635" y="384" text-anchor="middle" class="svg-body svg-muted">Context injected</text>
+  <text x="635" y="404" text-anchor="middle" class="svg-body svg-muted">Tool still runs</text>
+
+  <!-- Tool call node -->
+  <rect x="250" y="460" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="380" y="502" text-anchor="middle" class="svg-heading svg-fg">Tool call</text>
+  <text x="380" y="528" text-anchor="middle" class="svg-sub svg-muted">Bash · Write · Read · MCP</text>
+
+  <!-- Tool call → PostToolUse -->
+  <line x1="380" y1="560" x2="380" y2="620" stroke="#7a7a8e" stroke-width="2" marker-end="url(#hl-arr)"/>
+  <text x="390" y="596" class="svg-label svg-muted">result</text>
+
+  <!-- PostToolUse node -->
+  <rect x="250" y="620" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="380" y="662" text-anchor="middle" class="svg-heading svg-fg">PostToolUse</text>
+  <text x="380" y="688" text-anchor="middle" class="svg-sub svg-muted">Observe · Log · Update UI</text>
+
+  <!-- PostToolUse → Side effect -->
+  <line x1="380" y1="720" x2="380" y2="780" stroke="#7a7a8e" stroke-width="2" marker-end="url(#hl-arr)"/>
+
+  <!-- Side effect node -->
+  <rect x="250" y="780" width="260" height="100" rx="8" fill="#191621" stroke="rgba(244, 86, 157, 0.4)" stroke-width="1.5"/>
+  <text x="380" y="822" text-anchor="middle" class="svg-heading svg-accent">Side effect</text>
+  <text x="380" y="848" text-anchor="middle" class="svg-body svg-muted">Update terminal · Log event</text>
+</svg></a><figcaption><a href="/preview/diagrams/hooks-lifecycle/" class="diagram-caption-link">View Hooks Lifecycle diagram →</a><div class="diagram-transcript"><p>Hooks lifecycle: Agent → PreToolUse (block / annotate / pass) → Tool call → PostToolUse → Side effect</p></div></figcaption></figure></p>
+<p>The critical insight: <strong>instructions are suggestions the model may ignore under
+pressure. Hooks are structural enforcement.</strong></p>
+<p>A <code>CLAUDE.md</code> instruction like &quot;always run tests before committing&quot; competes
+with everything else in the context window — the conversation, the code, the
+tool results. The longer the session, the more that instruction has to compete
+with. A hook doesn't compete. It runs as code, outside the model's context, on
+every tool call. The model doesn't need to remember the constraint — the hook
+enforces it whether the model is paying attention or not.</p>
+<p>Start with rules for guidance. Escalate to hooks when you find a rule that keeps
+getting ignored. And once you have hooks, you have an event layer — every tool
+call becomes an observable event you can log, validate, and react to. Hooks are
+the foundation for enforcement <em>and</em> observability.</p>
+<h3 id="the-intelligence-determinism-split">The intelligence-determinism split</h3>
+<p>The five layers split along one axis:</p>
+<p><figure class="diagram-figure"><a href="/preview/diagrams/intelligence-determinism-split/" class="diagram-link" aria-label="View Intelligence Determinism Split diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 520" role="img" aria-labelledby="diag-intelligence-determinism-split-title" aria-describedby="diag-intelligence-determinism-split-desc"><title id="diag-intelligence-determinism-split-title">Intelligence Determinism Split</title><desc id="diag-intelligence-determinism-split-desc">The intelligence-determinism split: Rules and Skills shape the Agent, which calls Tools that Hooks intercept</desc>
+  <defs>
+    <marker id="id-arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7a7a8e"/>
+    </marker>
+    <marker id="id-arr-accent" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f4569d"/>
+    </marker>
+    <marker id="id-arr-cyan" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0fb6d6"/>
+    </marker>
+  </defs>
+
+  <!-- Non-deterministic group -->
+  <rect x="20" y="15" width="720" height="170" rx="8" fill="none" stroke="rgba(244, 86, 157, 0.2)" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="40" y="35" class="svg-group-label svg-pink">NON-DETERMINISTIC — shapes thinking</text>
+
+  <!-- Rules node -->
+  <rect x="60" y="55" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="190" y="95" text-anchor="middle" class="svg-heading svg-accent">Rules</text>
+  <text x="190" y="120" text-anchor="middle" class="svg-body svg-muted">Passive knowledge — absorbed</text>
+  <text x="190" y="140" text-anchor="middle" class="svg-body svg-muted">not called</text>
+
+  <!-- Skills node -->
+  <rect x="440" y="55" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="570" y="95" text-anchor="middle" class="svg-heading svg-accent">Skills</text>
+  <text x="570" y="120" text-anchor="middle" class="svg-body svg-muted">Workflow brain — invoked</text>
+  <text x="570" y="140" text-anchor="middle" class="svg-body svg-muted">orchestrates</text>
+
+  <!-- Agent node (center) -->
+  <rect x="250" y="220" width="260" height="80" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.3)" stroke-width="2"/>
+  <text x="380" y="258" text-anchor="middle" class="svg-heading svg-accent">Agent</text>
+  <text x="380" y="282" text-anchor="middle" class="svg-body svg-fg">Plans, decides, calls tools</text>
+
+  <!-- Deterministic group -->
+  <rect x="20" y="340" width="720" height="165" rx="8" fill="none" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="40" y="360" class="svg-group-label svg-accent">DETERMINISTIC — executes and enforces</text>
+
+  <!-- Hooks node -->
+  <rect x="60" y="380" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="190" y="420" text-anchor="middle" class="svg-heading svg-accent">Hooks</text>
+  <text x="190" y="446" text-anchor="middle" class="svg-body svg-muted">Structural enforcement —</text>
+  <text x="190" y="466" text-anchor="middle" class="svg-body svg-muted">intercepts tool calls</text>
+
+  <!-- Tools node -->
+  <rect x="440" y="380" width="260" height="100" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="570" y="420" text-anchor="middle" class="svg-heading svg-accent">Tools</text>
+  <text x="570" y="446" text-anchor="middle" class="svg-body svg-muted">Bash, Write, Read, MCP, …</text>
+
+  <!-- Rules → Agent (dashed, "shape") -->
+  <path d="M 190 155 L 310 220" fill="none" stroke="#f4569d" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#id-arr-accent)"/>
+  <text x="220" y="205" class="svg-label svg-pink">shape</text>
+
+  <!-- Skills → Agent ("direct") -->
+  <line x1="570" y1="155" x2="455" y2="220" stroke="#f4569d" stroke-width="2" marker-end="url(#id-arr-accent)"/>
+  <text x="530" y="205" class="svg-label svg-pink">direct</text>
+
+  <!-- Agent → Tools ("calls") -->
+  <line x1="455" y1="300" x2="545" y2="375" stroke="#7a7a8e" stroke-width="2" marker-end="url(#id-arr)"/>
+  <text x="520" y="340" class="svg-label svg-muted">calls</text>
+
+  <!-- Hooks → Tools ("intercept") -->
+  <line x1="320" y1="430" x2="435" y2="430" stroke="#0fb6d6" stroke-width="2" marker-end="url(#id-arr-cyan)"/>
+  <text x="378" y="422" text-anchor="middle" class="svg-label svg-accent">intercept</text>
+</svg></a><figcaption><a href="/preview/diagrams/intelligence-determinism-split/" class="diagram-caption-link">View Intelligence Determinism Split diagram →</a><div class="diagram-transcript"><p>The intelligence-determinism split: Rules and Skills shape the Agent, which calls Tools that Hooks intercept</p></div></figcaption></figure></p>
+<p>Skills sit above the deterministic layer — they orchestrate CLI and MCP tools,
+not alongside them. Rules load passively into the agent's context, shaping how
+skills reason. Hooks intercept tool calls from below, enforcing constraints
+regardless of what the skill or model decided.</p>
+<p>You don't want the agent deciding whether to run your tests. You want it to
+<em>always</em> run your tests. CLI is the right layer. You do want the agent deciding
+how to frame your 1:1 prep based on context. Skills are the right layer.</p>
+<p>The split also determines where to debug. If a CLI command returns the wrong
+result, debug the command. If the agent makes a bad decision, look at the skill
+or rule that shaped the decision.</p>
+<a class="toc-back" href="#toc">↑ Contents</a><h2 id="why-this-architecture-runs-on-markdown">Why this architecture runs on markdown</h2>
+<p>Three of the five layers are just markdown files:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>What it is</th>
+<th>What it <em>also</em> is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SKILL.md</code></td>
+<td>Human-readable guide</td>
+<td>Agent's workflow instructions</td>
+</tr>
+<tr>
+<td><code>CLAUDE.md</code></td>
+<td>Project README</td>
+<td>AI's identity file</td>
+</tr>
+<tr>
+<td><code>RULES.md</code></td>
+<td>Coding standards</td>
+<td>Passive context loaded every session</td>
+</tr>
+</tbody>
+</table>
+<p>This is not accidental. Markdown is the default format for AI agents for the
+same reason JSON became the default for web APIs: LLMs generate it natively —
+their training data is dominated by GitHub READMEs, documentation, and Stack
+Overflow answers, all markdown — and humans can read and edit it without
+tooling.</p>
+<p>The token economics reinforce it.
+<a href="https://blog.cloudflare.com/markdown-for-agents/">Per Cloudflare's data</a>, a
+markdown heading costs ~3 tokens; the HTML equivalent costs 12-15 — a 4-5x
+overhead. Across an entire rules file or skill definition loaded into context,
+the savings compound. When context window space is your most constrained
+resource, format choices are architectural choices.</p>
+<p>The deeper point: markdown is simultaneously documentation <em>and</em> executable
+configuration. A <code>SKILL.md</code> is both a human-readable guide and the agent's
+workflow instructions. A <code>CLAUDE.md</code> is both a project README and the AI's
+identity file. No other format serves both constituencies. JSON configs are
+unreadable. YAML is not documentation.</p>
+<p>If your AI system is not markdown-native, you're fighting the current.</p>
+<a class="toc-back" href="#toc">↑ Contents</a><h2 id="36-code-64-everything-else">36% code, 64% everything else</h2>
+<p>Here's the number that reframed how I use all of this: of the skills I've built,
+only 36% are about writing or reviewing code. The other 64% handle everything
+else an engineer does:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>What they do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Morning briefing</td>
+<td>Synthesize calendar, active issues, messages → prioritized day plan</td>
+</tr>
+<tr>
+<td>Meeting prep</td>
+<td>Relationship-first 1:1 prep from notes, issues, comm history</td>
+</tr>
+<tr>
+<td>Standup generation</td>
+<td>Yesterday's journal + today's plan → paste-ready async update</td>
+</tr>
+<tr>
+<td>Career growth</td>
+<td>Career level gap analysis, expectations drafting, evidence synthesis</td>
+</tr>
+<tr>
+<td>Issue triage</td>
+<td>Search mentions by priority, draft replies</td>
+</tr>
+</tbody>
+</table>
+<p>The career growth skill is the one that surprises people most. Here's what it
+looks like: I invoke the skill, and the agent reads my career level
+expectations, searches my journal for the last two weeks of evidence,
+cross-references with my manager's feedback notes, identifies gaps between where
+I am and where the next level expects me to be — and drafts a prep doc I can
+bring to my next 1:1. The same gather-act-observe loop, applied to career
+development instead of code.</p>
+<p>Every one of these skills was designed by me and implemented by the agent. I
+described the workflow; it drafted the file.</p>
+<p>These are the tasks that eat your day in 15-minute slices: context-switching
+between your issue tracker, messages, calendar, and notes. An agent with the
+right skills collapses that context-switching into a single invocation.</p>
+<p><strong>An agent that only helps you write code is ignoring most of your job.</strong></p>
+<a class="toc-back" href="#toc">↑ Contents</a><h2 id="the-role-shift-from-doer-to-architect">The role shift: from doer to architect</h2>
+<p>What changes when you think about AI this way: the role shifts from doing the
+work to designing the workflow.</p>
+<p>Three questions become your job:</p>
+<ol>
+<li>What information does this workflow need?</li>
+<li>What decisions require a human?</li>
+<li>Where are the repetitive steps the agent should handle?</li>
+</ol>
+<p>I acted as architect — defining what each workflow needed, where the human gates
+belong, what information to gather. The agent implemented it. CLI, MCP, Skills,
+Rules, and Hooks are the building blocks. Markdown is the format they share.</p>
+<p><em>Next in this series: how to model agent behavior without prompting — rules as
+silent context injection.</em></p>
+<a class="toc-back" href="#toc">↑ Contents</a><h2 id="discussion">Discussion</h2>
+<ul>
+<li><a href="https://www.linkedin.com/posts/j0a0m4_building-your-ai-toolkit-activity-7440505530844069888-LBlw">LinkedIn (PT-BR)</a></li>
+</ul>
+<aside class="series-toc"><p class="series-label"><a href="/preview/series/ai-first-engineering/">AI-First Engineering</a></p><ol><li class="current"><strong>Building Your AI Toolkit</strong></li></ol></aside><aside class="colophon">This post was drafted by an AI agent, reviewed by another, and revised by me.</aside><p class="reply-cta">Thoughts? <a href="mailto:joao@joaolopes.dev.br">Reply by email</a> · <a href="https://www.linkedin.com/posts/j0a0m4_building-your-ai-toolkit-activity-7440505530844069888-LBlw" rel="noopener noreferrer" target="_blank">My LinkedIn post</a></p><div class="share-cta"><span class="share-label">Share</span><a class="icon-link" href="#" onclick="navigator.clipboard.writeText(&apos;https://joaolopes.dev.br/posts/building-your-ai-toolkit/&apos;);this.textContent=&apos;Copied!&apos;;setTimeout(()=&gt;this.textContent=&apos;Copy link&apos;,2000);return false;"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1zM9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"></path></svg>Copy link</a><a class="icon-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fjoaolopes.dev.br%2Fposts%2Fbuilding-your-ai-toolkit%2F" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"></path></svg>LinkedIn</a><a class="icon-link" href="https://x.com/intent/post?url=https%3A%2F%2Fjoaolopes.dev.br%2Fposts%2Fbuilding-your-ai-toolkit%2F&amp;text=Building+Your+AI+Toolkit+" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75zm-.86 13.028h1.36L4.323 2.145H2.865z"></path></svg>Twitter</a><a class="icon-link" href="https://bsky.app/intent/compose?text=Building+Your+AI+Toolkit+https%3A%2F%2Fjoaolopes.dev.br%2Fposts%2Fbuilding-your-ai-toolkit%2F" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M8 1.5C4.134 1.5 1 4.358 1 7.89c0 2.13 1.129 4.006 2.84 5.12L3.5 14.5l1.68-.672A7.07 7.07 0 0 0 8 14.28a7.07 7.07 0 0 0 2.82-.452L12.5 14.5l-.34-1.49C13.871 11.896 15 10.02 15 7.89 15 4.358 11.866 1.5 8 1.5zM5.5 9a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm3 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm3 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1z"></path></svg>Bluesky</a><a class="icon-link raw-link" href="https://raw.githubusercontent.com/j0a0m4/joaolopes.dev.br/main/posts/Building%20Your%20AI%20Toolkit%20%E2%80%94%20CLI%2C%20MCP%2C%20Skills%20and%20What%20Goes%20Where.md" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>RAW Markdown</a></div><nav class="series-nav"><span></span><a class="series-index" href="/preview/series/ai-first-engineering/">AI-First Engineering</a><span></span></nav><script type="application/ld+json">{"url":"https:\/\/joaolopes.dev.br\/posts\/building-your-ai-toolkit\/","@context":"https:\/\/schema.org","author":{"@type":"Person","name":"Jo\u00e3o Lopes"},"isPartOf":{"@type":"CreativeWorkSeries","name":"AI-First Engineering","url":"https:\/\/joaolopes.dev.br\/series\/ai-first-engineering\/"},"position":1,"datePublished":"2026-03-17","@type":"BlogPosting","description":"AI agents are runtime loops, not autocomplete. The five building blocks \u2014 CLI, MCP, Skills, Rules, and Hooks \u2014 and why the role shifts from writing code to designing workflows.","headline":"Building Your AI Toolkit"}</script></article></main><footer><p>© 2026 <a href="https://github.com/j0a0m4" rel="noopener noreferrer" target="_blank">João Lopes</a></p><p>Theme inspired by <a href="https://github.com/bennyxguo/Obsidian-Obsidianite" rel="noopener noreferrer" target="_blank">Obsidianite</a></p></footer></body></html>
