@@ -858,3 +858,28 @@ abbr.glossary-term a:hover {
 .glossary-related a {
   color: var(--accent);
 }
+
+/* ─── Glossary tooltip (JS-powered click-to-show) ────────────────── */
+#glossary-tip {
+  position: absolute;
+  z-index: 100;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  padding: 10px 14px;
+  max-width: 280px;
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.5;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+#glossary-tip[hidden] { display: none; }
+
+#glossary-tip a {
+  color: var(--accent);
+  text-decoration: none;
+  margin-left: 4px;
+  white-space: nowrap;
+}
