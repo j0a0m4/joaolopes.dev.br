@@ -826,3 +826,57 @@ details.glossary-term > div strong {
   letter-spacing: 0.05em;
   margin-bottom: 4px;
 }
+
+/* ─── Glossary index page ─────────────────────────────────────────── */
+.glossary-index {
+  max-width: 65ch;
+}
+
+.glossary-letter {
+  margin-bottom: 2rem;
+}
+
+.glossary-letter h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.glossary-index ul {
+  padding-left: 1.25rem;
+  margin: 0;
+}
+
+.glossary-index li {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+/* ─── Glossary entry page ─────────────────────────────────────────── */
+.glossary-entry h1 {
+  margin-bottom: 0.25rem;
+}
+
+.glossary-back {
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+}
+
+.glossary-body {
+  max-width: 65ch;
+}
+
+.glossary-related {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.glossary-related a {
+  color: var(--accent);
+}
