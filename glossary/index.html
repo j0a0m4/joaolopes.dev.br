@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1" name="viewport" /><meta content="dark" name="color-scheme" /><title>Glossary — João Lopes</title><meta content="Definitions for terms used across the blog." name="description" /><link href="https://fonts.googleapis.com" rel="preconnect" /><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" /><link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&amp;display=swap" rel="stylesheet" /><link href="/css/style.css" rel="stylesheet" /><link href="/favicon.svg" rel="icon" type="image/svg+xml" /><link href="/feed.xml" rel="alternate" title="João Lopes" type="application/rss+xml" /><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css" rel="stylesheet" /><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script>document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el)));</script><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        document.querySelectorAll('pre > code.language-mermaid').forEach(code => {
+          const pre = code.parentElement;
+          const div = document.createElement('pre');
+          div.className = 'mermaid';
+          div.textContent = code.textContent;
+          pre.replaceWith(div);
+        });
+        mermaid.initialize({ startOnLoad: true, theme: 'dark' });</script><script>document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.querySelector('.nav-toggle');
+  const menu = document.getElementById('nav-menu');
+  if (!btn || !menu) return;
+
+  // Hide on mobile only — not server-rendered, so desktop without JS sees links
+  if (window.matchMedia('(max-width: 480px)').matches) {
+    menu.setAttribute('hidden', '');
+    // TOC starts open (server-rendered); close it on mobile
+    const toc = document.querySelector('.toc-details');
+    if (toc) toc.removeAttribute('open');
+  }
+
+  btn.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+    menu.toggleAttribute('hidden');
+    btn.querySelector('.hamburger-icon').textContent = open ? '\u2630' : '\u2715';
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') {
+      btn.setAttribute('aria-expanded', 'false');
+      menu.setAttribute('hidden', '');
+      btn.querySelector('.hamburger-icon').textContent = '\u2630';
+      btn.focus();
+    }
+  });
+});
+
+// Glossary term click-to-show inline definition
+document.addEventListener('DOMContentLoaded', () => {
+  const tip = document.createElement('div');
+  tip.id = 'glossary-tip';
+  tip.setAttribute('role', 'tooltip');
+  tip.setAttribute('hidden', '');
+  document.body.appendChild(tip);
+
+  document.querySelectorAll('abbr.glossary-term').forEach(abbr => {
+    abbr.querySelector('a').addEventListener('click', e => {
+      e.preventDefault();
+      const def = abbr.getAttribute('title');
+      const href = e.currentTarget.getAttribute('href');
+      if (tip._source === abbr && !tip.hasAttribute('hidden')) {
+        tip.setAttribute('hidden', ''); tip._source = null; return;
+      }
+      tip._source = abbr;
+      tip.innerHTML = def + ' <a href="' + href + '">→</a>';
+      tip.removeAttribute('hidden');
+      const r = abbr.getBoundingClientRect();
+      tip.style.top = (r.bottom + window.scrollY + 6) + 'px';
+      tip.style.left = Math.min(r.left + window.scrollX, window.innerWidth - 280) + 'px';
+    });
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('abbr.glossary-term') && !e.target.closest('#glossary-tip'))
+      tip.setAttribute('hidden', '');
+  });
+});
+
+// Scroll restoration: save position when clicking a diagram link, restore on back
+(function() {
+  if (history.scrollRestoration) history.scrollRestoration = 'manual';
+  const key = 'scroll:' + location.pathname;
+  const saved = sessionStorage.getItem(key);
+  if (saved !== null) {
+    sessionStorage.removeItem(key);
+    // Restore after DOM is parsed and layout is complete
+    document.addEventListener('DOMContentLoaded', () => {
+      requestAnimationFrame(() => window.scrollTo(0, parseInt(saved, 10)));
+    });
+  }
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('.diagram-link, .diagram-caption-link, .diagram-card');
+    if (a) sessionStorage.setItem('scroll:' + location.pathname, window.scrollY);
+  });
+})();</script></head><body><header><nav><a class="site-logo" href="/"><svg aria-hidden="true" class="logo" height="40" viewBox="0 0 32 32" width="40"><path class="logo-path" d="M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>João Lopes</a><button aria-controls="nav-menu" aria-expanded="false" aria-label="Menu" class="nav-toggle"><span aria-hidden="true" class="hamburger-icon">☰</span></button><span class="nav-links" id="nav-menu"><a href="/">Posts</a><a href="/tags/">Tags</a><a href="/glossary/">Glossary</a><a href="/diagrams/">Diagrams</a><a href="/about/">About</a><a href="/feed.xml">RSS</a></span></nav></header><main><article class="glossary-index"><h1>Glossary</h1><p class="subtitle">Definitions for terms used across the blog.</p><section class="glossary-letter" id="a"><h2>A</h2><ul><li><a href="/glossary/ai-agent/">AI Agent</a> — An agent is a model running in a loop — gather context, act with tools, observe results, repeat. Unlike autocomplete, it plans across multiple steps.</li></ul></section><section class="glossary-letter" id="b"><h2>B</h2><ul><li><a href="/glossary/behavioral-modeling/">Behavioral Modeling</a> — Natural language descriptions of desired AI agent behavior — how the agent should act, what conventions it should follow, what it should avoid. Distinct from enforcement: modeling describes intent, enforcement constrains action.</li></ul></section><section class="glossary-letter" id="c"><h2>C</h2><ul><li><a href="/glossary/claude-code/">Claude Code</a> — Anthropic&apos;s official CLI for Claude — an agentic coding assistant that runs in the terminal and exposes 21 lifecycle hooks for customization.</li><li><a href="/glossary/claude-md/">CLAUDE.md</a> — The instructions file Claude Code loads at session start. It models behavior — it does not enforce it.</li><li><a href="/glossary/cli/">CLI</a> — The deterministic layer of the agent stack — shell commands that produce the same output every time, regardless of what the model thinks it knows.</li><li><a href="/glossary/context-window/">Context Window</a> — The finite amount of text an LLM can attend to at inference time — conversation history, instructions, tools, files, and outputs all compete for this budget. When it fills, earlier content is evicted or compressed.</li></ul></section><section class="glossary-letter" id="h"><h2>H</h2><ul><li><a href="/glossary/hooks/">Hooks</a> — Lifecycle events that fire before and after every tool call. Unlike instructions, hooks run as code — they enforce behavior unconditionally, outside the model&apos;s context.</li></ul></section><section class="glossary-letter" id="m"><h2>M</h2><ul><li><a href="/glossary/mcp/">MCP</a> — Model Context Protocol — a standardized JSON-RPC interface for AI agents to call external tools. Define a server once; it works across Claude Code, Cursor, VS Code, and any MCP-compatible client. Anthropic calls it &quot;USB-C for AI.&quot;</li></ul></section><section class="glossary-letter" id="p"><h2>P</h2><ul><li><a href="/glossary/profile/">Profile</a> — A Canonic concept: a composition plan specifying which rulesets to include, how to render them per severity level, and which files to distribute the output to. Running canonic compose renders and distributes to all targets.</li></ul></section><section class="glossary-letter" id="r"><h2>R</h2><ul><li><a href="/glossary/ruleset/">Ruleset</a> — A Canonic concept: an ordered collection of rule references representing a domain of behavioral instructions — Clojure conventions, blog workflow, vault behavior. Rules belong to rulesets; rulesets belong to profiles.</li></ul></section><section class="glossary-letter" id="s"><h2>S</h2><ul><li><a href="/glossary/skills/">Skills</a> — SKILL.md files that teach an AI agent how to think about a specific task. Actively invoked by name (/pre-pr, /meeting-prep). They orchestrate multi-step workflows, define what to gather, and specify human checkpoints.</li><li><a href="/glossary/subagent/">Subagent</a> — A fresh agent instance dispatched by a parent agent to execute an isolated task. Subagents have clean context, no session history, and run concurrently. The parent coordinates results; subagents do the work.</li></ul></section></article></main><footer><p>© 2026 <a href="https://github.com/j0a0m4" rel="noopener noreferrer" target="_blank">João Lopes</a></p><p>Theme inspired by <a href="https://github.com/bennyxguo/Obsidian-Obsidianite" rel="noopener noreferrer" target="_blank">Obsidianite</a></p></footer></body></html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1" name="viewport" /><title>#cli — Posts — João Lopes</title><meta content="All posts tagged #cli." name="description" /><link href="https://fonts.googleapis.com" rel="preconnect" /><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" /><link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&amp;display=swap" rel="stylesheet" /><link href="/css/style.css" rel="stylesheet" /><link href="/favicon.svg" rel="icon" type="image/svg+xml" /><link href="/feed.xml" rel="alternate" title="João Lopes" type="application/rss+xml" /><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css" rel="stylesheet" /><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script>document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el)));</script><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+<html lang="en"><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1" name="viewport" /><meta content="dark" name="color-scheme" /><title>#cli — Posts — João Lopes</title><meta content="All posts tagged #cli." name="description" /><link href="https://fonts.googleapis.com" rel="preconnect" /><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" /><link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&amp;display=swap" rel="stylesheet" /><link href="/css/style.css" rel="stylesheet" /><link href="/favicon.svg" rel="icon" type="image/svg+xml" /><link href="/feed.xml" rel="alternate" title="João Lopes" type="application/rss+xml" /><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css" rel="stylesheet" /><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script>document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el)));</script><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
         document.querySelectorAll('pre > code.language-mermaid').forEach(code => {
           const pre = code.parentElement;
           const div = document.createElement('pre');
@@ -37,6 +37,37 @@
   });
 });
 
+// Glossary term click-to-show inline definition
+document.addEventListener('DOMContentLoaded', () => {
+  const tip = document.createElement('div');
+  tip.id = 'glossary-tip';
+  tip.setAttribute('role', 'tooltip');
+  tip.setAttribute('hidden', '');
+  document.body.appendChild(tip);
+
+  document.querySelectorAll('abbr.glossary-term').forEach(abbr => {
+    abbr.querySelector('a').addEventListener('click', e => {
+      e.preventDefault();
+      const def = abbr.getAttribute('title');
+      const href = e.currentTarget.getAttribute('href');
+      if (tip._source === abbr && !tip.hasAttribute('hidden')) {
+        tip.setAttribute('hidden', ''); tip._source = null; return;
+      }
+      tip._source = abbr;
+      tip.innerHTML = def + ' <a href="' + href + '">→</a>';
+      tip.removeAttribute('hidden');
+      const r = abbr.getBoundingClientRect();
+      tip.style.top = (r.bottom + window.scrollY + 6) + 'px';
+      tip.style.left = Math.min(r.left + window.scrollX, window.innerWidth - 280) + 'px';
+    });
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('abbr.glossary-term') && !e.target.closest('#glossary-tip'))
+      tip.setAttribute('hidden', '');
+  });
+});
+
 // Scroll restoration: save position when clicking a diagram link, restore on back
 (function() {
   if (history.scrollRestoration) history.scrollRestoration = 'manual';
@@ -53,4 +84,4 @@
     const a = e.target.closest('.diagram-link, .diagram-caption-link, .diagram-card');
     if (a) sessionStorage.setItem('scroll:' + location.pathname, window.scrollY);
   });
-})();</script></head><body><header><nav><a class="site-logo" href="/"><svg aria-hidden="true" class="logo" height="40" viewBox="0 0 32 32" width="40"><path class="logo-path" d="M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>João Lopes</a><button aria-controls="nav-menu" aria-expanded="false" aria-label="Menu" class="nav-toggle"><span aria-hidden="true" class="hamburger-icon">☰</span></button><span class="nav-links" id="nav-menu"><a href="/">Posts</a><a href="/tags/">Tags</a><a href="/diagrams/">Diagrams</a><a href="/about/">About</a><a href="/feed.xml">RSS</a></span></nav></header><main><div class="tag-index"><h1>#cli</h1><p class="series-count">1 post with this tag</p><ul class="tag-full-toc"><li><a href="/posts/building-your-ai-toolkit/">Building Your AI Toolkit</a><time datetime="2026-03-17">2026-03-17</time><p class="description">AI agents are runtime loops, not autocomplete. The five building blocks — CLI, MCP, Skills, Rules, and Hooks — and why the role shifts from writing code to designing workflows.</p></li></ul></div></main><footer><p>© 2026 <a href="https://github.com/j0a0m4" rel="noopener noreferrer" target="_blank">João Lopes</a></p><p>Theme inspired by <a href="https://github.com/bennyxguo/Obsidian-Obsidianite" rel="noopener noreferrer" target="_blank">Obsidianite</a></p></footer></body></html>
+})();</script></head><body><header><nav><a class="site-logo" href="/"><svg aria-hidden="true" class="logo" height="40" viewBox="0 0 32 32" width="40"><path class="logo-path" d="M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>João Lopes</a><button aria-controls="nav-menu" aria-expanded="false" aria-label="Menu" class="nav-toggle"><span aria-hidden="true" class="hamburger-icon">☰</span></button><span class="nav-links" id="nav-menu"><a href="/">Posts</a><a href="/tags/">Tags</a><a href="/glossary/">Glossary</a><a href="/diagrams/">Diagrams</a><a href="/about/">About</a><a href="/feed.xml">RSS</a></span></nav></header><main><div class="tag-index"><h1>#cli</h1><p class="series-count">1 post with this tag</p><ul class="tag-full-toc"><li><a href="/posts/building-your-ai-toolkit/">Building Your AI Toolkit</a><time datetime="2026-03-17">2026-03-17</time><p class="description">AI agents are runtime loops, not autocomplete. The five building blocks — CLI, MCP, Skills, Rules, and Hooks — and why the role shifts from writing code to designing workflows.</p></li></ul></div></main><footer><p>© 2026 <a href="https://github.com/j0a0m4" rel="noopener noreferrer" target="_blank">João Lopes</a></p><p>Theme inspired by <a href="https://github.com/bennyxguo/Obsidian-Obsidianite" rel="noopener noreferrer" target="_blank">Obsidianite</a></p></footer></body></html>
