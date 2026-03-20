@@ -18,7 +18,7 @@ linkedin-url: https://www.linkedin.com/posts/j0a0m4_building-your-ai-toolkit-act
 
 # Building Your AI Toolkit
 
-[[glossary:AI agent|AI agents]] **are not text completers. They are runtime loops.** What's an agent?
+**[[glossary:AI agent|AI agents]] are not text completers. They are runtime loops.** What's an agent?
 How is it different from autocomplete? What are rules, skills, hooks — and when
 do you use each one? Once that clicks, the rest follows.
 

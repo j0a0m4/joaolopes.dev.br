@@ -140,6 +140,37 @@
   });
 });
 
+// Glossary term click-to-show inline definition
+document.addEventListener('DOMContentLoaded', () => {
+  const tip = document.createElement('div');
+  tip.id = 'glossary-tip';
+  tip.setAttribute('role', 'tooltip');
+  tip.setAttribute('hidden', '');
+  document.body.appendChild(tip);
+
+  document.querySelectorAll('abbr.glossary-term').forEach(abbr => {
+    abbr.querySelector('a').addEventListener('click', e => {
+      e.preventDefault();
+      const def = abbr.getAttribute('title');
+      const href = e.currentTarget.getAttribute('href');
+      if (tip._source === abbr && !tip.hasAttribute('hidden')) {
+        tip.setAttribute('hidden', ''); tip._source = null; return;
+      }
+      tip._source = abbr;
+      tip.innerHTML = def + ' <a href=\"' + href + '\">→</a>';
+      tip.removeAttribute('hidden');
+      const r = abbr.getBoundingClientRect();
+      tip.style.top = (r.bottom + window.scrollY + 6) + 'px';
+      tip.style.left = Math.min(r.left + window.scrollX, window.innerWidth - 280) + 'px';
+    });
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('abbr.glossary-term') && !e.target.closest('#glossary-tip'))
+      tip.setAttribute('hidden', '');
+  });
+});
+
 // Scroll restoration: save position when clicking a diagram link, restore on back
 (function() {
   if (history.scrollRestoration) history.scrollRestoration = 'manual';
