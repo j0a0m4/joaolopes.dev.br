@@ -770,3 +770,19 @@ footer a:hover { color: var(--accent); }
 .diagram-card-body { padding: 0.75rem; }
 .diagram-card-title { font-size: 1rem; font-weight: 500; color: var(--fg); margin: 0 0 0.25rem; }
 .diagram-card-source { font-size: 0.8rem; color: var(--muted); margin: 0; }
+
+/* ── Diagram source code toggle ───────────────────────────── */
+.diagram-code { margin-top: 1rem; font-size: 0.82rem; }
+.diagram-code > summary {
+  color: var(--muted);
+  cursor: pointer;
+  list-style: none;
+}
+.diagram-code > summary::-webkit-details-marker { display: none; }
+.diagram-code > pre {
+  margin-top: 0.5rem;
+  background: var(--code-bg);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+}
