@@ -85,6 +85,7 @@
      [:head
       [:meta {:charset "utf-8"}]
       [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+      [:meta {:name "color-scheme" :content "dark"}]
       [:title (if title (str title " — " site-title) site-title)]
       [:meta {:name "description" :content (or description site-description)}]
       [:link {:rel "preconnect" :href "https://fonts.googleapis.com"}]

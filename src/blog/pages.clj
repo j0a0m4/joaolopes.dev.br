@@ -361,6 +361,7 @@
                      :description    alt
                      :svg-content    svg-content
                      :mermaid-source mermaid-source})))
+           (filter :back-post)
            vec)
       [])))
 
