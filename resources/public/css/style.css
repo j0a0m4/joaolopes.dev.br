@@ -20,21 +20,6 @@
   --callout-border: #4aa8fb;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #faf9fc;
-    --bg-alt: #f0eef5;
-    --fg: #1a1a2e;
-    --muted: #5a5a72;
-    --border: rgba(14, 160, 200, 0.12);
-    --accent: #0a8fa8;
-    --accent-hover: #067a91;
-    --sub-accent: #d6366f;
-    --code-bg: #f0eef5;
-    --callout-border: #3b82f6;
-  }
-}
-
 * { margin: 0; padding: 0; box-sizing: border-box; }
 [hidden] { display: none !important; }
 
@@ -300,10 +285,6 @@ mark {
   color: #fef08a;
   padding: 0.1em 0.2em;
   border-radius: 2px;
-}
-
-@media (prefers-color-scheme: light) {
-  mark { background: #fef08a; color: inherit; }
 }
 
 /* Footer */
