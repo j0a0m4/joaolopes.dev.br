@@ -44,6 +44,45 @@
   [posts]
   (into #{} (map :slug posts)))
 
+(defn- extract-definition-text
+  "Extracts the ## Definition section from a glossary entry body as plain text."
+  [body]
+  (when-let [[_ section] (re-find #"(?s)## Definition\n\n(.*?)(?=\n##|\z)" body)]
+    (-> section str/trim (str/replace #"\n+" " "))))
+
+(defn load-glossary
+  "Loads all markdown files from glossary-dir with format: definition and publish: true.
+   Returns [{:title :slug :definition :html-body :related-links}] sorted by title."
+  [glossary-dir]
+  (let [d (io/file glossary-dir)]
+    (if (.isDirectory d)
+      (->> (.listFiles d)
+           (filter #(str/ends-with? (.getName %) ".md"))
+           (keep (fn [f]
+                   (let [[meta body] (markdown/parse-frontmatter (slurp f))
+                         title       (:title meta)
+                         slug        (:slug meta (markdown/slugify title))
+                         definition  (extract-definition-text body)
+                         clean-body  (str/replace body #"(?s)## Definition\n\n.*?(?=\n##|\z)" "")
+                         html-body   (markdown/render-markdown clean-body)
+                         related     (or (:related meta) [])]
+                     (when (and title (:publish meta) (= "definition" (name (or (:format meta) ""))))
+                       {:title         title
+                        :slug          slug
+                        :definition    definition
+                        :html-body     html-body
+                        :related-links (mapv (fn [r] {:label r
+                                                       :slug  (markdown/slugify r)})
+                                             related)}))))
+           (sort-by #(str/lower-case (:title %)))
+           vec)
+      [])))
+
+(defn- glossary-defs-map
+  "Builds {slug → definition-text} from loaded glossary entries."
+  [entries]
+  (into {} (map (juxt :slug :definition)) entries))
+
 (defn- validate-series
   "Validates a series-map. Checks title consistency and series-order presence."
   [series-map]
@@ -110,11 +149,11 @@
 
 (defn- render-post
   "Renders a single post to full HTML page."
-  [post slugs series-ctx]
+  [post slugs glossary-defs series-ctx]
   (let [body (:body post)
         toc (markdown/extract-toc body)
         html-body (-> body
-                      (markdown/transform-obsidian slugs)
+                      (markdown/transform-obsidian slugs glossary-defs)
                       markdown/render-markdown
                       markdown/inline-svgs
                       (cond-> toc inject-toc-backlinks))]
@@ -177,12 +216,13 @@
 
 (defn- render-sitemap
   "Generates sitemap.xml."
-  [posts series-map tag-map diagrams]
+  [posts series-map tag-map diagrams glossary]
   (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
        "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n"
        "<url><loc>" (layout/absolute-url "/") "</loc></url>\n"
        "<url><loc>" (layout/absolute-url "/about/") "</loc></url>\n"
        "<url><loc>" (layout/absolute-url "/diagrams/") "</loc></url>\n"
+       "<url><loc>" (layout/absolute-url "/glossary/") "</loc></url>\n"
        (str/join
         (for [{:keys [url published-on]} posts]
           (str "<url>"
@@ -206,6 +246,11 @@
           (str "<url>"
                "<loc>" (layout/absolute-url (layout/diagram-path slug)) "</loc>"
                "</url>\n")))
+       (str/join
+        (for [{:keys [slug]} glossary]
+          (str "<url>"
+               "<loc>" (layout/absolute-url (layout/glossary-path slug)) "</loc>"
+               "</url>\n")))
        "</urlset>"))
 
 (defn- render-about
@@ -216,6 +261,22 @@
     (layout/base-layout
      "About" nil
      (layout/about-layout html-body))))
+
+(defn- render-glossary-entry
+  "Renders a single glossary entry page."
+  [entry]
+  (layout/base-layout
+   (:title entry)
+   (:definition entry)
+   (layout/glossary-entry-layout entry)))
+
+(defn- render-glossary-index
+  "Renders /glossary/ index page."
+  [entries]
+  (layout/base-layout
+   "Glossary"
+   "Definitions for terms used across the blog."
+   (layout/glossary-index-layout entries)))
 
 (defn- svg-slug
   "agent-loop.svg → agent-loop"
@@ -347,26 +408,34 @@
 (defn get-pages
   "Builds the Stasis page map from posts and assets directories."
   [posts-dir assets-dir]
-  (let [posts      (load-posts posts-dir)
-        slugs      (published-slugs posts)
-        series-map (group-series posts)
-        tag-map    (group-tags posts)
-        diagrams   (scan-diagrams posts assets-dir)
-        _          (validate-series series-map)]
+  (let [posts         (load-posts posts-dir)
+        glossary      (load-glossary "glossary")
+        defs          (glossary-defs-map glossary)
+        slugs         (published-slugs posts)
+        series-map    (group-series posts)
+        tag-map       (group-tags posts)
+        diagrams      (scan-diagrams posts assets-dir)
+        _             (validate-series series-map)]
     (merge
      {"/" (fn [_] (render-index posts))
       "/tags/" (fn [_] (render-tags-overview tag-map))
+      "/glossary/" (fn [_] (render-glossary-index glossary))
       "/about/" (fn [_] (render-about))
       "/feed.xml" (fn [_] (render-rss posts))
-      "/sitemap.xml" (fn [_] (render-sitemap posts series-map tag-map diagrams))
+      "/sitemap.xml" (fn [_] (render-sitemap posts series-map tag-map diagrams glossary))
       "/llms.txt" (fn [_] (render-llms-txt posts))
       "/404.html" (fn [_] (render-404))
       "/diagrams/" (fn [_] (render-diagrams-index diagrams))}
      (into {}
            (map (fn [post]
                   [(:url post)
-                   (fn [_] (render-post post slugs (series-context post series-map)))]))
+                   (fn [_] (render-post post slugs defs (series-context post series-map)))]))
            posts)
+     (into {}
+           (map (fn [entry]
+                  [(layout/glossary-path (:slug entry))
+                   (fn [_] (render-glossary-entry entry))]))
+           glossary)
      (into {}
            (map (fn [[slug group]]
                   [(layout/series-path slug)
