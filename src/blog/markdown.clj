@@ -17,7 +17,7 @@
     [(yaml/parse-string yaml-str :keywords true :load-all false) (str/trim body)]
     [nil (str/trim content)]))
 
-(defn- slugify [title]
+(defn slugify [title]
   (-> title
       str/lower-case
       str/trim
@@ -43,6 +43,25 @@
                #"(?m)^> \[!(\w+)\]\s*(.*)"
                "<blockquote class=\"callout callout-$1\"><strong>$2</strong>"))
 
+(defn- transform-glossary-links
+  "[[glossary:Term]] or [[glossary:Term|display]] →
+   <details class='glossary-term'> with inline definition baked in.
+   glossary-defs is {slug → definition-text}.
+   Falls back to plain <a href> if no entry found.
+   MUST run before transform-wikilinks (ordering constraint)."
+  [text glossary-defs]
+  (str/replace text #"\[\[glossary:([^\]|]+)(?:\|([^\]]+))?\]\]"
+    (fn [[_ target display]]
+      (let [label (or display target)
+            slug  (slugify target)
+            defn  (get glossary-defs slug)]
+        (if defn
+          (str "<details class=\"glossary-term\">"
+               "<summary>" label "</summary>"
+               "<div><strong>" target "</strong> " defn "</div>"
+               "</details>")
+          (str "<a href=\"/glossary/" slug "/\">" label "</a>"))))))
+
 (defn- transform-wikilinks
   "[[Title]] → plain text for links to unpublished posts.
    published-slugs is a set of slugs that have published posts."
@@ -57,12 +76,15 @@
 
 (defn transform-obsidian
   "Pre-processes Obsidian-flavored markdown before passing to markdown-clj.
-   published-slugs is a set of slugs for cross-linking."
-  [text published-slugs]
+   published-slugs: set of slugs for post cross-linking.
+   glossary-defs: {slug → definition-text} map for glossary term expansion.
+   NOTE: transform-glossary-links MUST run before transform-wikilinks."
+  [text published-slugs glossary-defs]
   (-> text
       transform-highlights
       transform-image-embeds
       transform-callouts
+      (transform-glossary-links glossary-defs)
       (transform-wikilinks published-slugs)))
 
 (defn- strip-related-section
