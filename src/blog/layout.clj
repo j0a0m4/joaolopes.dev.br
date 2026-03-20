@@ -174,6 +174,7 @@
         [:span#nav-menu.nav-links
          [:a {:href (href "/")} "Posts"]
          [:a {:href (href "/tags/")} "Tags"]
+         [:a {:href (href "/glossary/")} "Glossary"]
          [:a {:href (href "/diagrams/")} "Diagrams"]
          [:a {:href (href "/about/")} "About"]
          [:a {:href (href "/feed.xml")} "RSS"]]]]
