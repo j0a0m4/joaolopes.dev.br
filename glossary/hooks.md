@@ -12,9 +12,7 @@ publish: true
 
 ## Definition
 
-Claude Code's 21 lifecycle events — session start, every tool call before and
-after, subagent lifecycle, context compaction. Wired in settings.json, hooks
-fire at the process level on every invocation regardless of agent context.
+Lifecycle events that fire before and after every tool call. Unlike instructions, hooks run as code — they enforce behavior unconditionally, outside the model's context.
 
 
 Claude Code exposes 21 lifecycle events as hooks: `SessionStart`, `SessionEnd`, `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `SubagentStart`, `SubagentStop`, and more. Each hook fires when the named event occurs during a Claude Code session.

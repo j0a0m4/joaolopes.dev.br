@@ -12,9 +12,7 @@ publish: true
 
 ## Definition
 
-Anthropic's official CLI for Claude. An agentic coding tool that runs in the
-terminal, uses tools (Read, Write, Bash, Edit, Glob, Grep), and exposes 21
-lifecycle hook events for customization and enforcement.
+Anthropic's official CLI for Claude — an agentic coding assistant that runs in the terminal and exposes 21 lifecycle hooks for customization.
 
 
 Claude Code is Anthropic's official CLI for Claude — an agentic coding tool that runs directly in the terminal. It operates through tools: Read, Write, Edit, Bash, Glob, Grep, Agent (subagent dispatch), and more. It maintains a conversation, reads codebases, writes and modifies files, runs commands, and coordinates subagents.

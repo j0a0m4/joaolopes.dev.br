@@ -12,9 +12,7 @@ publish: true
 
 ## Definition
 
-In the AI toolkit context: predetermined shell operations that produce
-consistent, predictable output. The deterministic anchor of the agent stack —
-git commits, test runs, API calls. Same input, same output, every time.
+The deterministic layer of the agent stack — shell commands that produce the same output every time, regardless of what the model thinks it knows.
 
 
 In the context of AI-assisted development, CLI (command-line interface) refers to the deterministic tool layer: shell commands and scripts that the [[AI agent]] calls to produce predictable, reproducible outputs. `git commit` commits. `lein test` runs tests. The agent _chooses when_ to call them — the command does the same thing regardless.
