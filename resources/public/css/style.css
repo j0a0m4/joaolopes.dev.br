@@ -177,7 +177,7 @@ article h3 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   color: var(--muted);
   font-size: 0.9rem;
 }
@@ -382,7 +382,7 @@ footer a:hover { color: var(--accent); }
   border-radius: 6px;
   padding: 1rem 1.25rem;
   margin-top: 0.75rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .toc .toc-label {
@@ -419,7 +419,7 @@ footer a:hover { color: var(--accent); }
   border: 1px solid rgba(14, 210, 247, 0.15);
   border-radius: 6px;
   padding: 1rem 1.25rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .series-toc .series-label {
@@ -833,7 +833,7 @@ details.glossary-term > div strong {
 }
 
 .glossary-letter {
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .glossary-letter h2 {
@@ -844,6 +844,7 @@ details.glossary-term > div strong {
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--border);
 }
+
 
 .glossary-index ul {
   padding-left: 1.25rem;
@@ -861,7 +862,7 @@ details.glossary-term > div strong {
 }
 
 .glossary-back {
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   font-size: 0.9rem;
 }
 
