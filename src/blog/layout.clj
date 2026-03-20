@@ -339,8 +339,8 @@
 
 (defn diagram-page-layout
   "Standalone diagram viewer page. Returns hiccup.
-   diagram map keys: :slug :title :back-post :description :svg-content"
-  [{:keys [title back-post description svg-content]}]
+   diagram map keys: :slug :title :back-post :description :svg-content :mermaid-source"
+  [{:keys [title back-post description svg-content mermaid-source]}]
   [:div.diagram-page
    (when back-post
      [:a.diagram-back {:href (href (:url back-post))}
@@ -348,6 +348,10 @@
    [:h1.diagram-title title]
    [:div.diagram-full
     (h/raw svg-content)]
+   (when (seq mermaid-source)
+     [:details.diagram-code
+      [:summary "View diagram source"]
+      [:pre [:code.language-mermaid mermaid-source]]])
    (when (seq description)
      [:div.diagram-transcript
       [:p description]])])
