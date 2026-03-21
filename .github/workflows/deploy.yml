@@ -24,7 +24,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  regression:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,19 +40,71 @@ jobs:
             ~/.m2/repository
             ~/.gitlibs
             .cpcache
-          key: clj-${{ hashFiles('deps.edn') }}
+          key: clj-v2-${{ hashFiles('deps.edn') }}
+
+      - name: Cache npm deps
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
 
       - name: Install Node deps
         run: npm ci
 
+      - name: Install clj-kondo
+        run: |
+          curl -sLO https://raw.githubusercontent.com/clj-kondo/clj-kondo/master/script/install-clj-kondo
+          chmod +x install-clj-kondo
+          sudo ./install-clj-kondo
+
+      - name: Lint Clojure
+        run: clj-kondo --lint src test
+
+      - name: Lint JS
+        run: npx eslint test/e2e-playwright/
+
+      - name: Check Clojure formatting
+        run: clojure -M:cljfmt check
+
+      - name: Check JS formatting
+        run: npx prettier --check test/e2e-playwright/
+
       - name: Run unit tests
-        run: clojure -M:test
+        run: clojure -M:unit
+
+      - name: Run integration tests
+        run: clojure -M:integration
 
       - name: Compile ClojureScript
         run: clojure -M:shadow compile app
 
       - name: Build site
         run: clojure -M:build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run e2e tests
+        run: npx playwright test --reporter=list
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-deploy
+          path: public/
+          retention-days: 1
+
+  deploy:
+    needs: regression
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: site-deploy
+          path: public/
 
       - name: Preserve preview if exists
         run: |
