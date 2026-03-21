@@ -1,0 +1,59 @@
+name: lint
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      clj: ${{ steps.filter.outputs.clj }}
+      js: ${{ steps.filter.outputs.js }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            clj:
+              - 'src/**'
+              - 'test/**/*.clj'
+              - 'deps.edn'
+              - '.clj-kondo/**'
+            js:
+              - 'test/e2e-playwright/**'
+              - 'package.json'
+              - 'eslint.config.mjs'
+
+  lint-clj:
+    needs: changes
+    if: needs.changes.outputs.clj == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install clj-kondo
+        run: |
+          curl -sLO https://raw.githubusercontent.com/clj-kondo/clj-kondo/master/script/install-clj-kondo
+          chmod +x install-clj-kondo
+          sudo ./install-clj-kondo
+      - name: Lint Clojure
+        run: clj-kondo --lint src test
+
+  lint-js:
+    needs: changes
+    if: needs.changes.outputs.js == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache npm deps
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+      - name: Install Node deps
+        run: npm ci
+      - name: Lint JS
+        run: npx eslint test/e2e-playwright/
