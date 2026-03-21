@@ -3,7 +3,7 @@
             [ring.util.response :as response]
             [ring.middleware.content-type :refer [wrap-content-type]]))
 
-(defn- static-handler [root-dir]
+(defn static-handler [root-dir]
   (wrap-content-type
     (fn [req]
       (let [path  (str root-dir (:uri req))
@@ -15,8 +15,7 @@
           :else           (response/file-response (str root-dir "/404.html")))))))
 
 (defmacro with-static-server [[dir port] & body]
-  `(let [handler# (var-get (find-var 'aux.e2e-helpers/static-handler))
-         server#  (jetty/run-jetty (handler# ~dir) {:port ~port :join? false})]
+  `(let [server# (jetty/run-jetty (static-handler ~dir) {:port ~port :join? false})]
      (try
        ~@body
        (finally
