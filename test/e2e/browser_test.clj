@@ -15,6 +15,8 @@
   (with-static-server ["public/" 3001]
     (e/with-driver :chrome ci-opts driver
       (e/go driver (base-url 3001 "/posts/building-your-ai-toolkit/"))
+      (println "URL after go:" (e/get-url driver))
+      (println "Body snippet:" (e/js-execute driver "return document.body?.innerHTML?.substring(0,300) ?? 'NO BODY'"))
       (e/wait-visible driver {:css "abbr.glossary-term"} {:timeout 10})
       (let [term (e/query driver {:css "abbr.glossary-term"})]
         (is (not (e/visible? driver {:css ".glossary-tooltip.visible"})))
