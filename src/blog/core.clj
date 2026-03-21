@@ -3,6 +3,7 @@
             [stasis.core :as stasis]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.content-type :refer [wrap-content-type]]
+            [ring.middleware.resource :refer [wrap-resource]]
             [blog.pages :as pages]
             [blog.system :as system]))
 
@@ -29,6 +30,7 @@
 
 (defn serve! [sys]
   (let [app (-> (stasis/serve-pages #(pages/get-pages! sys))
+                (wrap-resource "public")   ;; serves resources/public/ (CSS, JS, favicon)
                 wrap-content-type)]
     (println "Serving at http://localhost:3000")
     (jetty/run-jetty app {:port 3000 :join? false})))

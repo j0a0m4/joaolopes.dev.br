@@ -119,7 +119,10 @@
 ;;; ── Glossary parsing ─────────────────────────────────────────────────────────
 
 (defn- first-paragraph [body]
-  (-> body str/trim (str/split #"\n\n") first str/trim))
+  (->> (str/split (str/trim body) #"\n\n")
+       (map str/trim)
+       (remove #(str/starts-with? % "#"))
+       first))
 
 (defn- parse-glossary-entry [{:keys [raw-frontmatter raw-body]}]
   (let [fm (yaml/parse-string raw-frontmatter)]
