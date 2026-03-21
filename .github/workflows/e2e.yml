@@ -7,11 +7,11 @@ on:
       - 'src/**'
       - 'resources/**'
       - 'assets/**'
-      - 'test/e2e/**'
-      - 'test/aux/**'
+      - 'test/e2e-playwright/**'
       - 'deps.edn'
       - 'shadow-cljs.edn'
       - 'package.json'
+      - 'playwright.config.js'
 
 permissions:
   contents: read
@@ -40,8 +40,6 @@ jobs:
           key: npm-${{ hashFiles('package-lock.json') }}
       - name: Install Node deps
         run: npm ci
-      - name: Warm all Clojure deps (build + e2e)
-        run: clojure -P -M:build:e2e:shadow
       - name: Compile ClojureScript
         run: clojure -M:shadow compile app
       - name: Build site
@@ -69,24 +67,24 @@ jobs:
             ~/.gitlibs
             .cpcache
           key: clj-v2-${{ hashFiles('deps.edn') }}
+      - name: Cache npm deps
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+      - name: Install Node deps
+        run: npm ci
       - name: Download site artifact
         uses: actions/download-artifact@v4
         with:
           name: site-e2e
           path: public/
-      - name: Get Chrome version
-        id: chrome-version
-        run: echo "major=$(google-chrome --version | grep -oE '[0-9]+' | head -1)" >> $GITHUB_OUTPUT
-      - name: Cache ChromeDriver
+      - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
-          path: /usr/local/lib/node_modules/chromedriver
-          key: chromedriver-${{ steps.chrome-version.outputs.major }}-${{ runner.os }}
-      - name: Install matching ChromeDriver
-        run: |
-          CHROME_MAJOR=$(google-chrome --version | grep -oE '[0-9]+' | head -1)
-          echo "Chrome major: $CHROME_MAJOR"
-          npm install -g chromedriver@$CHROME_MAJOR
-          chromedriver --version
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}-${{ runner.os }}
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
       - name: Run e2e tests
-        run: clojure -M:e2e
+        run: npx playwright test
