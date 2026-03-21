@@ -14,7 +14,7 @@
 (deftest glossary-tooltip-accessible
   (with-static-server ["public/" 3001]
     (e/with-driver :chrome ci-opts driver
-      (e/go driver (base-url 3001 "/posts/building-your-ai-toolkit-cli-mcp-skills-and-what-goes-where/"))
+      (e/go driver (base-url 3001 "/posts/building-your-ai-toolkit/"))
       (let [term (e/query driver {:css "abbr.glossary-term"})]
         (is (not (e/visible? driver {:css ".glossary-tooltip.visible"})))
         (e/click driver term)
