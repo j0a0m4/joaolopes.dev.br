@@ -2,7 +2,11 @@
 title: "I Built This Blog by Prompting Claude Code"
 created: 2026-03-19
 published-on: "2026-03-21"
-description: "I built this blog entirely by prompting Claude Code — no file editing by hand, no manual git workflow. This is the story of how, and the stack that made it work: a Clojure SSG, vault-sourced content, devtools-mcp, and superpowers."
+description:
+  "I built this blog entirely by prompting Claude Code — no file editing by
+  hand, no manual git workflow. This is the story of how, and the stack that
+  made it work: a Clojure SSG, vault-sourced content, devtools-mcp, and
+  superpowers."
 tags:
   - ai-first-engineering
   - claude-code
