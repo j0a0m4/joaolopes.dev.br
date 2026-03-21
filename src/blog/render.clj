@@ -162,7 +162,7 @@
   (layout/base-layout (layout/index-layout posts config) config))
 
 (defn render-glossary-entry [entry config]
-  (let [html-body (-> (or (:raw-body entry) "") render-markdown)]
+  (let [html-body (-> (or (:definition entry) "") render-markdown)]
     (layout/base-layout (layout/glossary-entry-layout (assoc entry :html-body html-body) config) config)))
 
 (defn render-glossary-index [glossary config]

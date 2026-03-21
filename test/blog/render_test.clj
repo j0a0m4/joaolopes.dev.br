@@ -71,6 +71,13 @@
     (is (vector? (layout/post-layout post config))  "post-layout returns hiccup vector")
     (is (vector? (layout/index-layout [] config))   "index-layout returns hiccup vector")))
 
+(deftest render-glossary-entry-test
+  (let [entry {:title "Skill" :slug "skill" :definition "A reusable unit of agent behaviour." :related [] :publish true}
+        html  (render/render-glossary-entry entry config)
+        doc   (-> html hickory/parse hickory/as-hickory)]
+    (is (= 1 (count (sel/select (sel/tag :article) doc))))
+    (is (pos? (count (sel/select (sel/class "glossary-entry") doc))))))
+
 (deftest base-layout-contains-no-inline-scripts
   (let [html (layout/base-layout [:div ""] config)
         doc  (-> html hickory/parse hickory/as-hickory)

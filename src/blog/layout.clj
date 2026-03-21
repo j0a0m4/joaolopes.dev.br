@@ -68,7 +68,8 @@
                               :stroke-linecap "round" :stroke-linejoin "round"}]]
            site-title]
           [:button.nav-toggle
-           {:aria-expanded "false"
+           {:id            "nav-toggle"
+            :aria-expanded "false"
             :aria-controls "nav-menu"
             :aria-label "Menu"}
            [:span.hamburger-icon {:aria-hidden "true"} "☰"]]

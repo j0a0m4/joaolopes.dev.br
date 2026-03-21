@@ -5,7 +5,7 @@
 
 (defn init-nav! []
   (when-let [btn (dom/getElement "nav-toggle")]
-    (when-let [nav (dom/getElement "main-nav")]
+    (when-let [nav (dom/getElement "nav-menu")]
       (events/listen btn et/CLICK
         (fn [_]
           (let [expanded? (= "true" (.getAttribute btn "aria-expanded"))]

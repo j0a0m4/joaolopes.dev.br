@@ -199,7 +199,10 @@
 ;;; ── Wikilink expansion ───────────────────────────────────────────────────────
 
 (defn- glossary-abbr [{:keys [slug definition]} display]
-  (str "<abbr class=\"glossary-term\" title=\"" definition "\">"
+  (str "<abbr class=\"glossary-term\""
+       " title=\"" definition "\""
+       " data-slug=\"" slug "\""
+       " data-definition=\"" definition "\">"
        "<a href=\"/glossary/" slug "/\">" display "</a>"
        "</abbr>"))
 
