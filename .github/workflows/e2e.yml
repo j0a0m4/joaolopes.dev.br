@@ -84,7 +84,9 @@ jobs:
           key: chromedriver-${{ steps.chrome-version.outputs.major }}-${{ runner.os }}
       - name: Install matching ChromeDriver
         run: |
-          npm install -g chromedriver
+          CHROME_MAJOR=$(google-chrome --version | grep -oE '[0-9]+' | head -1)
+          echo "Chrome major: $CHROME_MAJOR"
+          npm install -g chromedriver@$CHROME_MAJOR
           chromedriver --version
       - name: Run e2e tests
         run: clojure -M:e2e
