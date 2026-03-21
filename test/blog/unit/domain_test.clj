@@ -90,3 +90,21 @@
     (is (= "glossary-term" (get-in abbr [:attrs :class]))     "has glossary-term class")
     (is (str/includes? (get-in abbr [:attrs :title]) "reusable") "title contains definition")
     (is (= "/glossary/skill/" (get-in link [:attrs :href]))   "link points to glossary slug")))
+
+(deftest expand-wikilinks-uses-slug-not-title
+  (let [glossary [{:title "MCP" :slug "mcp" :definition "Model Context Protocol."}]
+        posts    [{:content {:body "Uses [[glossary:mcp|MCP]] for tools."}}]
+        result   (domain/expand-wikilinks posts glossary)
+        body     (get-in (first result) [:content :body])
+        doc      (-> (str "<div>" body "</div>") hickory/parse hickory/as-hickory)
+        abbr     (first (sel/select (sel/tag :abbr) doc))]
+    (is (some? abbr) "slug 'mcp' matches even though title is 'MCP'")))
+
+(deftest expand-wikilinks-title-does-not-match
+  (let [glossary [{:title "Skills" :slug "skills" :definition "Reusable workflows."}]
+        posts    [{:content {:body "Uses [[glossary:Skills]] for work."}}]
+        result   (domain/expand-wikilinks posts glossary)
+        body     (get-in (first result) [:content :body])
+        doc      (-> (str "<div>" body "</div>") hickory/parse hickory/as-hickory)
+        abbr     (first (sel/select (sel/tag :abbr) doc))]
+    (is (nil? abbr) "title-cased 'Skills' does NOT match slug 'skills' — wikilinks use slugs")))
