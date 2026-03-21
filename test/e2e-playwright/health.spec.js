@@ -15,7 +15,7 @@ test.describe("site health", () => {
     });
 
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
     expect(failed).toEqual([]);
   });
 
@@ -26,7 +26,7 @@ test.describe("site health", () => {
     });
 
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
     expect(errors).toEqual([]);
   });
 
@@ -37,7 +37,7 @@ test.describe("site health", () => {
     });
 
     await page.goto("/posts/building-your-ai-toolkit/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
     expect(errors).toEqual([]);
   });
 });

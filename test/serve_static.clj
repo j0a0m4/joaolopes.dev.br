@@ -1,6 +1,5 @@
 (require '[ring.adapter.jetty :as jetty]
          '[ring.middleware.file :refer [wrap-file]]
-         '[ring.middleware.content-type :refer [wrap-content-type]]
          '[ring.util.response :as response])
 
 (def mime-types

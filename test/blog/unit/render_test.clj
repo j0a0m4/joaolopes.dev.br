@@ -1,5 +1,5 @@
 (ns blog.unit.render-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [clojure.test :refer [deftest is]]
             [hickory.core :as hickory]
             [hickory.select :as sel]
             [blog.layout :as layout]
@@ -8,9 +8,9 @@
 (def config {:site-url "http://localhost" :site-title "Test" :site-desc "Test blog" :base-path ""})
 
 (deftest svg-aria-attributes-test
-  (let [diagram {:slug "agent-loop" :path "/assets/agent-loop.svg"
-                 :alt "The agent loop diagram"
-                 :content "<svg xmlns=\"http://www.w3.org/2000/svg\"><circle r=\"10\"/></svg>"}
+  (let [_diagram {:slug "agent-loop" :path "/assets/agent-loop.svg"
+                  :alt "The agent loop diagram"
+                  :content "<svg xmlns=\"http://www.w3.org/2000/svg\"><circle r=\"10\"/></svg>"}
         post    {:identity {:title "Post" :slug "post"}
                  :content  {:body "![The agent loop diagram](/assets/agent-loop.svg)" :description nil}
                  :dates    {:created-on "2025-01-10" :published-on "2025-01-15" :updated-on "2025-01-20"}
@@ -31,15 +31,21 @@
    :navigation {:prev nil :next nil}})
 
 (deftest render-post-test
-  (let [html (render/render-post post-fixture config)
+  (let [post (assoc post-fixture :taxonomy {:tags [:clojure :ai] :series nil})
+        html (render/render-post post config)
         doc  (-> html hickory/parse hickory/as-hickory)]
-    (is (= 1 (count (sel/select (sel/tag :article) doc))))))
+    (is (= 1 (count (sel/select (sel/tag :article) doc))) "has article")
+    (is (seq (sel/select (sel/find-in-text #"Hello World") doc)) "title in output")
+    (is (seq (sel/select (sel/tag :time) doc)) "time element present")
+    (is (seq (sel/select (sel/class "tag") doc)) "tags rendered")))
 
 (deftest render-index-test
   (let [posts [post-fixture]
-        html (render/render-index posts config)
-        doc  (-> html hickory/parse hickory/as-hickory)]
-    (is (pos? (count (sel/select (sel/class "post-list") doc))))))
+        html  (render/render-index posts config)
+        doc   (-> html hickory/parse hickory/as-hickory)]
+    (is (pos? (count (sel/select (sel/class "post-list") doc))) "post-list class")
+    (is (seq (sel/select (sel/find-in-text #"Hello World") doc)) "post title in list")
+    (is (seq (sel/select (sel/descendant (sel/class "post-list") (sel/tag :a)) doc)) "post links present")))
 
 (deftest post-pages-test
   (let [post   {:identity {:title "Hello" :slug "hello"}
@@ -84,3 +90,116 @@
         scripts (sel/select (sel/tag :script) doc)]
     (is (= 1 (count scripts))          "exactly one script tag")
     (is (= "/js/main.js" (get-in (first scripts) [:attrs :src])) "main.js bundle")))
+
+(deftest render-markdown-headings-test
+  (let [html (render/render-markdown "## Hello World\n\nSome text.")]
+    (is (re-find #"<h2[^>]*>Hello World</h2>" html) "h2 rendered")
+    (is (re-find #"id=\"" html) "heading has anchor id")))
+
+(deftest render-markdown-code-blocks-test
+  (let [html (render/render-markdown "```clojure\n(+ 1 2)\n```")]
+    (is (re-find #"<pre>" html) "pre block")
+    (is (re-find #"<code" html) "code element")
+    (is (re-find #"clojure" html) "language class preserved")))
+
+(deftest render-markdown-tables-test
+  (let [html (render/render-markdown "| A | B |\n|---|---|\n| 1 | 2 |")]
+    (is (re-find #"<table>" html) "table rendered")
+    (is (re-find #"<th>" html) "thead present")
+    (is (re-find #"<td>" html) "tbody present")))
+
+(deftest render-markdown-inline-test
+  (let [html (render/render-markdown "**bold** and *italic* and `code` and [link](http://x)")]
+    (is (re-find #"<strong>bold</strong>" html))
+    (is (re-find #"<em>italic</em>" html))
+    (is (re-find #"<code>code</code>" html))
+    (is (re-find #"<a href=\"http://x\">link</a>" html))))
+
+(deftest extract-toc-empty-test
+  (is (nil? (render/extract-toc "No headings here.\n\nJust paragraphs."))))
+
+(deftest extract-toc-below-threshold-test
+  (is (nil? (render/extract-toc "## One\n\n## Two\n\nOnly 2 h2s, threshold is 3."))))
+
+(deftest extract-toc-meets-threshold-test
+  (let [toc (render/extract-toc "## A\n\n## B\n\n## C")]
+    (is (= 3 (count toc)))
+    (is (every? #(= 2 (:level %)) toc))
+    (is (= "A" (:text (first toc))))
+    (is (= "a" (:anchor (first toc))))))
+
+(deftest extract-toc-nested-h3-test
+  (let [toc (render/extract-toc "## Top\n\n### Sub\n\n## Second\n\n### Sub2\n\n## Third")]
+    (is (= 5 (count toc)))
+    (is (= 2 (:level (first toc))))
+    (is (= 3 (:level (second toc))))
+    (is (= "sub" (:anchor (second toc))))))
+
+(deftest extract-toc-special-chars-test
+  (let [toc (render/extract-toc "## What's New?\n\n## C++ & Rust\n\n## Hello World")]
+    (is (= "whats-new" (:anchor (first toc))))
+    (is (= "c--rust" (:anchor (second toc))) "heading-anchor doesn't collapse consecutive hyphens")))
+
+(deftest inject-svg-aria-direct-test
+  (let [svg "<svg xmlns=\"http://www.w3.org/2000/svg\"><circle/></svg>"
+        result (render/inject-svg-aria svg {:slug "my-diagram" :alt "A diagram"})]
+    (is (re-find #"role=\"img\"" result) "role=img injected")
+    (is (re-find #"aria-labelledby=\"my-diagram-title my-diagram-desc\"" result) "aria-labelledby correct")
+    (is (re-find #"<title id=\"my-diagram-title\">A diagram</title>" result) "title element")
+    (is (re-find #"<desc id=\"my-diagram-desc\">A diagram</desc>" result) "desc element")))
+
+(deftest inline-svgs-basic-test
+  (let [svg-content "<svg xmlns=\"http://www.w3.org/2000/svg\"><rect/></svg>"
+        svg-file (java.io.File. "./assets/test-inline.svg")]
+    (try
+      (.mkdirs (.getParentFile svg-file))
+      (spit svg-file svg-content)
+      (let [html "<p>Before</p><img src=\"/assets/test-inline.svg\" alt=\"Test diagram\"><p>After</p>"
+            result (render/inline-svgs html)]
+        (is (re-find #"<figure class=\"diagram-figure\">" result) "wrapped in figure")
+        (is (re-find #"role=\"img\"" result) "SVG has ARIA role")
+        (is (re-find #"Test diagram" result) "alt text preserved"))
+      (finally
+        (.delete svg-file)))))
+
+(deftest inline-svgs-missing-file-test
+  (let [html "<img src=\"/assets/nonexistent-diagram.svg\" alt=\"missing\">"
+        result (render/inline-svgs html)]
+    (is (= html result) "missing SVG leaves img tag unchanged")))
+
+(deftest render-rss-test
+  (let [posts [post-fixture]
+        xml   (render/render-rss posts config)]
+    (is (re-find #"<rss " xml) "RSS root element")
+    (is (re-find #"<item>" xml) "has items")
+    (is (re-find #"<title>Hello World</title>" xml) "item title")
+    (is (re-find #"<link>" xml) "item link")
+    (is (re-find #"<pubDate>" xml) "item pubDate")))
+
+(deftest render-sitemap-test
+  (let [posts    [post-fixture]
+        glossary [{:slug "skill" :title "Skill" :definition "A unit." :related []}]
+        diagrams []
+        xml      (render/render-sitemap posts glossary diagrams config)]
+    (is (re-find #"<urlset" xml) "sitemap root")
+    (is (re-find #"<loc>" xml) "has locations")
+    (is (re-find #"/posts/hello-world/" xml) "post URL in sitemap")
+    (is (re-find #"/glossary/skill/" xml) "glossary URL in sitemap")))
+
+(deftest series-pages-routes-test
+  (let [series {:my-series [{:identity {:slug "p1"} :taxonomy {:series {:id :my-series :order 1 :title "S"}}}]}
+        pages  (render/series-pages series config)]
+    (is (contains? pages "/series/my-series/"))))
+
+(deftest feed-pages-routes-test
+  (let [pages (render/feed-pages [post-fixture] config)]
+    (is (contains? pages "/feed.xml"))
+    (is (contains? pages "/llms.txt"))))
+
+(deftest render-glossary-index-test
+  (let [glossary [{:slug "skill" :title "Skill" :definition "A unit." :related []}
+                  {:slug "agent" :title "Agent" :definition "An actor." :related []}]
+        html     (render/render-glossary-index glossary config)
+        doc      (-> html hickory/parse hickory/as-hickory)]
+    (is (seq (sel/select (sel/find-in-text #"Skill") doc)) "first entry")
+    (is (seq (sel/select (sel/find-in-text #"Agent") doc)) "second entry")))

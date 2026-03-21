@@ -10,7 +10,9 @@
     "Hello World"                 "hello-world"
     "AI Toolkit — Part 1"         "ai-toolkit-part-1"
     "What the AI Gets Wrong"      "what-the-ai-gets-wrong"
-    "Building (Things) With AI"   "building-things-with-ai"))
+    "Building (Things) With AI"   "building-things-with-ai"
+    ""                             ""
+    "   "                          ""))
 
 (deftest parse-post-test
   (testing "parses valid post"
@@ -90,3 +92,71 @@
     (is (= "glossary-term" (get-in abbr [:attrs :class]))     "has glossary-term class")
     (is (str/includes? (get-in abbr [:attrs :title]) "reusable") "title contains definition")
     (is (= "/glossary/skill/" (get-in link [:attrs :href]))   "link points to glossary slug")))
+
+(deftest normalize-date-test
+  (testing "java.util.Date → ISO string"
+    (let [date (java.util.Date. 1710547200000)]
+      (is (= "2024-03-16" (domain/normalize-date date)))))
+  (testing "string passthrough"
+    (is (= "2025-01-15" (domain/normalize-date "2025-01-15"))))
+  (testing "nil returns nil"
+    (is (nil? (domain/normalize-date nil)))))
+
+(deftest display-date-test
+  (is (= "15 January 2025" (domain/display-date "2025-01-15")))
+  (is (nil? (domain/display-date nil))))
+
+(deftest rfc822-date-test
+  (let [result (domain/rfc822-date "2025-01-15")]
+    (is (re-find #"Wed, 15 Jan 2025" result) "day and date correct")
+    (is (re-find #"\+0000$" result) "UTC timezone")))
+
+(deftest group-series-test
+  (let [posts [{:taxonomy {:series {:id :s1 :order 1 :title "S"}}}
+               {:taxonomy {:series {:id :s1 :order 2 :title "S"}}}
+               {:taxonomy {:series nil}}]
+        groups (domain/group-series posts)]
+    (is (= 1 (count groups)) "one series group")
+    (is (= 2 (count (get groups :s1))) "two posts in series")))
+
+(deftest group-series-empty-test
+  (is (empty? (domain/group-series [])))
+  (is (empty? (domain/group-series [{:taxonomy {:series nil}}]))))
+
+(deftest validate-series-test
+  (testing "inconsistent titles produce warning"
+    (let [posts [{:taxonomy {:series {:id :s :order 1 :title "A"}}}
+                 {:taxonomy {:series {:id :s :order 2 :title "B"}}}]
+          warnings (domain/validate-series posts)]
+      (is (= 1 (count warnings)))
+      (is (re-find #"inconsistent titles" (first warnings)))))
+  (testing "missing order produces warning"
+    (let [posts [{:taxonomy {:series {:id :s :order nil :title "A"}}}]
+          warnings (domain/validate-series posts)]
+      (is (some #(re-find #"missing :order" %) warnings)))))
+
+(deftest parse-post-no-tags-test
+  (let [raw {:path "p.md"
+             :raw-frontmatter "title: No Tags\npublished-on: \"2025-01-15\""
+             :raw-body "Body." :git-updated-on "2025-01-15"}
+        post (domain/parse-post raw)]
+    (is (= [] (get-in post [:taxonomy :tags])) "missing tags default to empty vec")))
+
+(deftest parse-post-no-description-test
+  (let [raw {:path "p.md"
+             :raw-frontmatter "title: No Desc\npublished-on: \"2025-01-15\""
+             :raw-body "Body." :git-updated-on "2025-01-15"}
+        post (domain/parse-post raw)]
+    (is (nil? (get-in post [:content :description])) "missing description is nil")))
+
+(deftest parse-post-malformed-yaml-test
+  (testing "malformed YAML is filtered out by parse-posts"
+    (let [bad  {:path "bad.md"
+                :raw-frontmatter ": [unclosed"
+                :raw-body "Body." :git-updated-on "2025-01-15"}
+          good {:path "ok.md"
+                :raw-frontmatter "title: Good\npublished-on: \"2025-01-15\""
+                :raw-body "Body." :git-updated-on "2025-01-15"}
+          posts (domain/parse-posts [bad good])]
+      (is (= 1 (count posts)) "malformed entry filtered, valid entry kept")
+      (is (= "Good" (get-in (first posts) [:identity :title]))))))
