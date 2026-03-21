@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1" name="viewport" /><meta content="dark" name="color-scheme" /><title>João Lopes</title><meta content="Writing about AI-first engineering" name="description" /><link href="https://fonts.googleapis.com" rel="preconnect" /><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" /><link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&amp;display=swap" rel="stylesheet" /><link href="/preview/css/style.css" rel="stylesheet" /><link href="/preview/favicon.svg" rel="icon" type="image/svg+xml" /><link href="/preview/feed.xml" rel="alternate" title="João Lopes" type="application/rss+xml" /><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css" rel="stylesheet" /><script defer="defer" src="/js/main.js"></script></head><body><header><nav><a class="site-logo" href="/preview/"><svg aria-hidden="true" class="logo" height="40" viewBox="0 0 32 32" width="40"><path class="logo-path" d="M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>João Lopes</a><button aria-controls="nav-menu" aria-expanded="false" aria-label="Menu" class="nav-toggle" id="nav-toggle"><span aria-hidden="true" class="hamburger-icon">☰</span></button><span class="nav-links" id="nav-menu"><a href="/preview/">Posts</a><a href="/preview/tags/">Tags</a><a href="/preview/glossary/">Glossary</a><a href="/preview/diagrams/">Diagrams</a><a href="/preview/about/">About</a><a href="/preview/feed.xml">RSS</a></span></nav></header><main><article data-pagefind-body=""><h1>Building Your AI Toolkit</h1><div class="post-dateline">Published <time datetime="2026-03-17">17 March 2026</time></div><div class="share-cta"><span class="share-label">Share</span><a class="icon-link" href="#" onclick="navigator.clipboard.writeText(&apos;https://joaolopes.dev.br/posts/building-your-ai-toolkit/&apos;);this.textContent=&apos;Copied!&apos;;setTimeout(()=&gt;this.textContent=&apos;Copy link&apos;,2000);return false;"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1zM9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"></path></svg>Copy link</a><a class="icon-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fjoaolopes.dev.br%2Fposts%2Fbuilding-your-ai-toolkit%2F" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"></path></svg>LinkedIn</a><a class="icon-link" href="https://x.com/intent/post?url=https%3A%2F%2Fjoaolopes.dev.br%2Fposts%2Fbuilding-your-ai-toolkit%2F&amp;text=Building+Your+AI+Toolkit+" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75zm-.86 13.028h1.36L4.323 2.145H2.865z"></path></svg>Twitter</a><a class="icon-link" href="https://bsky.app/intent/compose?text=Building+Your+AI+Toolkit+https%3A%2F%2Fjoaolopes.dev.br%2Fposts%2Fbuilding-your-ai-toolkit%2F" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M8 1.5C4.134 1.5 1 4.358 1 7.89c0 2.13 1.129 4.006 2.84 5.12L3.5 14.5l1.68-.672A7.07 7.07 0 0 0 8 14.28a7.07 7.07 0 0 0 2.82-.452L12.5 14.5l-.34-1.49C13.871 11.896 15 10.02 15 7.89 15 4.358 11.866 1.5 8 1.5zM5.5 9a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm3 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm3 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1z"></path></svg>Bluesky</a></div><div class="tags"><a class="tag" href="/preview/tags/ai-first-engineering/">#ai-first-engineering</a><a class="tag" href="/preview/tags/rules/">#rules</a><a class="tag" href="/preview/tags/skills/">#skills</a><a class="tag" href="/preview/tags/mcp/">#mcp</a><a class="tag" href="/preview/tags/hooks/">#hooks</a><a class="tag" href="/preview/tags/cli/">#cli</a></div><details class="toc toc-details" open="open"><summary class="toc-label" data-count="6 sections">Contents</summary><nav id="toc"><ul><li><a href="#what-an-agent-actually-is">What an agent actually is</a></li><li><a href="#the-five-building-blocks">The five building blocks</a><ul><li><a href="#rules--the-passive-knowledge">Rules — the passive knowledge</a></li><li><a href="#skills--the-workflow-brain">Skills — the workflow brain</a></li><li><a href="#cli--the-deterministic-anchor">CLI — the deterministic anchor</a></li><li><a href="#mcp--the-cross-client-protocol">MCP — the cross-client protocol</a></li><li><a href="#hooks--the-structural-enforcer">Hooks — the structural enforcer</a></li><li><a href="#the-intelligence-determinism-split">The intelligence-determinism split</a></li></ul></li><li><a href="#why-this-architecture-runs-on-markdown">Why this architecture runs on markdown</a></li><li><a href="#36-code-64-everything-else">36% code, 64% everything else</a></li><li><a href="#the-role-shift-from-doer-to-architect">The role shift: from doer to architect</a></li><li><a href="#discussion">Discussion</a></li></ul></nav></details><h1 id="building-your-ai-toolkit">Building Your AI Toolkit</h1>
-<p><strong>AI agents are not text completers. They are runtime loops.</strong> What's an agent?
+<p><strong>[AI agents](/glossary/AI agent/) are not text completers. They are runtime loops.</strong> What's an agent?
 How is it different from autocomplete? What are rules, skills, hooks — and when
 do you use each one? Once that clicks, the rest follows.</p>
 <a class="toc-back" href="#toc">↑ Contents</a><h2 id="what-an-agent-actually-is">What an agent actually is</h2>
@@ -100,14 +100,14 @@ they plan, act, observe, and self-correct. That's what makes them agents.</p>
 <p>The agent is the runtime. What it composes from are five layers.</p>
 <h3 id="rules--the-passive-knowledge">Rules — the passive knowledge</h3>
 <p>Rules are markdown files that load into context automatically. The agent never
-&quot;calls&quot; them — it absorbs them. Your project <abbr class="glossary-term" title="The instructions file Claude Code loads at session start. It models behavior — it does not enforce it." data-slug="claude-md" data-definition="The instructions file Claude Code loads at session start. It models behavior — it does not enforce it."><a href="/glossary/claude-md/">CLAUDE.md</a></abbr> describes conventions.
+&quot;calls&quot; them — it absorbs them. Your project <a href="/glossary/claude-md/">CLAUDE.md</a> describes conventions.
 An architecture doc describes your layering rules. A coding standards file
 describes naming conventions.</p>
 <p><strong>A short rules file silently prevents an entire class of mistakes.</strong> Put your
 architecture decisions in a rules file once; every session that follows benefits
 from them without you repeating yourself.</p>
 <h3 id="skills--the-workflow-brain">Skills — the workflow brain</h3>
-<p>Skills are prompt files (<code>SKILL.md</code>) that teach the agent how to think about a
+<p><a href="/glossary/Skills/">Skills</a> are prompt files (<code>SKILL.md</code>) that teach the agent how to think about a
 task. They're actively invoked by name: <code>/pre-pr</code>, <code>/meeting-prep</code>, <code>/standup</code>.
 They orchestrate multi-step workflows, define what information to gather, and
 specify where human checkpoints belong.</p>
@@ -118,11 +118,7 @@ preparing for a 1:1, gather the last two weeks of notes, check the issue tracker
 for anything blocked, read the person file for context — then draft, don't
 deliver.&quot; That's a skill.</p>
 <p>Skills are the orchestration layer above CLI and MCP. This is what makes the
-pre-PR pipeline possible — the skill tells the agent to dispatch four <abbr class="glossary-term" title="A fresh agent instance dispatched by a parent agent to execute an isolated
-task. Subagents have clean context, no session history, and run concurrently.
-The parent coordinates results; subagents do the work." data-slug="subagent" data-definition="A fresh agent instance dispatched by a parent agent to execute an isolated
-task. Subagents have clean context, no session history, and run concurrently.
-The parent coordinates results; subagents do the work."><a href="/glossary/subagent/">sub-agents</a></abbr>
+pre-PR pipeline possible — the skill tells the agent to dispatch four <a href="/glossary/subagent/">sub-agents</a>
 in parallel, each running CLI commands in the background, while the agent
 narrates progress and synthesizes results. That parallelism, that narration,
 that async coordination — none of it is possible through MCP, which blocks on
@@ -200,7 +196,7 @@ drafted the skill file. I refined it, tested it, iterated. The feedback loop is
 minutes: edit a markdown file, reload, try again. No server to build, no schema
 to validate, no deployment.</p>
 <h3 id="cli--the-deterministic-anchor">CLI — the deterministic anchor</h3>
-<p>CLI tools are predetermined operations. <code>git commit</code> commits. <code>lein test</code> runs
+<p><a href="/glossary/CLI/">CLI</a> tools are predetermined operations. <code>git commit</code> commits. <code>lein test</code> runs
 tests. Same input, same output, every time.</p>
 <p>The agent <em>chooses when</em> to call them — but the command does the same thing
 regardless. This is the key: CLI is not &quot;simple.&quot; It's <em>deterministic</em>. You use
@@ -210,7 +206,7 @@ context or what the model thinks it knows.</p>
 check your calendar. If it can run in a shell and return a predictable result,
 it belongs in CLI.</p>
 <h3 id="mcp--the-cross-client-protocol">MCP — the cross-client protocol</h3>
-<p>MCP (Model Context Protocol) lets AI agents call external tools over a
+<p><a href="/glossary/MCP/">MCP</a> (Model Context Protocol) lets AI agents call external tools over a
 standardized JSON-RPC (Remote Procedure Call) interface. You define a server
 once; it works in Claude Code, Cursor, VS Code, and any other MCP-compatible
 client. Anthropic
@@ -259,7 +255,7 @@ relevant, and calls them with structured parameters.</p>
 <p><strong>The first tradeoff is context cost.</strong> MCP tool responses are often verbose
 JSON — a single search result can return thousands of tokens of metadata the
 agent doesn't need. Every token in a tool response competes with your
-conversation, your code, and your instructions for space in the context window.
+conversation, your code, and your instructions for space in the [context window](/glossary/context window/).
 When using MCP, design your servers to return focused responses, not raw API
 dumps.</p>
 <p><strong>The second tradeoff is blocking.</strong> Every MCP tool call blocks the agent until
@@ -275,7 +271,7 @@ result without the context overhead. Prefer skills when you need orchestration,
 progress, or parallelism — skills orchestrate both CLI and MCP tools, which is
 the correct mental model: skills as the workflow brain on top of both.</p>
 <h3 id="hooks--the-structural-enforcer">Hooks — the structural enforcer</h3>
-<p>Hooks fire at lifecycle points — before a tool runs, after it succeeds, when the
+<p><a href="/glossary/Hooks/">Hooks</a> fire at lifecycle points — before a tool runs, after it succeeds, when the
 session ends. A <code>PreToolUse</code> hook can block operations before they execute. A
 <code>PostToolUse</code> hook can redirect behavior after a tool call.</p>
 <p><figure class="diagram-figure"><a href="/preview/diagrams/hooks-lifecycle/" class="diagram-link" aria-label="View Hooks Lifecycle diagram"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 900" role="img" aria-labelledby="hooks-lifecycle-title hooks-lifecycle-desc"><title id="hooks-lifecycle-title">Hooks lifecycle: Agent → PreToolUse (block / annotate / pass) → Tool call → PostToolUse → Side effect</title><desc id="hooks-lifecycle-desc">Hooks lifecycle: Agent → PreToolUse (block / annotate / pass) → Tool call → PostToolUse → Side effect</desc>
