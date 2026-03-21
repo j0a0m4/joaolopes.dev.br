@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 220">
+  <defs>
+    <marker id="al-arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7a7a8e"/>
+    </marker>
+    <marker id="al-arr-pink" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f4569d"/>
+    </marker>
+  </defs>
+
+  <!-- Gather node -->
+  <rect x="40" y="30" width="200" height="90" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="140" y="68" text-anchor="middle" class="svg-heading svg-accent">Gather</text>
+  <text x="140" y="92" text-anchor="middle" class="svg-sub svg-muted">Read context, scan tools</text>
+  <text x="140" y="110" text-anchor="middle" class="svg-sub svg-muted">assess state</text>
+
+  <!-- Act node -->
+  <rect x="290" y="30" width="200" height="90" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="390" y="68" text-anchor="middle" class="svg-heading svg-accent">Act</text>
+  <text x="390" y="92" text-anchor="middle" class="svg-sub svg-muted">Plan steps, call tools</text>
+  <text x="390" y="110" text-anchor="middle" class="svg-sub svg-muted">execute</text>
+
+  <!-- Observe node -->
+  <rect x="540" y="30" width="200" height="90" rx="8" fill="#191621" stroke="rgba(14, 210, 247, 0.15)" stroke-width="1.5"/>
+  <text x="640" y="68" text-anchor="middle" class="svg-heading svg-accent">Observe</text>
+  <text x="640" y="92" text-anchor="middle" class="svg-sub svg-muted">Check results</text>
+  <text x="640" y="110" text-anchor="middle" class="svg-sub svg-muted">decide next move</text>
+
+  <!-- Gather → Act arrow -->
+  <line x1="240" y1="75" x2="285" y2="75" stroke="#7a7a8e" stroke-width="2" marker-end="url(#al-arr)"/>
+
+  <!-- Act → Observe arrow -->
+  <line x1="490" y1="75" x2="535" y2="75" stroke="#7a7a8e" stroke-width="2" marker-end="url(#al-arr)"/>
+
+  <!-- Observe → Gather return arrow (curves below) -->
+  <path d="M 640 120 L 640 170 Q 640 190 620 190 L 160 190 Q 140 190 140 170 L 140 120"
+        fill="none" stroke="#f4569d" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#al-arr-pink)"/>
+  <text x="390" y="207" text-anchor="middle" class="svg-label svg-pink">repeat</text>
+</svg>
