@@ -1,0 +1,75 @@
+name: e2e
+
+on:
+  pull_request:
+    paths:
+      - 'posts/**'
+      - 'src/**'
+      - 'resources/**'
+      - 'assets/**'
+      - 'test/e2e/**'
+      - 'test/aux/**'
+      - 'deps.edn'
+      - 'shadow-cljs.edn'
+      - 'package.json'
+
+permissions:
+  contents: read
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeLaGuardo/setup-clojure@13.1
+        with:
+          cli: latest
+      - name: Cache Clojure deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+            .cpcache
+          key: clj-${{ hashFiles('deps.edn') }}
+      - name: Install Node deps
+        run: npm ci
+      - name: Compile ClojureScript
+        run: clojure -M:shadow compile app
+      - name: Build site
+        run: clojure -M:build
+      - name: Upload site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-e2e
+          path: public/
+          retention-days: 1
+
+  e2e-tests:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeLaGuardo/setup-clojure@13.1
+        with:
+          cli: latest
+      - name: Cache Clojure deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+            .cpcache
+          key: clj-${{ hashFiles('deps.edn') }}
+      - name: Download site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: site-e2e
+          path: public/
+      - name: Install ChromeDriver
+        run: |
+          sudo apt-get install -y chromium-driver
+          chromedriver --version
+      - name: Run e2e tests
+        run: clojure -M:e2e

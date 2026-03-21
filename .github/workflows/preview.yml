@@ -40,10 +40,12 @@ jobs:
         run: clojure -M:shadow compile app
       - name: Build site
         run: clojure -M:build
+        env:
+          BASE_PATH: /preview
       - name: Upload site artifact
         uses: actions/upload-artifact@v4
         with:
-          name: site
+          name: site-preview
           path: public/
           retention-days: 1
 
@@ -59,7 +61,7 @@ jobs:
       - name: Download site artifact
         uses: actions/download-artifact@v4
         with:
-          name: site
+          name: site-preview
           path: public/
       - name: Stage preview
         run: |
@@ -79,35 +81,6 @@ jobs:
           message: |
             **Preview live:** https://joaolopes.dev.br/preview/
             _Commit: `${{ github.event.pull_request.head.sha }}`_
-
-  e2e-tests:
-    if: github.event.action != 'closed'
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: DeLaGuardo/setup-clojure@13.1
-        with:
-          cli: latest
-      - name: Cache Clojure deps
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.m2/repository
-            ~/.gitlibs
-            .cpcache
-          key: clj-${{ hashFiles('deps.edn') }}
-      - name: Download site artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: site
-          path: public/
-      - name: Install ChromeDriver
-        run: |
-          sudo apt-get install -y chromium-driver
-          chromedriver --version
-      - name: Run e2e tests
-        run: clojure -M:e2e
 
   teardown:
     if: github.event.action == 'closed'
