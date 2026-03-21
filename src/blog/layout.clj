@@ -4,10 +4,10 @@
             [hiccup2.core :as h]))
 
 ;; ── Kept for backwards compat with blog.pages (old controller) ────────────────
-(def site-title "João Lopes")
-(def site-url "https://joaolopes.dev.br")
-(def site-description "Notes on software, systems, and thinking tools.")
-(def base-path (or (System/getenv "BASE_PATH") ""))
+(def site-title "João Lopes") ;;TODO(task-14): remove — kept for old blog.pages controller
+(def site-url "https://joaolopes.dev.br") ;;TODO(task-14): remove — kept for old blog.pages controller
+(def site-description "Notes on software, systems, and thinking tools.") ;;TODO(task-14): remove — kept for old blog.pages controller
+(def base-path (or (System/getenv "BASE_PATH") "")) ;;TODO(task-14): remove — kept for old blog.pages controller
 
 (defn href
   "Prepends base-path to an absolute path."
@@ -207,16 +207,16 @@
         href* #(str bp %)
         title (get-in (first posts) [:taxonomy :series :title]
                       ;; fallback: old flat shape used :series-title
-                      (or (:series-title (first posts)) (str slug)))]
+                      (or (:series-title (first posts)) (str slug))) ;;TODO(task-14): remove compat shim — old shape
     [:div.series-index
      [:h1 title]
      [:p.series-count (str (count posts) " post" (when (not= 1 (count posts)) "s") " in this series")]
      [:ol.series-full-toc
       (for [p posts]
-        (let [ptitle  (or (get-in p [:identity :title]) (:title p))
+        (let [ptitle  (or (get-in p [:identity :title]) (:title p)) ;;TODO(task-14): remove compat shim — old shape
               purl    (or (:url p) (str "/posts/" (or (get-in p [:identity :slug]) (:slug p)) "/"))
-              pub-on  (or (get-in p [:dates :published-on]) (:published-on p))
-              desc    (or (get-in p [:content :description]) (:description p))]
+              pub-on  (or (get-in p [:dates :published-on]) (:published-on p)) ;;TODO(task-14): remove compat shim — old shape
+              desc    (or (get-in p [:content :description]) (:description p))] ;;TODO(task-14): remove compat shim — old shape
           [:li
            [:a {:href (href* purl)} ptitle]
            [:time {:datetime (str pub-on)} (str pub-on)]
@@ -232,10 +232,10 @@
      [:p.series-count (str (count posts) " post" (when (not= 1 (count posts)) "s") " with this tag")]
      [:ul.tag-full-toc
       (for [p posts]
-        (let [ptitle (or (get-in p [:identity :title]) (:title p))
+        (let [ptitle (or (get-in p [:identity :title]) (:title p)) ;;TODO(task-14): remove compat shim — old shape
               purl   (or (:url p) (str "/posts/" (or (get-in p [:identity :slug]) (:slug p)) "/"))
-              pub-on (or (get-in p [:dates :published-on]) (:published-on p))
-              desc   (or (get-in p [:content :description]) (:description p))]
+              pub-on (or (get-in p [:dates :published-on]) (:published-on p)) ;;TODO(task-14): remove compat shim — old shape
+              desc   (or (get-in p [:content :description]) (:description p))] ;;TODO(task-14): remove compat shim — old shape
           [:li
            [:a {:href (href* purl)} ptitle]
            [:time {:datetime (str pub-on)} (str pub-on)]
@@ -315,12 +315,12 @@
          href*      #(str bp %)
          site-url*  (or (:site-url config) site-url)
          ;; Support both nested domain model and legacy flat shape
-         title      (or (get-in post [:identity :title])   (:title post))
-         slug       (or (get-in post [:identity :slug])    (:slug post))
-         published  (or (get-in post [:dates :published-on]) (:published-on post))
-         updated    (or (get-in post [:dates :updated-on])   (:updated-on post))
-         tags       (or (get-in post [:taxonomy :tags])    (:tags post) [])
-         linkedin   (or (get-in post [:external :linkedin-url]) (:linkedin-url post))
+         title      (or (get-in post [:identity :title])   (:title post)) ;;TODO(task-14): remove compat shim — old shape
+         slug       (or (get-in post [:identity :slug])    (:slug post)) ;;TODO(task-14): remove compat shim — old shape
+         published  (or (get-in post [:dates :published-on]) (:published-on post)) ;;TODO(task-14): remove compat shim — old shape
+         updated    (or (get-in post [:dates :updated-on])   (:updated-on post)) ;;TODO(task-14): remove compat shim — old shape
+         tags       (or (get-in post [:taxonomy :tags])    (:tags post) []) ;;TODO(task-14): remove compat shim — old shape
+         linkedin   (or (get-in post [:external :linkedin-url]) (:linkedin-url post)) ;;TODO(task-14): remove compat shim — old shape
          url        (or (:url post) (str "/posts/" slug "/"))
          post-url   (java.net.URLEncoder/encode (str site-url* url) "UTF-8")
          post-title (java.net.URLEncoder/encode (str title " ") "UTF-8")
@@ -370,12 +370,12 @@
      (if (seq posts)
        [:ul.post-list
         (for [p posts]
-          (let [title  (or (get-in p [:identity :title]) (:title p))
-                slug   (or (get-in p [:identity :slug]) (:slug p))
+          (let [title  (or (get-in p [:identity :title]) (:title p)) ;;TODO(task-14): remove compat shim — old shape
+                slug   (or (get-in p [:identity :slug]) (:slug p)) ;;TODO(task-14): remove compat shim — old shape
                 url    (or (:url p) (str "/posts/" slug "/"))
-                pub-on (or (get-in p [:dates :published-on]) (:published-on p))
-                desc   (or (get-in p [:content :description]) (:description p))
-                tags   (or (get-in p [:taxonomy :tags]) (:tags p) [])]
+                pub-on (or (get-in p [:dates :published-on]) (:published-on p)) ;;TODO(task-14): remove compat shim — old shape
+                desc   (or (get-in p [:content :description]) (:description p)) ;;TODO(task-14): remove compat shim — old shape
+                tags   (or (get-in p [:taxonomy :tags]) (:tags p) []) ;;TODO(task-14): remove compat shim — old shape
             [:li
              [:a {:href (href* url)} title]
              [:time {:datetime (str pub-on)} (str pub-on)]
@@ -429,9 +429,9 @@
         href*       #(str bp %)
         ;; support both new (domain) and old (pages) shapes
         diag-title  (or title (when slug
-                                (str/join " " (map str/capitalize (str/split slug #"-")))))
-        diag-content (or svg-content content)
-        diag-desc    (or description alt)]
+                                (str/join " " (map str/capitalize (str/split slug #"-"))))) ;;TODO(task-14): remove compat shim — old shape
+        diag-content (or svg-content content) ;;TODO(task-14): remove compat shim — old shape
+        diag-desc    (or description alt)] ;;TODO(task-14): remove compat shim — old shape
     [:div.diagram-page
      (when back-post
        [:a.diagram-back {:href (href* (:url back-post))}
@@ -456,8 +456,8 @@
      [:h1 "Diagrams"]
      [:div.diagram-cards
       (for [{:keys [slug title back-post svg-content content] :as d} diagrams]
-        (let [diag-title   (or title (when slug (str/join " " (map str/capitalize (str/split slug #"-")))))
-              diag-content (or svg-content content)]
+        (let [diag-title   (or title (when slug (str/join " " (map str/capitalize (str/split slug #"-"))))) ;;TODO(task-14): remove compat shim — old shape
+              diag-content (or svg-content content)] ;;TODO(task-14): remove compat shim — old shape
           [:a.diagram-card {:href (href* (diagram-path slug))}
            [:div.diagram-card-thumb {:aria-hidden "true"}
             (when diag-content (h/raw diag-content))]
