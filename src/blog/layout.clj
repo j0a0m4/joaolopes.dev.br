@@ -4,7 +4,6 @@
             [clojure.string :as str]
             [hiccup2.core :as h]))
 
-
 (defn series-path
   "Canonical path for a series index page."
   [slug]
@@ -31,9 +30,8 @@
   "Full HTML document. content is a hiccup vector to embed in <main>.
    config has :site-title :site-url :site-desc :base-path.
    Single serialization boundary — all other layout fns return hiccup data."
-  [content {:keys [site-title site-url site-desc base-path]
+  [content {:keys [site-title site-desc base-path]
             :or   {site-title "João Lopes"
-                   site-url   "https://joaolopes.dev.br"
                    site-desc  "Notes on software, systems, and thinking tools."
                    base-path  ""}}]
   (let [bp (or base-path (System/getenv "BASE_PATH") "")
@@ -125,8 +123,8 @@
        [:nav.glossary-related
         [:span "Related: "]
         (interpose " · "
-          (for [{:keys [label slug]} (:related-links entry)]
-            [:a {:href (href* (glossary-path slug))} label]))])]))
+                   (for [{:keys [label slug]} (:related-links entry)]
+                     [:a {:href (href* (glossary-path slug))} label]))])]))
 
 ;;; ── Series / tag helpers ─────────────────────────────────────────────────────
 
@@ -305,7 +303,7 @@
          post-url   (java.net.URLEncoder/encode (str site-url* url) "UTF-8")
          post-title (java.net.URLEncoder/encode (str title " ") "UTF-8")
          share-links [(icon-link "#" "Copy link" (:copy icons)
-                                 {:onclick (str "navigator.clipboard.writeText('" (str site-url* url) "');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy link',2000);return false;")})
+                                 {:onclick (str "navigator.clipboard.writeText('" site-url* url "');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy link',2000);return false;")})
                       (icon-link (str "https://www.linkedin.com/sharing/share-offsite/?url=" post-url)
                                  "LinkedIn" (:linkedin icons) {:target "_blank"})
                       (icon-link (str "https://x.com/intent/post?url=" post-url "&text=" post-title)
@@ -370,7 +368,7 @@
 
 (defn about-layout
   "About page content. Returns hiccup."
-  [html-body config]
+  [html-body _config]
   [:article.about
    [:h1 "About"]
    (h/raw html-body)])
@@ -379,7 +377,7 @@
 
 (defn static-page-layout
   "Generic static page. Returns hiccup."
-  [{:keys [title body]} config]
+  [{:keys [title body]} _config]
   [:section.static-page
    (when title [:h1 title])
    (when body (h/raw body))])
@@ -402,9 +400,8 @@
   "Standalone diagram viewer page.
    diagram map keys: :slug :path :alt :content
    Returns hiccup."
-  [{:keys [slug alt content]} config]
-  (let [bp         (or (:base-path config) (System/getenv "BASE_PATH") "")
-        diag-title (str/join " " (map str/capitalize (str/split slug #"-")))]
+  [{:keys [slug alt content]} _config]
+  (let [diag-title (str/join " " (map str/capitalize (str/split slug #"-")))]
     [:div.diagram-page
      [:h1.diagram-title diag-title]
      [:div.diagram-full
@@ -488,5 +485,5 @@
 
 (defn llms-txt
   "llms.txt plain text. Stub — real implementation stays in blog.pages for now."
-  [posts config]
-  (str "# Blog\n"))
+  [_posts _config]
+  "# Blog\n")

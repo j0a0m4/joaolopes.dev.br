@@ -35,4 +35,19 @@ test.describe("feeds and machine-readable content", () => {
     const body = await response.text();
     expect(body.trim().length).toBeGreaterThan(0);
   });
+
+  test("blog-qa check 22: RSS items have required fields", async ({
+    request,
+  }) => {
+    const response = await request.get("/feed.xml");
+    const xml = await response.text();
+    const items = xml.match(/<item>[\s\S]*?<\/item>/g) || [];
+    expect(items.length).toBeGreaterThan(0);
+
+    for (const item of items) {
+      expect(item).toMatch(/<title>/);
+      expect(item).toMatch(/<link>/);
+      expect(item).toMatch(/<pubDate>/);
+    }
+  });
 });

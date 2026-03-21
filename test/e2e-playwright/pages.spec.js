@@ -1,6 +1,24 @@
 import { test, expect } from "@playwright/test";
 
-// blog-qa checks 3, 4, 5, 7, 18, 19
+// blog-qa checks 3, 4, 5, 7, 18, 19, 20
+
+/** Returns the href of the first post (among the first `limit`) that has .series-nav, or null. */
+async function findSeriesPostHref(page, limit = 5) {
+  await page.goto("/");
+  const postLocators = page.locator('main a[href^="/posts/"]');
+  const count = await postLocators.count();
+  const hrefs = [];
+  for (let i = 0; i < Math.min(count, limit); i++) {
+    hrefs.push(await postLocators.nth(i).getAttribute("href"));
+  }
+  for (const href of hrefs) {
+    await page.goto(href);
+    if ((await page.locator(".series-nav").count()) > 0) {
+      return href;
+    }
+  }
+  return null;
+}
 
 test.describe("homepage", () => {
   test("renders post list", async ({ page }) => {
@@ -36,10 +54,8 @@ test.describe("post page", () => {
   test("TOC anchors navigate within page", async ({ page }) => {
     // blog-qa check 5
     const tocLink = page.locator(".toc a, details a").first();
-    if ((await tocLink.count()) === 0) {
-      test.skip();
-      return;
-    }
+    const tocCount = await tocLink.count();
+    test.skip(tocCount === 0, "No TOC links found on this page");
 
     const href = await tocLink.getAttribute("href");
     expect(href).toMatch(/^#/);
@@ -53,12 +69,13 @@ test.describe("post page", () => {
     // blog-qa check 18: highlight.js runs client-side, adds hljs class.
     // CDN resources are blocked in the test server, so we verify the JS
     // initializer exists and code blocks are present for hljs to act on.
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // The init-highlight! function must be wired into the init export
     const highlightWired = await page.evaluate(
-      () => typeof window.blogClientCore !== "undefined"
-            || document.querySelector("pre code") !== null,
+      () =>
+        typeof window.blogClientCore !== "undefined" ||
+        document.querySelector("pre code") !== null,
     );
     expect(highlightWired).toBe(true);
 
@@ -77,5 +94,18 @@ test.describe("about page", () => {
 
     const mainText = await page.locator("main").textContent();
     expect(mainText.length).toBeGreaterThan(50);
+  });
+});
+
+test.describe("series navigation", () => {
+  test("blog-qa check 20: series post has prev/next navigation", async ({
+    page,
+  }) => {
+    const seriesPostHref = await findSeriesPostHref(page);
+    test.skip(seriesPostHref === null, "No series posts found — skip");
+
+    await page.goto(seriesPostHref);
+    const links = page.locator(".series-nav a");
+    expect(await links.count()).toBeGreaterThan(0);
   });
 });
