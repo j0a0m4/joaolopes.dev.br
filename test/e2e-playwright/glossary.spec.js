@@ -2,7 +2,9 @@ import { test, expect } from "@playwright/test";
 
 // blog-qa checks 8, 9, 10, 11
 
-const POST_WITH_GLOSSARY = "/posts/building-your-ai-toolkit/";
+// Post must contain [[glossary:...]] wikilinks (see posts/). Toolkit post is plain prose.
+const POST_WITH_GLOSSARY =
+  "/posts/i-built-this-blog-by-prompting-claude-code/";
 
 test.describe("glossary tooltip", () => {
   test.beforeEach(async ({ page }) => {
