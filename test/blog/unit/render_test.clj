@@ -84,3 +84,52 @@
         scripts (sel/select (sel/tag :script) doc)]
     (is (= 1 (count scripts))          "exactly one script tag")
     (is (= "/js/main.js" (get-in (first scripts) [:attrs :src])) "main.js bundle")))
+
+(deftest render-markdown-headings-test
+  (let [html (render/render-markdown "## Hello World\n\nSome text.")]
+    (is (re-find #"<h2[^>]*>Hello World</h2>" html) "h2 rendered")
+    (is (re-find #"id=\"" html) "heading has anchor id")))
+
+(deftest render-markdown-code-blocks-test
+  (let [html (render/render-markdown "```clojure\n(+ 1 2)\n```")]
+    (is (re-find #"<pre>" html) "pre block")
+    (is (re-find #"<code" html) "code element")
+    (is (re-find #"clojure" html) "language class preserved")))
+
+(deftest render-markdown-tables-test
+  (let [html (render/render-markdown "| A | B |\n|---|---|\n| 1 | 2 |")]
+    (is (re-find #"<table>" html) "table rendered")
+    (is (re-find #"<th>" html) "thead present")
+    (is (re-find #"<td>" html) "tbody present")))
+
+(deftest render-markdown-inline-test
+  (let [html (render/render-markdown "**bold** and *italic* and `code` and [link](http://x)")]
+    (is (re-find #"<strong>bold</strong>" html))
+    (is (re-find #"<em>italic</em>" html))
+    (is (re-find #"<code>code</code>" html))
+    (is (re-find #"<a href=\"http://x\">link</a>" html))))
+
+(deftest extract-toc-empty-test
+  (is (nil? (render/extract-toc "No headings here.\n\nJust paragraphs."))))
+
+(deftest extract-toc-below-threshold-test
+  (is (nil? (render/extract-toc "## One\n\n## Two\n\nOnly 2 h2s, threshold is 3."))))
+
+(deftest extract-toc-meets-threshold-test
+  (let [toc (render/extract-toc "## A\n\n## B\n\n## C")]
+    (is (= 3 (count toc)))
+    (is (every? #(= 2 (:level %)) toc))
+    (is (= "A" (:text (first toc))))
+    (is (= "a" (:anchor (first toc))))))
+
+(deftest extract-toc-nested-h3-test
+  (let [toc (render/extract-toc "## Top\n\n### Sub\n\n## Second\n\n### Sub2\n\n## Third")]
+    (is (= 5 (count toc)))
+    (is (= 2 (:level (first toc))))
+    (is (= 3 (:level (second toc))))
+    (is (= "sub" (:anchor (second toc))))))
+
+(deftest extract-toc-special-chars-test
+  (let [toc (render/extract-toc "## What's New?\n\n## C++ & Rust\n\n## Hello World")]
+    (is (= "whats-new" (:anchor (first toc))))
+    (is (= "c--rust" (:anchor (second toc))) "heading-anchor doesn't collapse consecutive hyphens")))
