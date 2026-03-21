@@ -72,9 +72,15 @@
        :external   {:linkedin-url (:linkedin-url fm)}
        :navigation {:prev nil :next nil}})))
 
+(defn- safe-parse-post [raw]
+  (try (parse-post raw)
+       (catch Exception e
+         (warn! (str "Failed to parse post " (:path raw) ": " (.getMessage e)))
+         nil)))
+
 (defn parse-posts [raw-maps]
   (->> raw-maps
-       (keep parse-post)
+       (keep safe-parse-post)
        (filter #(get-in % [:dates :published-on]))
        (sort-by #(get-in % [:dates :published-on]) #(compare %2 %1))))
 

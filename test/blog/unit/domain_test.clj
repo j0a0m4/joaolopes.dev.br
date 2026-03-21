@@ -134,3 +134,29 @@
     (let [posts [{:taxonomy {:series {:id :s :order nil :title "A"}}}]
           warnings (domain/validate-series posts)]
       (is (some #(re-find #"missing :order" %) warnings)))))
+
+(deftest parse-post-no-tags-test
+  (let [raw {:path "p.md"
+             :raw-frontmatter "title: No Tags\npublished-on: \"2025-01-15\""
+             :raw-body "Body." :git-updated-on "2025-01-15"}
+        post (domain/parse-post raw)]
+    (is (= [] (get-in post [:taxonomy :tags])) "missing tags default to empty vec")))
+
+(deftest parse-post-no-description-test
+  (let [raw {:path "p.md"
+             :raw-frontmatter "title: No Desc\npublished-on: \"2025-01-15\""
+             :raw-body "Body." :git-updated-on "2025-01-15"}
+        post (domain/parse-post raw)]
+    (is (nil? (get-in post [:content :description])) "missing description is nil")))
+
+(deftest parse-post-malformed-yaml-test
+  (testing "malformed YAML is filtered out by parse-posts"
+    (let [bad  {:path "bad.md"
+                :raw-frontmatter ": [unclosed"
+                :raw-body "Body." :git-updated-on "2025-01-15"}
+          good {:path "ok.md"
+                :raw-frontmatter "title: Good\npublished-on: \"2025-01-15\""
+                :raw-body "Body." :git-updated-on "2025-01-15"}
+          posts (domain/parse-posts [bad good])]
+      (is (= 1 (count posts)) "malformed entry filtered, valid entry kept")
+      (is (= "Good" (get-in (first posts) [:identity :title]))))))
