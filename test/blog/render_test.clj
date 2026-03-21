@@ -7,6 +7,21 @@
 
 (def config {:site-url "http://localhost" :site-title "Test" :site-desc "Test blog" :base-path ""})
 
+(deftest svg-aria-attributes-test
+  (let [diagram {:slug "agent-loop" :path "/assets/agent-loop.svg"
+                 :alt "The agent loop diagram"
+                 :content "<svg xmlns=\"http://www.w3.org/2000/svg\"><circle r=\"10\"/></svg>"}
+        post    {:identity {:title "Post" :slug "post"}
+                 :content  {:body "![The agent loop diagram](/assets/agent-loop.svg)" :description nil}
+                 :dates    {:created-on "2025-01-10" :published-on "2025-01-15" :updated-on "2025-01-20"}
+                 :taxonomy {:tags [] :series nil}
+                 :external {:linkedin-url nil} :navigation {:prev nil :next nil}}
+        html    (render/render-post post config)
+        doc     (-> html hickory/parse hickory/as-hickory)
+        svg     (first (sel/select (sel/descendant (sel/class "diagram-figure") (sel/tag :svg)) doc))]
+    (is (= "img" (get-in svg [:attrs :role])))
+    (is (seq     (get-in svg [:attrs :aria-labelledby])))))
+
 (def post-fixture
   {:identity   {:title "Hello World" :slug "hello-world"}
    :content    {:body "The body." :description nil}

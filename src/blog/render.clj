@@ -55,6 +55,27 @@
      (when (>= (count (filter #(= 2 (:level %)) headings)) min-headings)
        headings))))
 
+;;; ── SVG ARIA helpers ─────────────────────────────────────────────────────────
+
+(defn- escape-html [s]
+  (-> s
+      (str/replace "&"  "&amp;")
+      (str/replace "<"  "&lt;")
+      (str/replace ">"  "&gt;")
+      (str/replace "\"" "&quot;")))
+
+(defn inject-svg-aria
+  "Injects role, aria-labelledby, and <title>/<desc> onto the <svg> opening tag.
+   Takes raw SVG content and a diagram map with :slug and :alt keys."
+  [svg-content {:keys [slug alt]}]
+  (let [title-id  (str slug "-title")
+        desc-id   (str slug "-desc")
+        aria-attr (str " role=\"img\" aria-labelledby=\"" title-id " " desc-id "\"")
+        with-aria (str/replace svg-content #"<svg([^>]*?)>" (str "<svg$1" aria-attr ">"))
+        title-el  (str "<title id=\"" title-id "\">" (escape-html alt) "</title>")
+        desc-el   (str "<desc id=\""  desc-id  "\">" (escape-html alt) "</desc>")]
+    (str/replace with-aria #"(<svg[^>]*>)" (str "$1" title-el desc-el))))
+
 ;;; ── SVG inlining ─────────────────────────────────────────────────────────────
 
 (def ^:private img-svg-pattern
@@ -73,22 +94,6 @@
       (str/replace #"^/assets/" "")
       (str/replace #"\.svg$" "")))
 
-(defn- inject-svg-a11y
-  "Injects role, aria-labelledby, and (when alt present) aria-describedby
-   onto the <svg> opening tag. Inserts <title> and <desc> as first children."
-  [svg-content slug title alt]
-  (str/replace svg-content #"(<svg)([ \t\n][^>]*)?(>)"
-               (fn [[_ tag attrs close]]
-                 (str tag
-                      (or attrs "")
-                      " role=\"img\""
-                      " aria-labelledby=\"diag-" slug "-title\""
-                      (when alt
-                        (str " aria-describedby=\"diag-" slug "-desc\""))
-                      close
-                      "<title id=\"diag-" slug "-title\">" title "</title>"
-                      (when alt
-                        (str "<desc id=\"diag-" slug "-desc\">" alt "</desc>"))))))
 
 (defn inline-svgs
   "Replaces <img> tags pointing to local SVGs with accessible <figure> elements."
@@ -103,7 +108,7 @@
                            svg-raw (-> (slurp f)
                                        (str/replace #"<\?xml[^>]*\?>\s*" "")
                                        str/trim)
-                           svg     (inject-svg-a11y svg-raw slug title alt)
+                           svg     (inject-svg-aria svg-raw {:slug slug :alt (or alt title)})
                            base    (or (System/getenv "BASE_PATH") "")
                            href    (str base "/diagrams/" slug "/")]
                        (str "<figure class=\"diagram-figure\">"
