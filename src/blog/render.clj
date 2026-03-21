@@ -1,14 +1,44 @@
 (ns blog.render
-  (:require [blog.layout :as layout]))
+  (:require [blog.layout :as layout]
+            [blog.markdown :as markdown]
+            [clojure.string :as str]))
+
+;;; ── Internal rendering pipeline ──────────────────────────────────────────────
+
+(defn- inject-toc-backlinks
+  "Inserts ↑ Contents links before each <h2> (except the first)."
+  [html-body]
+  (let [backlink "<a class=\"toc-back\" href=\"#toc\">\u2191 Contents</a>"
+        parts (str/split html-body #"(?=<h2 )")]
+    (if (<= (count parts) 1)
+      html-body
+      (str (first parts)
+           (str/join (map #(str backlink %) (rest parts)))))))
+
+(defn- render-body
+  "Renders a post's raw markdown body to HTML.
+   Returns {:html-body html :toc toc}."
+  [raw-body]
+  (let [toc       (markdown/extract-toc raw-body)
+        html-body (-> raw-body
+                      markdown/render-markdown
+                      markdown/inline-svgs
+                      (cond-> toc inject-toc-backlinks))]
+    {:html-body html-body :toc toc}))
+
+;;; ── Individual renderers ─────────────────────────────────────────────────────
 
 (defn render-post [post config]
-  (layout/base-layout (layout/post-layout post config) config))
+  (let [{:keys [html-body toc]} (render-body (get-in post [:content :body] ""))]
+    (layout/base-layout (layout/post-layout post config {:html-body html-body :toc toc}) config)))
 
 (defn render-index [posts config]
   (layout/base-layout (layout/index-layout posts config) config))
 
 (defn render-glossary-entry [entry config]
-  (layout/base-layout (layout/glossary-entry-layout entry config) config))
+  (let [html-body (-> (or (:raw-body entry) "")
+                      markdown/render-markdown)]
+    (layout/base-layout (layout/glossary-entry-layout (assoc entry :html-body html-body) config) config)))
 
 (defn render-glossary-index [glossary config]
   (layout/base-layout (layout/glossary-index-layout glossary config) config))

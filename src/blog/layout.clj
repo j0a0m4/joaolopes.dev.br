@@ -3,21 +3,6 @@
             [clojure.string :as str]
             [hiccup2.core :as h]))
 
-;; ── Kept for backwards compat with blog.pages (old controller) ────────────────
-(def site-title "João Lopes") ;;TODO(task-14): remove — kept for old blog.pages controller
-(def site-url "https://joaolopes.dev.br") ;;TODO(task-14): remove — kept for old blog.pages controller
-(def site-description "Notes on software, systems, and thinking tools.") ;;TODO(task-14): remove — kept for old blog.pages controller
-(def base-path (or (System/getenv "BASE_PATH") "")) ;;TODO(task-14): remove — kept for old blog.pages controller
-
-(defn href
-  "Prepends base-path to an absolute path."
-  [path]
-  (str base-path path))
-
-(defn absolute-url
-  "Full URL for a site-relative path."
-  [path]
-  (str site-url path))
 
 (defn series-path
   "Canonical path for a series index page."
@@ -180,7 +165,7 @@
 (defn- series-json-ld
   "JSON-LD BlogPosting with isPartOf CreativeWorkSeries. Returns hiccup."
   [post {:keys [series-title series-slug]} config]
-  (let [site-url* (or (:site-url config) site-url)
+  (let [site-url* (:site-url config)
         title     (get-in post [:identity :title])
         pub-on    (get-in post [:dates :published-on])
         desc      (get-in post [:content :description])
@@ -205,18 +190,16 @@
   [slug posts config]
   (let [bp    (or (:base-path config) (System/getenv "BASE_PATH") "")
         href* #(str bp %)
-        title (or (get-in (first posts) [:taxonomy :series :title])
-                  (:series-title (first posts)) ;;TODO(task-14): remove compat shim — old shape
-                  (str slug))]
+        title (or (get-in (first posts) [:taxonomy :series :title]) (str slug))]
     [:div.series-index
      [:h1 title]
      [:p.series-count (str (count posts) " post" (when (not= 1 (count posts)) "s") " in this series")]
      [:ol.series-full-toc
       (for [p posts]
-        (let [ptitle  (or (get-in p [:identity :title]) (:title p)) ;;TODO(task-14): remove compat shim — old shape
-              purl    (or (:url p) (str "/posts/" (or (get-in p [:identity :slug]) (:slug p)) "/"))
-              pub-on  (or (get-in p [:dates :published-on]) (:published-on p)) ;;TODO(task-14): remove compat shim — old shape
-              desc    (or (get-in p [:content :description]) (:description p))] ;;TODO(task-14): remove compat shim — old shape
+        (let [ptitle  (get-in p [:identity :title])
+              purl    (str "/posts/" (get-in p [:identity :slug]) "/")
+              pub-on  (get-in p [:dates :published-on])
+              desc    (get-in p [:content :description])]
           [:li
            [:a {:href (href* purl)} ptitle]
            [:time {:datetime (str pub-on)} (str pub-on)]
@@ -232,10 +215,10 @@
      [:p.series-count (str (count posts) " post" (when (not= 1 (count posts)) "s") " with this tag")]
      [:ul.tag-full-toc
       (for [p posts]
-        (let [ptitle (or (get-in p [:identity :title]) (:title p)) ;;TODO(task-14): remove compat shim — old shape
-              purl   (or (:url p) (str "/posts/" (or (get-in p [:identity :slug]) (:slug p)) "/"))
-              pub-on (or (get-in p [:dates :published-on]) (:published-on p)) ;;TODO(task-14): remove compat shim — old shape
-              desc   (or (get-in p [:content :description]) (:description p))] ;;TODO(task-14): remove compat shim — old shape
+        (let [ptitle (get-in p [:identity :title])
+              purl   (str "/posts/" (get-in p [:identity :slug]) "/")
+              pub-on (get-in p [:dates :published-on])
+              desc   (get-in p [:content :description])]
           [:li
            [:a {:href (href* purl)} ptitle]
            [:time {:datetime (str pub-on)} (str pub-on)]
@@ -300,28 +283,23 @@
 
 (defn post-layout
   "Article layout for a single post. Returns hiccup.
-   Accepts both the nested domain model and the legacy flat post shape from blog.markdown/parse-post.
-
-   Nested model keys: :identity {:title :slug} :content {:body :description}
+   Nested domain model keys: :identity {:title :slug} :content {:body :description}
      :dates {:published-on :updated-on} :taxonomy {:tags :series}
      :external {:linkedin-url} :navigation {:prev :next}
-   Flat model keys (legacy): :title :slug :published-on :updated-on :tags :linkedin-url :url
-
    config: {:site-url :base-path}
    Optional extra-ctx: {:html-body :series-ctx :toc} for pre-rendered content."
   ([post config] (post-layout post config nil))
   ([post config {:keys [html-body series-ctx toc]}]
    (let [bp         (or (:base-path config) (System/getenv "BASE_PATH") "")
          href*      #(str bp %)
-         site-url*  (or (:site-url config) site-url)
-         ;; Support both nested domain model and legacy flat shape
-         title      (or (get-in post [:identity :title])   (:title post)) ;;TODO(task-14): remove compat shim — old shape
-         slug       (or (get-in post [:identity :slug])    (:slug post)) ;;TODO(task-14): remove compat shim — old shape
-         published  (or (get-in post [:dates :published-on]) (:published-on post)) ;;TODO(task-14): remove compat shim — old shape
-         updated    (or (get-in post [:dates :updated-on])   (:updated-on post)) ;;TODO(task-14): remove compat shim — old shape
-         tags       (or (get-in post [:taxonomy :tags])    (:tags post) []) ;;TODO(task-14): remove compat shim — old shape
-         linkedin   (or (get-in post [:external :linkedin-url]) (:linkedin-url post)) ;;TODO(task-14): remove compat shim — old shape
-         url        (or (:url post) (str "/posts/" slug "/"))
+         site-url*  (:site-url config)
+         title      (get-in post [:identity :title])
+         slug       (get-in post [:identity :slug])
+         published  (get-in post [:dates :published-on])
+         updated    (get-in post [:dates :updated-on])
+         tags       (get-in post [:taxonomy :tags] [])
+         linkedin   (get-in post [:external :linkedin-url])
+         url        (str "/posts/" slug "/")
          post-url   (java.net.URLEncoder/encode (str site-url* url) "UTF-8")
          post-title (java.net.URLEncoder/encode (str title " ") "UTF-8")
          share-links [(icon-link "#" "Copy link" (:copy icons)
@@ -370,12 +348,12 @@
      (if (seq posts)
        [:ul.post-list
         (for [p posts]
-          (let [title  (or (get-in p [:identity :title]) (:title p)) ;;TODO(task-14): remove compat shim — old shape
-                slug   (or (get-in p [:identity :slug]) (:slug p)) ;;TODO(task-14): remove compat shim — old shape
-                url    (or (:url p) (str "/posts/" slug "/"))
-                pub-on (or (get-in p [:dates :published-on]) (:published-on p)) ;;TODO(task-14): remove compat shim — old shape
-                desc   (or (get-in p [:content :description]) (:description p)) ;;TODO(task-14): remove compat shim — old shape
-                tags   (or (get-in p [:taxonomy :tags]) (:tags p) [])] ;;TODO(task-14): remove compat shim — old shape
+          (let [title  (get-in p [:identity :title])
+                slug   (get-in p [:identity :slug])
+                url    (str "/posts/" slug "/")
+                pub-on (get-in p [:dates :published-on])
+                desc   (get-in p [:content :description])
+                tags   (get-in p [:taxonomy :tags] [])]
             [:li
              [:a {:href (href* url)} title]
              [:time {:datetime (str pub-on)} (str pub-on)]
@@ -420,32 +398,18 @@
 
 (defn diagram-page-layout
   "Standalone diagram viewer page.
-   diagram map keys: :slug :path :alt :content (new domain shape)
-   Also accepts old shape: :slug :title :back-post :description :svg-content :mermaid-source
+   diagram map keys: :slug :path :alt :content
    Returns hiccup."
-  [{:keys [slug path alt content
-           title back-post description svg-content mermaid-source] :as diagram} config]
-  (let [bp          (or (:base-path config) (System/getenv "BASE_PATH") "")
-        href*       #(str bp %)
-        ;; support both new (domain) and old (pages) shapes
-        diag-title  (or title (when slug
-                                (str/join " " (map str/capitalize (str/split slug #"-"))))) ;;TODO(task-14): remove compat shim — old shape
-        diag-content (or svg-content content) ;;TODO(task-14): remove compat shim — old shape
-        diag-desc    (or description alt)] ;;TODO(task-14): remove compat shim — old shape
+  [{:keys [slug alt content]} config]
+  (let [bp         (or (:base-path config) (System/getenv "BASE_PATH") "")
+        diag-title (str/join " " (map str/capitalize (str/split slug #"-")))]
     [:div.diagram-page
-     (when back-post
-       [:a.diagram-back {:href (href* (:url back-post))}
-        (str "\u2190 " (:title back-post))])
      [:h1.diagram-title diag-title]
      [:div.diagram-full
-      (when diag-content (h/raw diag-content))]
-     (when (seq mermaid-source)
-       [:details.diagram-code
-        [:summary "View diagram source"]
-        [:pre [:code.language-mermaid mermaid-source]]])
-     (when (seq diag-desc)
+      (when content (h/raw content))]
+     (when (seq alt)
        [:div.diagram-transcript
-        [:p diag-desc]])]))
+        [:p alt]])]))
 
 (defn diagrams-index-layout
   "All-diagrams index page. Returns hiccup."
@@ -455,16 +419,13 @@
     [:div.diagrams-index
      [:h1 "Diagrams"]
      [:div.diagram-cards
-      (for [{:keys [slug title back-post svg-content content] :as d} diagrams]
-        (let [diag-title   (or title (when slug (str/join " " (map str/capitalize (str/split slug #"-"))))) ;;TODO(task-14): remove compat shim — old shape
-              diag-content (or svg-content content)] ;;TODO(task-14): remove compat shim — old shape
+      (for [{:keys [slug content]} diagrams]
+        (let [diag-title (str/join " " (map str/capitalize (str/split slug #"-")))]
           [:a.diagram-card {:href (href* (diagram-path slug))}
            [:div.diagram-card-thumb {:aria-hidden "true"}
-            (when diag-content (h/raw diag-content))]
+            (when content (h/raw content))]
            [:div.diagram-card-body
-            [:p.diagram-card-title diag-title]
-            (when back-post
-              [:p.diagram-card-source "From: " (:title back-post)])]]))]]))
+            [:p.diagram-card-title diag-title]]]))]]))
 
 ;;; ── Feed / sitemap stubs (to be implemented in blog.system) ─────────────────
 
