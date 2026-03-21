@@ -15,3 +15,5 @@ CLAUDE.md
 .superpowers/
 docs/superpowers/
 .shadow-cljs/
+node_modules/
+test-results/
