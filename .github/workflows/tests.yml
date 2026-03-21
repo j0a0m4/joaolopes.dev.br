@@ -2,10 +2,6 @@ name: tests
 
 on:
   pull_request:
-    paths:
-      - 'src/**'
-      - 'test/**'
-      - 'deps.edn'
 
 permissions:
   contents: read
