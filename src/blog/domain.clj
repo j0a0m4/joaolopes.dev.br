@@ -71,3 +71,146 @@
 ;; DUPLICATES TO DELETE (keep one canonical version in blog.domain / blog.render)
 ;;   svg-slug (pages) vs svg-slug-from-path (markdown)  → keep svg-slug-from-path, delete svg-slug
 ;;   inject-diagram-a11y (pages) vs inject-svg-a11y (markdown) → unify into single fn in blog.render
+
+;;; ── Utilities ────────────────────────────────────────────────────────────────
+
+(defn slugify [title]
+  (-> title
+      str/lower-case
+      (str/replace #"[^\w\s-]" "")
+      (str/replace #"[\s_]+" "-")
+      (str/replace #"-+" "-")
+      (str/replace #"^-|-$" "")))
+
+(defn- warn! [msg]
+  (binding [*out* *err*]
+    (println (str "[WARN] " msg))))
+
+;;; ── Post parsing ─────────────────────────────────────────────────────────────
+
+(defn parse-post [{:keys [path raw-frontmatter raw-body git-updated-on]}]
+  (let [fm (yaml/parse-string raw-frontmatter)]
+    (when-not (:title fm)
+      (warn! (str "Missing :title in " path)))
+    (when-not (:published-on fm)
+      (warn! (str "Missing :published-on in " path)))
+    (when (and (:title fm) (:published-on fm))
+      {:identity   {:title (:title fm)
+                    :slug  (slugify (:title fm))}
+       :content    {:body        raw-body
+                    :description (:description fm)}
+       :dates      {:created-on   (str (:created-on fm))
+                    :published-on (str (:published-on fm))
+                    :updated-on   git-updated-on}
+       :taxonomy   {:tags   (mapv keyword (:tags fm []))
+                    :series (when (:series fm)
+                              {:id    (keyword (:series fm))
+                               :order (:series-order fm)
+                               :title (:series-title fm)})}
+       :external   {:linkedin-url (:linkedin-url fm)}
+       :navigation {:prev nil :next nil}})))
+
+(defn parse-posts [raw-maps]
+  (->> raw-maps
+       (keep parse-post)
+       (filter #(get-in % [:dates :published-on]))
+       (sort-by #(get-in % [:dates :published-on]) #(compare %2 %1))))
+
+;;; ── Glossary parsing ─────────────────────────────────────────────────────────
+
+(defn- first-paragraph [body]
+  (-> body str/trim (str/split #"\n\n") first str/trim))
+
+(defn- parse-glossary-entry [{:keys [raw-frontmatter raw-body]}]
+  (let [fm (yaml/parse-string raw-frontmatter)]
+    (when (:publish fm)
+      {:title      (:title fm)
+       :slug       (or (:slug fm) (slugify (str (:title fm ""))))
+       :definition (first-paragraph raw-body)
+       :related    (vec (:related fm []))
+       :publish    true})))
+
+(defn parse-glossary [raw-maps]
+  (keep parse-glossary-entry raw-maps))
+
+;;; ── Page parsing ─────────────────────────────────────────────────────────────
+
+(defn parse-page [{:keys [raw-frontmatter raw-body]}]
+  (let [fm (yaml/parse-string raw-frontmatter)]
+    {:slug  (or (:slug fm) (slugify (str (:title fm ""))))
+     :title (:title fm)
+     :body  raw-body}))
+
+;;; ── Diagram parsing ──────────────────────────────────────────────────────────
+
+(defn- title-case [s]
+  (->> (str/split s #"-")
+       (map str/capitalize)
+       (str/join " ")))
+
+(defn- extract-alt [posts filename]
+  (let [pattern (re-pattern (str "!\\[([^\\]]+)\\]\\(/assets/" (java.util.regex.Pattern/quote filename) "\\)"))]
+    (some #(second (re-find pattern (get-in % [:content :body] ""))) posts)))
+
+(defn parse-diagrams [raw-maps posts]
+  (map (fn [{:keys [filename content]}]
+         (let [slug (str/replace filename #"\.svg$" "")]
+           {:slug    slug
+            :path    (str "/assets/" filename)
+            :alt     (or (extract-alt posts filename) (title-case slug))
+            :content content}))
+       raw-maps))
+
+;;; ── Series enrichment ────────────────────────────────────────────────────────
+
+(defn group-series [posts]
+  (->> posts
+       (filter #(get-in % [:taxonomy :series]))
+       (group-by #(get-in % [:taxonomy :series :id]))))
+
+(defn group-tags [posts]
+  (->> posts
+       (mapcat (fn [p] (map #(vector % p) (get-in p [:taxonomy :tags] []))))
+       (reduce (fn [acc [tag post]] (update acc tag (fnil conj []) post)) {})))
+
+(defn enrich-series [posts]
+  (let [by-series (group-series posts)]
+    (map (fn [post]
+           (if-let [series-posts (get by-series (get-in post [:taxonomy :series :id]))]
+             (let [sorted (sort-by #(get-in % [:taxonomy :series :order]) series-posts)
+                   idx    (.indexOf sorted post)]
+               (assoc-in post [:navigation]
+                 {:prev (when (pos? idx) (nth sorted (dec idx)))
+                  :next (when (< idx (dec (count sorted))) (nth sorted (inc idx)))}))
+             post))
+         posts)))
+
+(defn validate-series [posts]
+  (let [grouped (group-series posts)]
+    (mapcat (fn [[id series-posts]]
+              (let [titles (set (map #(get-in % [:taxonomy :series :title]) series-posts))]
+                (cond-> []
+                  (> (count titles) 1)
+                  (conj (str "Series " id " has inconsistent titles: " titles))
+                  (some nil? (map #(get-in % [:taxonomy :series :order]) series-posts))
+                  (conj (str "Series " id " has posts missing :order")))))
+            grouped)))
+
+;;; ── Wikilink expansion ───────────────────────────────────────────────────────
+
+(defn- glossary-abbr [{:keys [slug definition]} display]
+  (str "<abbr class=\"glossary-term\" title=\"" definition "\">"
+       "<a href=\"/glossary/" slug "/\">" display "</a>"
+       "</abbr>"))
+
+(defn- expand-post-wikilinks [body glossary-by-title]
+  (str/replace body
+    #"\[\[glossary:([^\]|]+)(?:\|([^\]]+))?\]\]"
+    (fn [[_ term display]]
+      (if-let [entry (get glossary-by-title term)]
+        (glossary-abbr entry (or display term))
+        (or display term)))))
+
+(defn expand-wikilinks [posts glossary]
+  (let [by-title (into {} (map (juxt :title identity) glossary))]
+    (map #(update-in % [:content :body] expand-post-wikilinks by-title) posts)))
