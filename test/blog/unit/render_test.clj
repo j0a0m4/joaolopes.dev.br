@@ -31,15 +31,21 @@
    :navigation {:prev nil :next nil}})
 
 (deftest render-post-test
-  (let [html (render/render-post post-fixture config)
+  (let [post (assoc post-fixture :taxonomy {:tags [:clojure :ai] :series nil})
+        html (render/render-post post config)
         doc  (-> html hickory/parse hickory/as-hickory)]
-    (is (= 1 (count (sel/select (sel/tag :article) doc))))))
+    (is (= 1 (count (sel/select (sel/tag :article) doc))) "has article")
+    (is (seq (sel/select (sel/find-in-text #"Hello World") doc)) "title in output")
+    (is (seq (sel/select (sel/tag :time) doc)) "time element present")
+    (is (seq (sel/select (sel/class "tag") doc)) "tags rendered")))
 
 (deftest render-index-test
   (let [posts [post-fixture]
-        html (render/render-index posts config)
-        doc  (-> html hickory/parse hickory/as-hickory)]
-    (is (pos? (count (sel/select (sel/class "post-list") doc))))))
+        html  (render/render-index posts config)
+        doc   (-> html hickory/parse hickory/as-hickory)]
+    (is (pos? (count (sel/select (sel/class "post-list") doc))) "post-list class")
+    (is (seq (sel/select (sel/find-in-text #"Hello World") doc)) "post title in list")
+    (is (seq (sel/select (sel/descendant (sel/class "post-list") (sel/tag :a)) doc)) "post links present")))
 
 (deftest post-pages-test
   (let [post   {:identity {:title "Hello" :slug "hello"}

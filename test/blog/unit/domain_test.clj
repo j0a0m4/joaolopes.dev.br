@@ -10,7 +10,9 @@
     "Hello World"                 "hello-world"
     "AI Toolkit — Part 1"         "ai-toolkit-part-1"
     "What the AI Gets Wrong"      "what-the-ai-gets-wrong"
-    "Building (Things) With AI"   "building-things-with-ai"))
+    "Building (Things) With AI"   "building-things-with-ai"
+    ""                             ""
+    "   "                          ""))
 
 (deftest parse-post-test
   (testing "parses valid post"
