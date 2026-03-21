@@ -1,4 +1,4 @@
-(ns blog.domain-test
+(ns blog.unit.domain-test
   (:require [clojure.test :refer [deftest is are testing]]
             [clojure.string :as str]
             [hickory.core :as hickory]

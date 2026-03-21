@@ -1,0 +1,90 @@
+name: e2e
+
+on:
+  pull_request:
+    paths:
+      - 'posts/**'
+      - 'src/**'
+      - 'resources/**'
+      - 'assets/**'
+      - 'test/e2e-playwright/**'
+      - 'deps.edn'
+      - 'shadow-cljs.edn'
+      - 'package.json'
+      - 'playwright.config.js'
+
+permissions:
+  contents: read
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeLaGuardo/setup-clojure@13.1
+        with:
+          cli: latest
+      - name: Cache Clojure deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+            .cpcache
+          key: clj-v2-${{ hashFiles('deps.edn') }}
+      - name: Cache npm deps
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+      - name: Install Node deps
+        run: npm ci
+      - name: Compile ClojureScript
+        run: clojure -M:shadow compile app
+      - name: Build site
+        run: clojure -M:build
+      - name: Upload site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-e2e
+          path: public/
+          retention-days: 1
+
+  e2e-tests:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeLaGuardo/setup-clojure@13.1
+        with:
+          cli: latest
+      - name: Cache Clojure deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+            .cpcache
+          key: clj-v2-${{ hashFiles('deps.edn') }}
+      - name: Cache npm deps
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+      - name: Install Node deps
+        run: npm ci
+      - name: Download site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: site-e2e
+          path: public/
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}-${{ runner.os }}
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Run e2e tests
+        run: npx playwright test

@@ -1,4 +1,4 @@
-(ns blog.render-test
+(ns blog.unit.render-test
   (:require [clojure.test :refer [deftest is testing]]
             [hickory.core :as hickory]
             [hickory.select :as sel]
