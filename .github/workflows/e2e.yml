@@ -40,6 +40,8 @@ jobs:
           key: npm-${{ hashFiles('package-lock.json') }}
       - name: Install Node deps
         run: npm ci
+      - name: Warm all Clojure deps (build + e2e)
+        run: clojure -P -M:build:e2e:shadow
       - name: Compile ClojureScript
         run: clojure -M:shadow compile app
       - name: Build site
