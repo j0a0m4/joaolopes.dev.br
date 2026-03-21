@@ -1,6 +1,8 @@
 (ns blog.domain
   (:require [clj-yaml.core :as yaml]
-            [clojure.string :as str]))
+            [clojure.string :as str])
+  (:import [java.time ZoneId]
+           [java.time.format DateTimeFormatter]))
 
 ;; Migration map — functions moved from blog.markdown and blog.pages:
 ;;
@@ -86,6 +88,36 @@
   (binding [*out* *err*]
     (println (str "[WARN] " msg))))
 
+;;; ── Date normalization ───────────────────────────────────────────────────────
+
+(def ^:private iso-fmt (DateTimeFormatter/ofPattern "yyyy-MM-dd"))
+(def ^:private display-fmt (DateTimeFormatter/ofPattern "d MMMM yyyy" java.util.Locale/ENGLISH))
+(def ^:private rfc822-fmt (DateTimeFormatter/ofPattern "EEE, dd MMM yyyy HH:mm:ss Z" java.util.Locale/ENGLISH))
+
+(defn normalize-date
+  "Converts a clj-yaml date value (java.util.Date or String) to a YYYY-MM-DD string.
+   Returns nil when value is nil or unparseable."
+  [v]
+  (cond
+    (nil? v)                    nil
+    (instance? java.util.Date v) (-> v .toInstant (.atZone (ZoneId/of "UTC")) .toLocalDate (.format iso-fmt))
+    (string? v)                  (when (re-matches #"\d{4}-\d{2}-\d{2}.*" v) (subs v 0 10))
+    :else                        nil))
+
+(defn display-date
+  "Converts a YYYY-MM-DD string to a human-readable date like '16 March 2026'."
+  [iso-str]
+  (when iso-str
+    (-> (java.time.LocalDate/parse iso-str iso-fmt) (.format display-fmt))))
+
+(defn rfc822-date
+  "Converts a YYYY-MM-DD string to RFC 822 format for RSS feeds."
+  [iso-str]
+  (when iso-str
+    (-> (java.time.LocalDate/parse iso-str iso-fmt)
+        (.atStartOfDay (ZoneId/of "UTC"))
+        (.format rfc822-fmt))))
+
 ;;; ── Post parsing ─────────────────────────────────────────────────────────────
 
 (defn parse-post [{:keys [path raw-frontmatter raw-body git-updated-on]}]
@@ -99,8 +131,8 @@
                     :slug  (slugify (:title fm))}
        :content    {:body        raw-body
                     :description (:description fm)}
-       :dates      {:created-on   (str (:created-on fm))
-                    :published-on (str (:published-on fm))
+       :dates      {:created-on   (normalize-date (:created-on fm))
+                    :published-on (normalize-date (:published-on fm))
                     :updated-on   git-updated-on}
        :taxonomy   {:tags   (mapv keyword (:tags fm []))
                     :series (when (:series fm)

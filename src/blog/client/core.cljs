@@ -67,8 +67,14 @@
   (events/listen js/window et/BEFOREUNLOAD
     #(.. js/sessionStorage (setItem "scrollY" (str (.-scrollY js/window))))))
 
+(defn init-highlight! []
+  (when (exists? js/hljs)
+    (doseq [el (array-seq (.querySelectorAll js/document "pre code"))]
+      (.highlightElement js/hljs el))))
+
 (defn ^:export init []
   (init-nav!)
   (init-glossary!)
   (init-mermaid!)
+  (init-highlight!)
   (init-scroll-restore!))
