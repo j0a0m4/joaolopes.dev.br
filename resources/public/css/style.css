@@ -801,6 +801,13 @@ abbr.glossary-term a:hover {
   white-space: normal;
 }
 
+.glossary-tooltip .glossary-link {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+
 .glossary-tooltip.visible {
   display: block;
 }

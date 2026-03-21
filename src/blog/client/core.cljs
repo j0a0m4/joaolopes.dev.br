@@ -26,20 +26,23 @@
   (doseq [abbr (array-seq (dom/getElementsByClass "glossary-term"))]
     (let [tooltip-id (str "tooltip-" (.-slug (.-dataset abbr)))
           tooltip    (or (dom/getElement tooltip-id)
-                         (doto (dom/createElement "div")
-                           (.setAttribute "id" tooltip-id)
-                           (.setAttribute "role" "tooltip")
-                           (aset "className" "glossary-tooltip")
-                           (aset "textContent" (.-definition (.-dataset abbr)))
-                           (#(.appendChild (.-parentNode abbr) %))))]
+                         (let [div (dom/createElement "div")
+                               link (dom/createElement "a")]
+                           (.setAttribute div "id" tooltip-id)
+                           (.setAttribute div "role" "tooltip")
+                           (aset div "className" "glossary-tooltip")
+                           (aset div "innerHTML"
+                                 (str (.-definition (.-dataset abbr))
+                                      " <a href=\"/glossary/" (.-slug (.-dataset abbr))
+                                      "/\" class=\"glossary-link\">Full entry →</a>"))
+                           (.appendChild (.-parentNode abbr) div)
+                           div))]
       (events/listen abbr et/CLICK
                      (fn [e]
-          ;; Let <a> link clicks navigate — only intercept clicks on abbr itself
-                       (when-not (= "A" (.. e -target -tagName))
-                         (.preventDefault e)
-                         (if (.contains (.-classList tooltip) "visible")
-                           (hide-tooltip! abbr tooltip)
-                           (show-tooltip! abbr tooltip)))))
+                       (.preventDefault e)
+                       (if (.contains (.-classList tooltip) "visible")
+                         (hide-tooltip! abbr tooltip)
+                         (show-tooltip! abbr tooltip))))
       (events/listen abbr "keydown"
                      (fn [e]
                        (when (#{" " "Enter"} (.-key e))
