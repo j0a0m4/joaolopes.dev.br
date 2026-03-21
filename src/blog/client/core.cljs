@@ -34,10 +34,12 @@
                            (#(.appendChild (.-parentNode abbr) %))))]
       (events/listen abbr et/CLICK
         (fn [e]
-          (.preventDefault e)
-          (if (.contains (.-classList tooltip) "visible")
-            (hide-tooltip! abbr tooltip)
-            (show-tooltip! abbr tooltip))))
+          ;; Let <a> link clicks navigate — only intercept clicks on abbr itself
+          (when-not (= "A" (.. e -target -tagName))
+            (.preventDefault e)
+            (if (.contains (.-classList tooltip) "visible")
+              (hide-tooltip! abbr tooltip)
+              (show-tooltip! abbr tooltip)))))
       (events/listen abbr "keydown"
         (fn [e]
           (when (#{" " "Enter"} (.-key e))
