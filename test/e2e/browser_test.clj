@@ -8,8 +8,7 @@
   (str "http://localhost:" port path))
 
 (def ^:private ci-opts
-  {:headless true
-   :args     ["--no-sandbox" "--disable-dev-shm-usage"]})
+  {:args ["--headless=new" "--no-sandbox" "--disable-dev-shm-usage"]})
 
 (deftest glossary-tooltip-accessible
   (with-static-server ["public/" 3001]
