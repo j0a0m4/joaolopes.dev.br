@@ -67,9 +67,11 @@ jobs:
         with:
           name: site-e2e
           path: public/
-      - name: Install ChromeDriver
+      - name: Setup ChromeDriver
+        uses: nanasess/setup-chromedriver@v2
+      - name: Verify Chrome + ChromeDriver
         run: |
-          sudo apt-get install -y chromium-driver
+          google-chrome --version
           chromedriver --version
       - name: Run e2e tests
         run: clojure -M:e2e

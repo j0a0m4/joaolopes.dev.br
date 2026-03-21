@@ -5,28 +5,15 @@
             [aux.e2e-helpers :refer [with-static-server]]))
 
 (defn- base-url [port path]
-  (str "http://localhost:" port path))
+  (str "http://127.0.0.1:" port path))
 
 (def ^:private ci-opts
   {:args ["--headless=new" "--no-sandbox" "--disable-dev-shm-usage"]})
 
 (deftest glossary-tooltip-accessible
-  ;; Diagnostic: verify build artifact is accessible
-  (println "CWD:" (System/getProperty "user.dir"))
-  (println "public/ exists?" (.exists (java.io.File. "public")))
-  (println "index.html exists?" (.exists (java.io.File. "public/posts/building-your-ai-toolkit/index.html")))
   (with-static-server ["public/" 3001]
-    ;; Diagnostic: verify Jetty is serving
-    (try
-      (println "Server response bytes:" (count (slurp "http://localhost:3001/")))
-      (catch Exception e (println "SERVER CONNECT FAILED:" (.getMessage e))))
     (e/with-driver :chrome ci-opts driver
-      ;; Diagnostic: can Chrome navigate to ANY URL?
-      (e/go driver "https://example.com")
-      (println "example.com URL:" (e/get-url driver))
-      ;; Now try the local server
       (e/go driver (base-url 3001 "/posts/building-your-ai-toolkit/"))
-      (println "blog URL:" (e/get-url driver))
       (e/wait-visible driver {:css "abbr.glossary-term"} {:timeout 10})
       (let [term (e/query driver {:css "abbr.glossary-term"})]
         (is (not (e/visible? driver {:css ".glossary-tooltip.visible"})))
