@@ -8,6 +8,13 @@
            [java.time.format DateTimeFormatter]
            [java.util Locale]))
 
+;; Compat config for layout calls — wraps the existing layout globals.
+(def ^:private default-config
+  {:site-title layout/site-title
+   :site-url   layout/site-url
+   :site-desc  layout/site-description
+   :base-path  layout/base-path})
+
 (defn- git-last-modified
   "Returns the last git commit date for a file as a YYYY-MM-DD string, or nil."
   [file]
@@ -140,9 +147,8 @@
   "Renders a tag index page at /tags/<slug>/."
   [tag posts]
   (layout/base-layout
-   (str "#" tag " — Posts")
-   (str "All posts tagged #" tag ".")
-   (layout/tag-index-layout tag posts)))
+   (layout/tag-index-layout tag posts default-config)
+   default-config))
 
 (defn- inject-toc-backlinks
   "Inserts ↑ Contents links before each <h2> (except the first)."
@@ -165,23 +171,20 @@
                       markdown/inline-svgs
                       (cond-> toc inject-toc-backlinks))]
     (layout/base-layout
-     (:title post)
-     (:description post)
-     (layout/post-layout post html-body series-ctx toc))))
+     (layout/post-layout post default-config {:html-body html-body :series-ctx series-ctx :toc toc})
+     default-config)))
 
 (defn- render-series-index
   "Renders a series index page at /series/<slug>/."
   [slug {:keys [posts]}]
-  (let [title (:series-title (first posts))]
-    (layout/base-layout
-     (str title " — Series")
-     (str "All posts in the " title " series.")
-     (layout/series-index-layout slug posts))))
+  (layout/base-layout
+   (layout/series-index-layout slug posts default-config)
+   default-config))
 
 (defn- render-index
   "Renders the index page."
   [posts]
-  (layout/base-layout nil nil (layout/index-layout posts)))
+  (layout/base-layout (layout/index-layout posts default-config) default-config))
 
 (def ^:private ^DateTimeFormatter rfc822-fmt
   (DateTimeFormatter/ofPattern "EEE, dd MMM yyyy HH:mm:ss Z" Locale/US))
@@ -266,8 +269,8 @@
   (let [f (io/file "pages" "about.md")
         html-body (-> (slurp f) markdown/render-markdown)]
     (layout/base-layout
-     "About" nil
-     (layout/about-layout html-body))))
+     (layout/about-layout html-body default-config)
+     default-config)))
 
 (defn- render-glossary-body
   "Renders a glossary entry's raw-body to html-body using transform-obsidian
@@ -282,17 +285,15 @@
   "Renders a single glossary entry page."
   [entry]
   (layout/base-layout
-   (:title entry)
-   (:definition entry)
-   (layout/glossary-entry-layout entry)))
+   (layout/glossary-entry-layout entry default-config)
+   default-config))
 
 (defn- render-glossary-index
   "Renders /glossary/ index page."
   [entries]
   (layout/base-layout
-   "Glossary"
-   "Definitions for terms used across the blog."
-   (layout/glossary-index-layout entries)))
+   (layout/glossary-index-layout entries default-config)
+   default-config))
 
 (defn- svg-slug
   "agent-loop.svg → agent-loop"
@@ -397,30 +398,27 @@
   "Renders the /tags/ overview page listing all tags."
   [tag-map]
   (layout/base-layout
-   "Tags"
-   "All tags."
-   (layout/tags-overview-layout tag-map)))
+   (layout/tags-overview-layout tag-map default-config)
+   default-config))
 
 (defn- render-diagram-page
   "Renders a single diagram page to full HTML."
-  [{:keys [title description] :as diagram}]
+  [diagram]
   (layout/base-layout
-   (str title " — Diagram")
-   description
-   (layout/diagram-page-layout diagram)))
+   (layout/diagram-page-layout diagram default-config)
+   default-config))
 
 (defn- render-diagrams-index
   "Renders the /diagrams/ index page."
   [diagrams]
   (layout/base-layout
-   "Diagrams"
-   "Visual diagrams from the blog."
-   (layout/diagrams-index-layout diagrams)))
+   (layout/diagrams-index-layout diagrams default-config)
+   default-config))
 
 (defn- render-404 []
   (layout/base-layout
-   "Not Found" nil
-   (layout/not-found-layout)))
+   (layout/not-found-layout default-config)
+   default-config))
 
 (defn get-pages
   "Builds the Stasis page map from posts and assets directories."
