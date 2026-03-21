@@ -145,8 +145,8 @@
              (let [sorted (sort-by #(get-in % [:taxonomy :series :order]) series-posts)
                    idx    (.indexOf sorted post)]
                (assoc-in post [:navigation]
-                 {:prev (when (pos? idx) (nth sorted (dec idx)))
-                  :next (when (< idx (dec (count sorted))) (nth sorted (inc idx)))}))
+                         {:prev (when (pos? idx) (nth sorted (dec idx)))
+                          :next (when (< idx (dec (count sorted))) (nth sorted (inc idx)))}))
              post))
          posts)))
 
@@ -173,11 +173,11 @@
 
 (defn- expand-post-wikilinks [body glossary-by-title]
   (str/replace body
-    #"\[\[glossary:([^\]|]+)(?:\|([^\]]+))?\]\]"
-    (fn [[_ term display]]
-      (if-let [entry (get glossary-by-title term)]
-        (glossary-abbr entry (or display term))
-        (or display term)))))
+               #"\[\[glossary:([^\]|]+)(?:\|([^\]]+))?\]\]"
+               (fn [[_ term display]]
+                 (if-let [entry (get glossary-by-title term)]
+                   (glossary-abbr entry (or display term))
+                   (or display term)))))
 
 (defn expand-wikilinks [posts glossary]
   (let [by-title (into {} (map (juxt :title identity) glossary))]

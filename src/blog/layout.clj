@@ -4,7 +4,6 @@
             [clojure.string :as str]
             [hiccup2.core :as h]))
 
-
 (defn series-path
   "Canonical path for a series index page."
   [slug]
@@ -124,8 +123,8 @@
        [:nav.glossary-related
         [:span "Related: "]
         (interpose " · "
-          (for [{:keys [label slug]} (:related-links entry)]
-            [:a {:href (href* (glossary-path slug))} label]))])]))
+                   (for [{:keys [label slug]} (:related-links entry)]
+                     [:a {:href (href* (glossary-path slug))} label]))])]))
 
 ;;; ── Series / tag helpers ─────────────────────────────────────────────────────
 

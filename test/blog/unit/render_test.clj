@@ -9,8 +9,8 @@
 
 (deftest svg-aria-attributes-test
   (let [_diagram {:slug "agent-loop" :path "/assets/agent-loop.svg"
-                 :alt "The agent loop diagram"
-                 :content "<svg xmlns=\"http://www.w3.org/2000/svg\"><circle r=\"10\"/></svg>"}
+                  :alt "The agent loop diagram"
+                  :content "<svg xmlns=\"http://www.w3.org/2000/svg\"><circle r=\"10\"/></svg>"}
         post    {:identity {:title "Post" :slug "post"}
                  :content  {:body "![The agent loop diagram](/assets/agent-loop.svg)" :description nil}
                  :dates    {:created-on "2025-01-10" :published-on "2025-01-15" :updated-on "2025-01-20"}

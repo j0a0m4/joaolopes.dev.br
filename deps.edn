@@ -31,5 +31,7 @@
                               hickory/hickory              {:mvn/version "0.7.1"}
                               ring/ring-jetty-adapter      {:mvn/version "1.12.2"}}
                 :main-opts   ["-m" "cognitect.test-runner" "-d" "test/blog/integration"]}
+  :cljfmt {:extra-deps {dev.weavejester/cljfmt {:mvn/version "0.16.3"}}
+           :main-opts  ["-m" "cljfmt.main"]}
   :shadow {:extra-deps  {thheller/shadow-cljs {:mvn/version "2.28.18"}}
            :main-opts   ["-m" "shadow.cljs.devtools.cli"]}}}
