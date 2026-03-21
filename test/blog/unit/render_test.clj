@@ -243,3 +243,16 @@
         html (render/render-post post config)]
     (is (not (.contains html "[[glossary:")) "no raw wikilink syntax in output")
     (is (not (.contains html "&lt;abbr")) "no escaped HTML tags in output")))
+
+(deftest glossary-wikilink-strips-formatting-from-display
+  (let [post {:identity   {:title "Test" :slug "test"}
+              :content    {:body "Uses [[glossary:skill|**`skill`**]] here." :description nil}
+              :dates      {:created-on "2025-01-10" :published-on "2025-01-15" :updated-on "2025-01-20"}
+              :taxonomy   {:tags [] :series nil}
+              :external   {:linkedin-url nil}
+              :navigation {:prev nil :next nil}}
+        html (render/render-post post config)
+        doc  (-> html hickory/parse hickory/as-hickory)
+        link (first (sel/select (sel/and (sel/tag :a) (sel/attr :href #(= "/glossary/skill/" %))) doc))]
+    (is (some? link) "link rendered despite formatting in display")
+    (is (= "skill" (first (:content link))) "formatting stripped from display text")))

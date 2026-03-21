@@ -1,5 +1,6 @@
 (ns blog.client.core
-  (:require [goog.dom :as dom]
+  (:require [clojure.string :as str]
+            [goog.dom :as dom]
             [goog.events :as events]
             [goog.events.EventType :as et]))
 
@@ -30,7 +31,8 @@
   (-> href (str/replace #"^/glossary/" "") (str/replace #"/$" "")))
 
 (defn init-glossary! []
-  (doseq [link (array-seq (.querySelectorAll js/document "a[href^=\"/glossary/\"]"))]
+  (doseq [link (->> (array-seq (.querySelectorAll js/document "a[href^=\"/glossary/\"]"))
+                    (filter #(not= "/glossary/" (.getAttribute % "href"))))]
     (let [slug       (slug-from-href (.getAttribute link "href"))
           tooltip-id (str "tooltip-" slug)
           tooltip    (or (dom/getElement tooltip-id)

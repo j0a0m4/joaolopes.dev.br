@@ -140,14 +140,22 @@
       (str (first parts)
            (str/join (map #(str backlink %) (rest parts)))))))
 
+(defn- strip-md-formatting
+  "Strips bold, italic, and backtick formatting from a string."
+  [s]
+  (-> s
+      (str/replace #"\*{1,2}" "")
+      (str/replace "`" "")))
+
 (defn- transform-glossary-links
   "Converts [[glossary:slug|display]] → [display](/glossary/slug/) markdown links.
+   Strips formatting from display text — glossary links are styled via CSS, not inline markdown.
    Runs BEFORE CommonMark so the output is standard markdown, not raw HTML."
   [md]
   (str/replace md
                #"\[\[glossary:([^\]|]+)(?:\|([^\]]+))?\]\]"
                (fn [[_ slug display]]
-                 (str "[" (or display slug) "](/glossary/" slug "/)"))))
+                 (str "[" (strip-md-formatting (or display slug)) "](/glossary/" slug "/)"))))
 
 (defn- render-body
   "Renders a post's raw markdown body to HTML.
