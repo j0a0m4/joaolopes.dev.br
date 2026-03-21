@@ -37,6 +37,12 @@ jobs:
             .cpcache
           key: clj-${{ hashFiles('deps.edn') }}
 
+      - name: Install Node deps
+        run: npm ci
+
+      - name: Compile ClojureScript
+        run: clojure -M:shadow compile app
+
       - name: Build preview
         run: clojure -M:build
         env:
