@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1" name="viewport" /><meta content="dark" name="color-scheme" /><title>João Lopes</title><meta content="Writing about AI-first engineering" name="description" /><link href="https://fonts.googleapis.com" rel="preconnect" /><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" /><link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&amp;display=swap" rel="stylesheet" /><link href="/preview/css/style.css" rel="stylesheet" /><link href="/preview/favicon.svg" rel="icon" type="image/svg+xml" /><link href="/preview/feed.xml" rel="alternate" title="João Lopes" type="application/rss+xml" /><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css" rel="stylesheet" /><script defer="defer" src="/js/main.js"></script></head><body><header><nav><a class="site-logo" href="/preview/"><svg aria-hidden="true" class="logo" height="40" viewBox="0 0 32 32" width="40"><path class="logo-path" d="M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>João Lopes</a><button aria-controls="nav-menu" aria-expanded="false" aria-label="Menu" class="nav-toggle" id="nav-toggle"><span aria-hidden="true" class="hamburger-icon">☰</span></button><span class="nav-links" id="nav-menu"><a href="/preview/">Posts</a><a href="/preview/tags/">Tags</a><a href="/preview/glossary/">Glossary</a><a href="/preview/diagrams/">Diagrams</a><a href="/preview/about/">About</a><a href="/preview/feed.xml">RSS</a></span></nav></header><main><article data-pagefind-body=""><h1>Hooks — and why I built Blackwall</h1><div class="post-dateline">Published <time datetime="2026-03-21">21 March 2026</time></div><div class="share-cta"><span class="share-label">Share</span><a class="icon-link" href="#" onclick="navigator.clipboard.writeText(&apos;https://joaolopes.dev.br/posts/hooks-and-why-i-built-blackwall/&apos;);this.textContent=&apos;Copied!&apos;;setTimeout(()=&gt;this.textContent=&apos;Copy link&apos;,2000);return false;"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1zM9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"></path></svg>Copy link</a><a class="icon-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fjoaolopes.dev.br%2Fposts%2Fhooks-and-why-i-built-blackwall%2F" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"></path></svg>LinkedIn</a><a class="icon-link" href="https://x.com/intent/post?url=https%3A%2F%2Fjoaolopes.dev.br%2Fposts%2Fhooks-and-why-i-built-blackwall%2F&amp;text=Hooks+%E2%80%94+and+why+I+built+Blackwall+" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75zm-.86 13.028h1.36L4.323 2.145H2.865z"></path></svg>Twitter</a><a class="icon-link" href="https://bsky.app/intent/compose?text=Hooks+%E2%80%94+and+why+I+built+Blackwall+https%3A%2F%2Fjoaolopes.dev.br%2Fposts%2Fhooks-and-why-i-built-blackwall%2F" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M8 1.5C4.134 1.5 1 4.358 1 7.89c0 2.13 1.129 4.006 2.84 5.12L3.5 14.5l1.68-.672A7.07 7.07 0 0 0 8 14.28a7.07 7.07 0 0 0 2.82-.452L12.5 14.5l-.34-1.49C13.871 11.896 15 10.02 15 7.89 15 4.358 11.866 1.5 8 1.5zM5.5 9a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm3 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm3 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1z"></path></svg>Bluesky</a></div><div class="tags"><a class="tag" href="/preview/tags/blackwall/">#blackwall</a><a class="tag" href="/preview/tags/clojure/">#clojure</a><a class="tag" href="/preview/tags/babashka/">#babashka</a><a class="tag" href="/preview/tags/malli/">#malli</a><a class="tag" href="/preview/tags/ports-and-adapters/">#ports-and-adapters</a><a class="tag" href="/preview/tags/edn/">#edn</a><a class="tag" href="/preview/tags/architecture/">#architecture</a></div><details class="toc toc-details" open="open"><summary class="toc-label" data-count="8 sections">Contents</summary><nav id="toc"><ul><li><a href="#what-blackwall-is">What blackwall is</a></li><li><a href="#step-one-schema-to-edn">Step one: schema to EDN</a></li><li><a href="#step-two-logic-to-edn">Step two: logic to EDN</a></li><li><a href="#step-three-the-adapter">Step three: the adapter</a></li><li><a href="#what-flows-through-the-bus">What flows through the bus</a></li><li><a href="#adding-a-new-gate-rule">Adding a new gate rule</a></li><li><a href="#why-this-matters-as-a-foundation">Why this matters as a foundation</a></li><li><a href="#related">Related</a></li></ul></nav></details><h1 id="hooks--and-why-i-built-blackwall">Hooks — and why I built Blackwall</h1>
+<p>Claude Code has 21 hook events. Session start, session end, every tool call before and after, subagent lifecycle, context compaction. A complete runtime event surface. Out of the box you wire them by pointing <code>.claude/settings.json</code> at Babashka scripts. Each script does its own thing, knows nothing about the others, and has no shared infrastructure.</p>
+<p>I wanted something different. I wanted to configure gate rules in a data file without touching code. I wanted every event to flow as a typed domain value that any process can subscribe to in real time. I wanted the behaviour of my AI environment to be as inspectable and composable as the rest of my Clojure stack.</p>
+<p>That led to a design principle I kept returning to: <strong>if it can't be represented in EDN, it needs a strong rationale.</strong></p>
+<p>Blackwall is what happens when you apply that principle consistently to a hook system.</p>
+<hr />
+<a class="toc-back" href="#toc">↑ Contents</a><h2 id="what-blackwall-is">What blackwall is</h2>
+<p>Blackwall is a long-running Babashka daemon — Clojure as a scripting runtime, no JVM startup cost — that sits between Claude Code and everything else.</p>
+<p>Every hook event goes through <code>hook.bb</code>, a thin entry point. It splits into two paths:</p>
+<ul>
+<li><strong>PreToolUse</strong> — synchronous. <code>hook.bb</code> connects to <code>gate.sock</code>, sends the tool call, waits for a <code>GateDecision</code>. The daemon runs all registered gate guards and returns allow, deny, or allow-with-context. The hook prints the decision and exits. Claude Code either proceeds or stops.</li>
+<li><strong>Everything else</strong> — asynchronous. <code>hook.bb</code> sends the event to <code>ingest.sock</code> and exits immediately. The daemon parses it into a typed domain event, publishes it to a <code>core.async</code> mult, and fans it out to registered consumers. External processes can connect to <code>subscribe.sock</code> to receive the stream.</li>
+</ul>
+<p><figure class="diagram-figure"><a href="/preview/diagrams/blackwall-hook-split/" class="diagram-link" aria-label="View Blackwall Hook Split diagram"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-d2-version="0.7.1" preserveAspectRatio="xMinYMin meet" viewBox="0 0 932 454" width="100%" height="auto" role="img" aria-labelledby="blackwall-hook-split-title blackwall-hook-split-desc"><title id="blackwall-hook-split-title">hook.bb splits every tool call into two paths: PreToolUse goes synchronous — blocks and waits for allow, deny, or allow-with-context — while every other event fires and forgets into the Event Bus.</title><desc id="blackwall-hook-split-desc">hook.bb splits every tool call into two paths: PreToolUse goes synchronous — blocks and waits for allow, deny, or allow-with-context — while every other event fires and forgets into the Event Bus.</desc><svg class="d2-2478728042 d2-svg" width="932" height="454" viewBox="-89 -89 932 454" role="img" aria-labelledby="blackwall-hook-split-title blackwall-hook-split-desc"><title id="blackwall-hook-split-title">hook.bb splits every tool call into two paths: PreToolUse goes synchronous — blocks and waits for allow, deny, or allow-with-context — while every other event fires and forgets into the Event Bus.</title><desc id="blackwall-hook-split-desc">hook.bb splits every tool call into two paths: PreToolUse goes synchronous — blocks and waits for allow, deny, or allow-with-context — while every other event fires and forgets into the Event Bus.</desc><rect x="-89.000000" y="-89.000000" width="932.000000" height="454.000000" rx="0.000000" fill="#100e17" class=" fill-N7" stroke-width="0" /><style type="text/css"><![CDATA[
+.d2-2478728042 .text {
+	font-family: "d2-2478728042-font-regular";
+}
+@font-face {
+	font-family: d2-2478728042-font-regular;
+	src: url("data:application/font-woff;base64,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");
+}
+.d2-2478728042 .text-bold {
+	font-family: "d2-2478728042-font-bold";
+}
+@font-face {
+	font-family: d2-2478728042-font-bold;
+	src: url("data:application/font-woff;base64,d09GRgABAAAAAA2oAAoAAAAAFNAAAguFAAAAAAAAAAAAAAAAAAAAAAAAAABPUy8yAAAA9AAAAGAAAABgXxHXrmNtYXAAAAFUAAAAnQAAAMwD3CQbZ2x5ZgAAAfQAAAcdAAAJYArymExoZWFkAAAJFAAAADYAAAA2G38e1GhoZWEAAAlMAAAAJAAAACQKfwXhaG10eAAACXAAAACHAAAAiD/QBatsb2NhAAAJ+AAAAEYAAABGLQAqkm1heHAAAApAAAAAIAAAACAAOgD3bmFtZQAACmAAAAMoAAAIKgjwVkFwb3N0AAANiAAAAB0AAAAg/9EAMgADAioCvAAFAAACigJYAAAASwKKAlgAAAFeADIBKQAAAgsHAwMEAwICBGAAAvcAAAADAAAAAAAAAABBREJPACAAIP//Au7/BgAAA9gBESAAAZ8AAAAAAfAClAAAACAAA3icdM09TsIAGIDhp7b+1apV63/VXkAPYeLuoAdw02g0cfM6BthJSNhIjwIXINzgI4GJgXd9hheJVIJCpkWtlCo07j149OTZqw9ffvwZNlUEK/rizadvv0uNScxiGm2MYhD96EU3OvEf7+N88Vlf4kZtQyqzacu2Hbtyewr7DhwqHTl2onLqzLkLl65cu3PLHAAA//8BAAD//yWDJQMAAAB4nGRVW2wbWRn+z/F4pnYmccb2zPh+m3jGjhOn8Xg8TWLXcePYaWs3N9qmbJt0+wCF9LK0KU1LUB9aLQhSinBUFaTtolURQuoioYoHFgUEEgtlq33pLvvCXhCrPuwDNSuzQpCM0YydJmUfohONjv//+77/+/4DZpgCwKfwGpjAAjawAwsgM2EmKkuSQKmyqgq8SZUQQ01hu/aTe1KciMeJ3tCd4NWFBVSdx2ubZ16onjr12cLIiHb3V29oN9HFNwBMUAXAWbwKDHggoteUUxzHOkmKNQ5SMMmpjJIWBYGRU8ZZ/bB4ZrQ/lhorXigvjGcGU+nS7JVsbhav+kv5xKyN6DxYGPtCHH2rVxBD2txcIgqA9D7oKV6FDgM3G2ZlVmDDbBXd0f77wQfIhldXrn/j9goAYAPTbrwKNDh3ICIFgX2G4aOJS6XS0vj0xPJotohXpeOTlVMD76OZ03IvgN7PDYAdeBUovYKghFmBefQA/ecB7l5Z2ay37uxvNvCkwR3MEVFhZMbJ6Wz1f0h06NrLa8Oqmv3edfr2PTSv1U5WKifRWe21e7cBQ2+zgd5BG+AGAYCPiEo6o4qiECEpKZORUxzLCJJAkmoqoyokyTq53xSnbtSwEA+O9igDi8MLX1q2EsHyLnfUcSgbpI/mD83ZwpKLfdHfc+6C9rHsEy7wjqPWhN/FG5oUmg3M4XVwQtBAKwmUwMgsZTQz5JH0OQkRfXBoPDzmJ+iLNcJfjGTnBrILc2LmSF/cGaPDIQWv3694/Hu/Vjl8Jb9cqrzc/5a9y9Cjp9lA62gDPEYHnZJenKd0WqwhjcqTJHKPny9MfL2YLPvGhZCSz+92JR3D0SN07tLM7FIuwC/4K4XRKms7GfKCgV1qNtAGXgcHhLa0MgpLirxDJbHd5tPj50cW0vE9brK2bCU8JeyS7I6EU8gM0N+9Mn1pr89V+dnm2KBHWHa637J3jZX3jwM2sP8NbYCrrc9WE8PLYY6TUzp2k5zWu6Bg+cK+sTMj5RMDBNbes5YGlcygOP+jB1JfJEPvXZqZXsrnF4uOqCUjh495Amg4rgy0POMCQEv4oX7qvlK3RTLg67ZmvrhvX8/UWDDd7e300N7AsWPom2fNXuVImibPmM1hMXBRu65nL9LsxxTagAEYgQOGMqKS1oXQzaRsUeBlVmgHICIZc9Dt5SRJUyuYhmiOdkgjonHl0+H5PWWHN+TyxIfnlb7wLycpS3pO9QftkfjU8ReLKwf8kuT3S1I8NSpFZXeY9uYee/b0ZWNEZyzoTXUT9mIiOxmjFzsizqEDPVYb57CPjMnTSfSwNy7FY7F4r1brcfPdJpPL7fO3tCnowzY8qqe27U2WERgDJcUUapTvYGp6f80f8sVceP3+MXdi8YT2CIUzMTev/QKaTVAB4H38GIu6V4CCMHznWe0AXgfaqM3Iqkw5BIliC7eIV37881+/+lIer2vn/vBI++vvylf1+80GsuN1sLUct5Vt3QR/qozUGIuZIu10lH7hIBY23+PtCJ01U1sc0EabAy9/jsOylQhVn5FA9Xyg/zkOLS8ac7WB93NebMW0PTXE5c8Xi+fz+XPF4rl8fzLZn+zvb+cotzQ7cyl3uTpaqOhxamuAbqENsO/E1nZeC5m3IrI+q6vT3e3LOVH9aGrQbL5GEPGU9hEgYJsN9CraAMnQRFI5rrXbRSmJlfR2MdbJ8QHMOsnHg18W90XywXDAn/QERmJfOTx0NLjPk/YMDYmhXPw0LQaPu728g+EcVrpnKD5+RHLNOTnJ5e7qEIaSYydavmCaDXQOLwHf2rOKoKiqbDwA20sFjk8WK8zVy5cFP+228g6V/uqRh2fJGzcu/rE3ShKLJN2qlW020L9RXZ/Pc3Nl2qvkL9P7a4GQT+Rqyx2m4AF68QRKax8qcY8fTWjd49E+QLqHUBPVoRNANsk8x+lSqqpsevDTtVGrw0pYHNbCzddQ/ZNoVZKq0U+07q3s4zqqQ/j/frejgiCJog6DotZWfrCbtJIE1WlRr+2x2CiCslAD3758v5/qpAiqg+pD9SfRCVE8IDwxzonoE637TaEUi5WEN41+XQCoger6WyY7pB1tKH67T9edW3f7rJyV2GXfFbnz/R/e3U3zNGFxWiSE/zHFJlg2wU41/znD9rFsgpvR69LNvWgT1XV3bvtAVZ+Togsvc2Gbh7Lvisas1G/Xyh12K7GLsWRv3uf3TP6eJF5C5h6/B/393UgpKpSFd7WOvYfbb2+u2YCn8Lr+1re2fWth3RZlWRRlmVakmKLEJEW/m4CHKIwGwQSgKjKb+Ozh6dOt72/jf6G+1vcwm8B/fnt+vtmEHHwMT9ErmAIfANS3dgO8g+r6XX03FGqornUDar6Oh2AWP9ZxMDtwRJPJaDSZxEO9gtCr/8H/AAAA//8BAAD//1Vb6nwAAAAAAQAAAAILhZJDuKtfDzz1AAED6AAAAADYXaCEAAAAAN1mLzb+N/7ECG0D8QABAAMAAgAAAAAAAAABAAAD2P7vAAAImP43/jcIbQABAAAAAAAAAAAAAAAAAAAAInicHMZBCgFRHMfx7/83JTKRGhobSa+UN3vKvMV/qbyyYOksbmDvEDa2LmDvQNTsPnpx4gO6khXIOpPVMNeDg8ZslHD7EpRYq0ewC7VmrLTHrWKrgNsCV4srEuyO25up3ZhoR6shZdGnlhhpQGkNyY7EYknsXOHwe/4BAAD//wEAAP//sJoQsQAAAAAsACwAYAB2AJgAqgDIAQABMgFeAZABxAHqAlICdAKAApgCtALWAwIDIgNeA4QDpgPCA/oEJgRWBGwEeASEBI4EmgSwAAAAAQAAACIAkAAMAGMABwABAAAAAAAAAAAAAAAAAAQAA3icnJTPbhtVFMZ/TmzTCsECRVW6ie6CRZHo2FRJ1TYrh9SKRRQHjwtCQkgTz/iPMp4ZeSYO4QlY8xa8RVc8BM+BWKP5fOzYBdEmipJ8d+75851zvnOBHf5mm0r1IfBHPTFcYa9+bniLB/UTw9u061uGqzyp/Wm4RlibG67zea1n+CPeVn8z/ID96k+GH7JbbRv+mGfVHcOfbDv+Mvwp+7xd4Aq84FfDFXbJDG+xw4+Gt3mExaxUeUTTcI3P2DNcZw/oM6EgZkLCCMeQCSOumBGR4xMxY8KQiBBHhxYxhb4mBEKO0X9+DfApmBEo4pgCR4xPTEDO2CL+Iq+Uc2Uc6jSzuxYFYwIu5HFJQIIjZURKQsSl4hQUZLyiQYOcgfhmFOR45EyI8UiZMaJBlzan9BkzIcfRVqSSmU/KkIJrAuV3ZlF2ZkBEQm6srkgIxdOJXyTvDqc4umSyXY98uhHhSxzfybvklsr2Kzz9ujVmm3mXbALm6mesrsS6udYEx7ot87b4VrjgFe5e/dlk8v4ehfpfKPIFV5p/qEklYpLg3C4tfCnId49xHOncwVdHvqdDnxO6vKGvc4sePVqc0afDa/l26eH4mi5nHMujI7y4a0sxZ/yA4xs6siljR9afxcQifiYzdefiOFMdUzL1vGTuqdZIFd59wuUOpRvqyOUz0B6Vlk7zS7RnASNTRSaGU/VyqY3c+heaIqaqpZzt7X25DXPbveUW35Bqh0u1LjiVk1swet9UvXc0c60fj4CQlAtZDEiZ0qDgRrzPCbgixnGs7p1oSwpaK58yz41UEjEVgw6J4szI9Dcw3fjGfbChe2dvSSj/kunlqqr7ZHHq1e2M3qh7yzvfuhytTaBhU03X1DQQ18S0H2mn1vn78s31uqU85YiUmPBfL8AzPJrsc8AhY2UY6GZur0NTL0STlxyq+ksiWQ2l58giHODxnAMOeMnzd/q4ZOKMi1txWc/d4pgjuhx+UBUL+y5HvF59+/+sv4tpU7U4nq5OL+49xSd3UOsX2rPb97KniZWTmFu02604I2BacnG76zW5x3j/AAAA//8BAAD///S3T1F4nGJgZgCD/+cYjBiwAAAAAAD//wEAAP//LwECAwAAAA==");
+}
+.d2-2478728042 .text-italic {
+	font-family: "d2-2478728042-font-italic";
+}
+@font-face {
+	font-family: d2-2478728042-font-italic;
+	src: url("data:application/font-woff;base64,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");
+}]]></style><style type="text/css"><![CDATA[.shape {
+  shape-rendering: geometricPrecision;
+  stroke-linejoin: round;
+}
+.connection {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.blend {
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+
+		.d2-2478728042 .fill-N1{fill:#e0e0e0;}
+		.d2-2478728042 .fill-N2{fill:#9898a8;}
+		.d2-2478728042 .fill-N3{fill:#9898a8;}
+		.d2-2478728042 .fill-N4{fill:#7a7a8e;}
+		.d2-2478728042 .fill-N5{fill:#1f1c2e;}
+		.d2-2478728042 .fill-N6{fill:#191621;}
+		.d2-2478728042 .fill-N7{fill:#100e17;}
+		.d2-2478728042 .fill-B1{fill:#0fb6d6;}
+		.d2-2478728042 .fill-B2{fill:#0e96b3;}
+		.d2-2478728042 .fill-B3{fill:#0a7a93;}
+		.d2-2478728042 .fill-B4{fill:#111823;}
+		.d2-2478728042 .fill-B5{fill:#161e2a;}
+		.d2-2478728042 .fill-B6{fill:#1a2535;}
+		.d2-2478728042 .fill-AA2{fill:#f38BA8;}
+		.d2-2478728042 .fill-AA4{fill:#45475A;}
+		.d2-2478728042 .fill-AA5{fill:#313244;}
+		.d2-2478728042 .fill-AB4{fill:#45475A;}
+		.d2-2478728042 .fill-AB5{fill:#313244;}
+		.d2-2478728042 .stroke-N1{stroke:#e0e0e0;}
+		.d2-2478728042 .stroke-N2{stroke:#9898a8;}
+		.d2-2478728042 .stroke-N3{stroke:#9898a8;}
+		.d2-2478728042 .stroke-N4{stroke:#7a7a8e;}
+		.d2-2478728042 .stroke-N5{stroke:#1f1c2e;}
+		.d2-2478728042 .stroke-N6{stroke:#191621;}
+		.d2-2478728042 .stroke-N7{stroke:#100e17;}
+		.d2-2478728042 .stroke-B1{stroke:#0fb6d6;}
+		.d2-2478728042 .stroke-B2{stroke:#0e96b3;}
+		.d2-2478728042 .stroke-B3{stroke:#0a7a93;}
+		.d2-2478728042 .stroke-B4{stroke:#111823;}
+		.d2-2478728042 .stroke-B5{stroke:#161e2a;}
+		.d2-2478728042 .stroke-B6{stroke:#1a2535;}
+		.d2-2478728042 .stroke-AA2{stroke:#f38BA8;}
+		.d2-2478728042 .stroke-AA4{stroke:#45475A;}
+		.d2-2478728042 .stroke-AA5{stroke:#313244;}
+		.d2-2478728042 .stroke-AB4{stroke:#45475A;}
+		.d2-2478728042 .stroke-AB5{stroke:#313244;}
+		.d2-2478728042 .background-color-N1{background-color:#e0e0e0;}
+		.d2-2478728042 .background-color-N2{background-color:#9898a8;}
+		.d2-2478728042 .background-color-N3{background-color:#9898a8;}
+		.d2-2478728042 .background-color-N4{background-color:#7a7a8e;}
+		.d2-2478728042 .background-color-N5{background-color:#1f1c2e;}
+		.d2-2478728042 .background-color-N6{background-color:#191621;}
+		.d2-2478728042 .background-color-N7{background-color:#100e17;}
+		.d2-2478728042 .background-color-B1{background-color:#0fb6d6;}
+		.d2-2478728042 .background-color-B2{background-color:#0e96b3;}
+		.d2-2478728042 .background-color-B3{background-color:#0a7a93;}
+		.d2-2478728042 .background-color-B4{background-color:#111823;}
+		.d2-2478728042 .background-color-B5{background-color:#161e2a;}
+		.d2-2478728042 .background-color-B6{background-color:#1a2535;}
+		.d2-2478728042 .background-color-AA2{background-color:#f38BA8;}
+		.d2-2478728042 .background-color-AA4{background-color:#45475A;}
+		.d2-2478728042 .background-color-AA5{background-color:#313244;}
+		.d2-2478728042 .background-color-AB4{background-color:#45475A;}
+		.d2-2478728042 .background-color-AB5{background-color:#313244;}
+		.d2-2478728042 .color-N1{color:#e0e0e0;}
+		.d2-2478728042 .color-N2{color:#9898a8;}
+		.d2-2478728042 .color-N3{color:#9898a8;}
+		.d2-2478728042 .color-N4{color:#7a7a8e;}
+		.d2-2478728042 .color-N5{color:#1f1c2e;}
+		.d2-2478728042 .color-N6{color:#191621;}
+		.d2-2478728042 .color-N7{color:#100e17;}
+		.d2-2478728042 .color-B1{color:#0fb6d6;}
+		.d2-2478728042 .color-B2{color:#0e96b3;}
+		.d2-2478728042 .color-B3{color:#0a7a93;}
+		.d2-2478728042 .color-B4{color:#111823;}
+		.d2-2478728042 .color-B5{color:#161e2a;}
+		.d2-2478728042 .color-B6{color:#1a2535;}
+		.d2-2478728042 .color-AA2{color:#f38BA8;}
+		.d2-2478728042 .color-AA4{color:#45475A;}
+		.d2-2478728042 .color-AA5{color:#313244;}
+		.d2-2478728042 .color-AB4{color:#45475A;}
+		.d2-2478728042 .color-AB5{color:#313244;}.appendix text.text{fill:#e0e0e0}.md{--color-fg-default:#e0e0e0;--color-fg-muted:#9898a8;--color-fg-subtle:#9898a8;--color-canvas-default:#100e17;--color-canvas-subtle:#191621;--color-border-default:#0fb6d6;--color-border-muted:#0e96b3;--color-neutral-muted:#191621;--color-accent-fg:#0e96b3;--color-accent-emphasis:#0e96b3;--color-attention-subtle:#9898a8;--color-danger-fg:red;}.sketch-overlay-B1{fill:url(#streaks-dark-d2-2478728042);mix-blend-mode:overlay}.sketch-overlay-B2{fill:url(#streaks-dark-d2-2478728042);mix-blend-mode:overlay}.sketch-overlay-B3{fill:url(#streaks-dark-d2-2478728042);mix-blend-mode:overlay}.sketch-overlay-B4{fill:url(#streaks-darker-d2-2478728042);mix-blend-mode:lighten}.sketch-overlay-B5{fill:url(#streaks-darker-d2-2478728042);mix-blend-mode:lighten}.sketch-overlay-B6{fill:url(#streaks-darker-d2-2478728042);mix-blend-mode:lighten}.sketch-overlay-AA2{fill:url(#streaks-normal-d2-2478728042);mix-blend-mode:color-burn}.sketch-overlay-AA4{fill:url(#streaks-darker-d2-2478728042);mix-blend-mode:lighten}.sketch-overlay-AA5{fill:url(#streaks-darker-d2-2478728042);mix-blend-mode:lighten}.sketch-overlay-AB4{fill:url(#streaks-darker-d2-2478728042);mix-blend-mode:lighten}.sketch-overlay-AB5{fill:url(#streaks-darker-d2-2478728042);mix-blend-mode:lighten}.sketch-overlay-N1{fill:url(#streaks-normal-d2-2478728042);mix-blend-mode:color-burn}.sketch-overlay-N2{fill:url(#streaks-normal-d2-2478728042);mix-blend-mode:color-burn}.sketch-overlay-N3{fill:url(#streaks-normal-d2-2478728042);mix-blend-mode:color-burn}.sketch-overlay-N4{fill:url(#streaks-dark-d2-2478728042);mix-blend-mode:overlay}.sketch-overlay-N5{fill:url(#streaks-darker-d2-2478728042);mix-blend-mode:lighten}.sketch-overlay-N6{fill:url(#streaks-darker-d2-2478728042);mix-blend-mode:lighten}.sketch-overlay-N7{fill:url(#streaks-darker-d2-2478728042);mix-blend-mode:lighten}.light-code{display: none}.dark-code{display: block}]]></style><g class="aG9vaw=="><g class="shape" ><rect x="12.000000" y="123.000000" width="103.000000" height="80.000000" stroke="#0fb6d6" fill="#1a2535" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="63.500000" y="168.500000" fill="#e0e0e0" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">hook.bb</text></g><g class="c3luYw=="><g class="shape" ><rect x="365.000000" y="12.000000" width="377.000000" height="166.000000" stroke="#0fb6d6" fill="#111823" class=" stroke-B1 fill-B4" style="stroke-width:2;" /></g><text x="553.500000" y="45.000000" fill="#e0e0e0" class="text fill-N1" style="text-anchor:middle;font-size:28px">PreToolUse</text></g><g class="YnVz"><g class="shape" ><rect x="365.000000" y="198.000000" width="114.000000" height="66.000000" stroke="#0fb6d6" fill="#1a2535" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="422.000000" y="236.500000" fill="#e0e0e0" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">Event Bus</text></g><g class="c3luYy5kZWNpc2lvbg=="><g class="shape" ><rect x="415.000000" y="62.000000" width="277.000000" height="66.000000" stroke="#0fb6d6" fill="#161e2a" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="553.500000" y="100.500000" fill="#e0e0e0" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">allow · deny · allow-with-context</text></g><g class="KGhvb2sgLSZndDsgc3luYy5kZWNpc2lvbilbMF0="><marker id="mk-d2-2478728042-3488378134" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#0fb6d6" class="connection fill-B1" stroke-width="2" /> </marker><path d="M 117.000000 149.666000 L 145.000000 149.666000 S 155.000000 149.666000 155.000000 139.666000 L 155.000000 105.000000 S 155.000000 95.000000 165.000000 95.000000 L 411.000000 95.000000" stroke="#0fb6d6" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2478728042-3488378134)" mask="url(#d2-2478728042)" /><text x="237.500000" y="101.000000" fill="#9898a8" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">blocks — waits</text></g><g class="KGhvb2sgLSZndDsgYnVzKVswXQ=="><path d="M 117.000000 176.332993 L 145.000000 176.332993 S 155.000000 176.332993 155.000000 186.332993 L 155.000000 221.000000 S 155.000000 231.000000 165.000000 231.000000 L 361.000000 231.000000" stroke="#0fb6d6" fill="none" class="connection stroke-B1" style="stroke-width:2;" marker-end="url(#mk-d2-2478728042-3488378134)" mask="url(#d2-2478728042)" /><text x="213.000000" y="237.000000" fill="#9898a8" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">fire and forget</text></g><mask id="d2-2478728042" maskUnits="userSpaceOnUse" x="-89" y="-89" width="932" height="454">
+<rect x="-89" y="-89" width="932" height="454" fill="white"></rect>
+<rect x="188.000000" y="85.000000" width="99" height="21" fill="black"></rect>
+<rect x="164.000000" y="221.000000" width="98" height="21" fill="black"></rect>
+</mask></svg></svg></a><figcaption><a href="/preview/diagrams/blackwall-hook-split/" class="diagram-caption-link">View Blackwall Hook Split diagram →</a><div class="diagram-transcript"><p>hook.bb splits every tool call into two paths: PreToolUse goes synchronous — blocks and waits for allow, deny, or allow-with-context — while every other event fires and forgets into the Event Bus.</p></div></figcaption></figure></p>
+<p><code>config.edn</code> drives all of it. Which guards run on which tools, which consumers handle which event types, what the vault schema looks like — all data, none of it hardcoded.</p>
+<p>One paragraph on types: I use Malli throughout. If you know Prismatic Schema, Malli is its data-driven successor — schemas are vectors, not types. <code>[:map [:id :string] [:type :keyword]]</code> is just EDN. That matters for the same reason everything else in this post matters.</p>
+<hr />
+<a class="toc-back" href="#toc">↑ Contents</a><h2 id="step-one-schema-to-edn">Step one: schema to EDN</h2>
+<p>When I first built blackwall, the vault schema — which note types exist, what fields they require, what confidence values are valid — lived in <code>config.bb</code> as Clojure defaults. Reasonable starting point. Get it working first.</p>
+<p>The problem surfaced quickly. Changing the schema meant touching Clojure code. Testing a schema change meant reloading the namespace. The schema wasn't really a configuration; it was data that had been written in code because that was the path of least resistance.</p>
+<p>In commit <code>698c9f5</code> I moved it to <code>config.edn</code> and threaded the config through the validator pipeline. Now <code>config.edn</code> owned the vault roots, the type taxonomy, the confidence enum, the field requirements. The validators read it; they didn't define it.</p>
+<p>That surfaced the next problem. The schema format was custom — a bespoke set of keys I'd invented: <code>:required-fields</code>, <code>:enums</code>, <code>:conditional-fields</code>. It worked, but it was ad-hoc. I was maintaining a schema description format alongside the actual schema. That's two things to keep in sync.</p>
+<p>In <code>31471d1</code> I replaced it with pure Malli notation directly in config.edn:</p>
+<pre><code class="language-clojure">:base-schema
+[:and
+ [:map
+  [:id         :string]
+  [:type       [:enum :daily :inbox :zettel :spark :post :reference ...]]
+  [:confidence [:enum :canonical :working :evidence :speculative :superseded]]
+  [:created    :string]]
+ [:multi {:dispatch :confidence}
+  [:superseded [:map [:superseded-by :string]]]
+  [:canonical  [:map [:last-verified :string]]]
+  [:malli.core/default [:map]]]]
+</code></pre>
+<p>The <code>write-pipeline</code> validator, which validates frontmatter on every Write, dropped from 14 hand-rolled check functions to a single <code>m/explain</code> call against the schema. Not 14 functions reduced to 1 — 14 functions <em>replaced</em> by a schema that already existed in the config and just needed to be pointed at.</p>
+<p>The insight here: schema is just data describing data. Of course it belongs in data. Malli made this obvious — because a Malli schema is a vector, it can live anywhere vectors can live. Including config.edn.</p>
+<hr />
+<a class="toc-back" href="#toc">↑ Contents</a><h2 id="step-two-logic-to-edn">Step two: logic to EDN</h2>
+<p>The read pipeline validator annotates vault notes when you read them. A <code>confidence: superseded</code> note gets a prompt telling you it's been replaced and where the replacement is. A <code>confidence: speculative</code> note gets a reminder that it's a hypothesis, not truth. A stale <code>canonical</code> note warns you the last-verified date is beyond the threshold.</p>
+<p>Originally this was Clojure. A sequence of <code>cond</code> branches, each checking a frontmatter field and returning a string if the check triggered. The strings were literals in the code. Changing the wording of an annotation — even fixing a typo — meant editing a <code>.bb</code> file.</p>
+<p>In <code>1e7e074</code> I moved the checks into <code>:read-checks</code> in <code>config.edn</code>:</p>
+<pre><code class="language-clojure">:read-checks
+[{:match   {:has :superseded-by}
+  :context &quot;This note is superseded. The latest version is: {{superseded-by}}.
+            Follow the chain — prefer the latest version unless you need the historical record.&quot;}
+
+ {:match   {:eq [:confidence :speculative]}
+  :context &quot;confidence: speculative — this is a hypothesis, not truth.
+            Use as context for exploration, not as guidance for decisions.&quot;}
+
+ {:match   [{:eq [:confidence :canonical]} {:stale :last-verified}]
+  :context &quot;confidence: canonical but last-verified is {{stale-age}} days ago
+            (threshold: {{stale-days}} days). Treat as working until re-verified.&quot;}]
+</code></pre>
+<p>Match primitives: <code>:eq</code>, <code>:has</code>, <code>:missing</code>, <code>:stale</code>. Compound matches are AND. Context strings support <code>{{field}}</code> interpolation. The <code>read_pipeline</code> validator became a generic interpreter — it walks the rules, evaluates matches, returns the first hit.</p>
+<p>Adding a new epistemic check is now a config change. The commit message said it plainly: <em>&quot;adding or rewording a check is a config change, not a code change.&quot;</em></p>
+<p>The insight: if logic only varies by configuration, it's data in disguise. The variation table <em>was already in the code</em> as <code>cond</code> branches. Moving it to config didn't change the semantics — it just put the data where data belongs.</p>
+<hr />
+<a class="toc-back" href="#toc">↑ Contents</a><h2 id="step-three-the-adapter">Step three: the adapter</h2>
+<p>After schema and logic moved to EDN, there was one remaining coupling that stood out precisely because everything around it was already clean.</p>
+<p>Gate validators and event consumers were loaded by convention. Each one was a <code>.bb</code> file. The daemon found them by resolving a path from their <code>:name</code> in <code>config.edn</code> — <code>read-pipeline</code> became <code>validators/read_pipeline.bb</code>. Once loaded, it called <code>defn validate</code> or <code>defn handle</code> by convention. No explicit contract. No type. Just a naming agreement.</p>
+<p>This meant two things. First, the &quot;contract&quot; was implicit — implement the right function name, return the right shape, or things break silently. Second, the core validator loop was doing I/O in its hot path — calling <code>script/load-fn</code> to find and load the file on every hook invocation.</p>
+<p>I refactored this to explicit <code>defmulti</code> ports:</p>
+<pre><code class="language-clojure">;; port.bb
+(defmulti gate    (fn [adapter _ctx]   (:adapter/type adapter)))
+(defmulti consume (fn [adapter _event] (:adapter/type adapter)))
+</code></pre>
+<p>Each validator became a <code>defmethod</code>:</p>
+<pre><code class="language-clojure">;; validators/read_pipeline.bb
+(defmethod port/gate :read-pipeline [_ {:keys [tool-name tool-input config]}]
+  ...)
+</code></pre>
+<p>And <code>config.edn</code> got <code>:adapter/type</code> instead of <code>:name</code>:</p>
+<pre><code class="language-clojure">:validators [{:adapter/type :read-pipeline
+              :enabled      true
+              :tools        #{:read}
+              :on-error     :pass
+              :timeout-ms   2000}
+             ...]
+</code></pre>
+<p>The daemon loads all adapter files at startup — one <code>load-file</code> per validator, before binding any sockets. After that, <code>port/gate</code> dispatches through in-memory <code>defmethod</code> registrations. No file I/O in the hot path. No convention contract. No implicit agreement.</p>
+<p>The adapter map from <code>config.edn</code> flows directly into <code>port/gate</code>. <code>(:adapter/type adapter)</code> drives dispatch. The same map carries configuration — <code>:timeout-ms</code>, <code>:on-error</code>, <code>:tools</code>. You don't need a separate registration step or a factory. The config entry is the adapter.</p>
+<p>The Malli types evolved alongside this to enforce the contracts properly. Gate votes from individual validators and the aggregated gate decision are distinct types. Return types are discriminated unions — no bare <code>nil</code> or <code>string</code>, always a map with a <code>:decision</code> key:</p>
+<pre><code class="language-clojure">(def GateVote
+  [:or
+   [:map [:decision [:= :pass]]]
+   [:map [:decision [:= :deny]]   [:reason  :string]]
+   [:map [:decision [:= :allow]]  [:context :string]]])
+</code></pre>
+<p>Named enums constrain keyword values that used to be unchecked:</p>
+<pre><code class="language-clojure">(def ToolName
+  [:enum :read :write :bash :edit :glob :grep :notebook-edit :agent :skill ...])
+
+(def ErrorPolicy [:enum :pass :block])
+</code></pre>
+<p>Malli instrumentation runs in production — violations log to <code>blackwalld.log</code>. They never reach the hook output. If an adapter returns the wrong shape, it surfaces at the port boundary, not three layers deep in formatting code.</p>
+<hr />
+<a class="toc-back" href="#toc">↑ Contents</a><h2 id="what-flows-through-the-bus">What flows through the bus</h2>
+<p>Here's what a real event looks like, captured by an external subscriber connected to <code>subscribe.sock</code>:</p>
+<pre><code class="language-json">{
+  &quot;event-id&quot;:    &quot;01KM45GV...&quot;,
+  &quot;event-type&quot;:  &quot;tool-invoked&quot;,
+  &quot;occurred-at&quot;: &quot;2026-03-19T23:05:06.364626Z&quot;,
+  &quot;session-id&quot;:  &quot;dcbc5674-bcf6-4721-9514-d694534de273&quot;,
+  &quot;cwd&quot;:         &quot;/Users/joao.lopes/dev/Calcifer&quot;,
+  &quot;tool-name&quot;:   &quot;Glob&quot;,
+  &quot;tool-input&quot;:  {
+    &quot;pattern&quot;: &quot;sparks/*.md&quot;,
+    &quot;path&quot;:    &quot;/Users/joao.lopes/dev/Calcifer&quot;
+  }
+}
+</code></pre>
+<p>Every tool call. Every session start and stop. Every subagent lifecycle event. Typed, timestamped, with ULIDs for time-ordered sorting.</p>
+<p>An external subscriber connects to <code>subscribe.sock</code> and receives the stream as NDJSON. It doesn't need to know about blackwall's internals. It doesn't need to be running when the event fires — that's a trade-off I accept; this is a local daemon, not a durable queue. What it does get is a clean, typed event surface to build on.</p>
+<p>I'm building a queryable history system — Mikoshi — that will subscribe to this bus and maintain a local database of everything Claude did, when, in which session. The bus doesn't need to know that yet. It just publishes.</p>
+<hr />
+<a class="toc-back" href="#toc">↑ Contents</a><h2 id="adding-a-new-gate-rule">Adding a new gate rule</h2>
+<p>To make this concrete: here's what adding a new validator looks like with this architecture.</p>
+<p>I wanted blackwall to enforce a vault convention: <code>reference</code> and <code>zettel</code> notes — the permanent knowledge layer — shouldn't be edited in-place. Neither should notes with <code>confidence: canonical</code> (except skills, which are canonical but continuously evolving). When knowledge evolves, you create a new note and supersede the old one. The old note becomes a permanent historical record. Everything else — inbox, sparks, post drafts — is mutable by design.</p>
+<p>Two files. No core changes.</p>
+<p>First, register it in <code>config.edn</code>:</p>
+<pre><code class="language-clojure">{:adapter/type :supersession-guard
+ :enabled      true
+ :tools        #{:edit :write}
+ :on-error     :pass
+ :timeout-ms   2000}
+</code></pre>
+<p>Then implement <code>defmethod port/gate :supersession-guard</code>. The logic checks the <em>result</em> of the edit, not the intent: apply the change, parse the resulting frontmatter, and ask whether it produces a properly superseded note — one with both <code>confidence: superseded</code> and <code>superseded-by</code> set. If yes, the agent is completing the supersession workflow, so pass. If no, deny.</p>
+<p>When an agent tries to edit <code>Ports and Adapters from the Domain Out — v2.md</code> in-place, this is what it sees:</p>
+<pre><code>&quot;Ports and Adapters from the Domain Out — v2&quot; is protected (type: reference)
+— edit in-place is not allowed.
+
+To update this note:
+1. Create a new note with the improved content
+2. Add superseded-by: [[Ports and Adapters from the Domain Out — v2]]
+   to the OLD note's frontmatter
+3. Change the OLD note's confidence to: superseded
+
+The old note becomes a permanent historical record.
+The new note is the living version.
+</code></pre>
+<p>The daemon picks up the new validator on restart — <code>load-adapters!</code> calls <code>load-file</code> on everything registered in config. No changes to the runner, the gate server, or <code>hook.bb</code>.</p>
+<p>One operational detail worth knowing: there's a single daemon process serving all Claude Code sessions on the machine. A validator change merged to main and followed by a daemon restart propagates to every active session simultaneously. The flip side: if you're iterating on a validator in a git worktree and the daemon is loading from the main repo path, your changes won't be picked up until you merge. It looks like a stale daemon — it's actually two different files. Restart after merge, not before.</p>
+<p>One thing happened while writing this post. I tried to edit the draft to add this very section. The validator blocked me — the initial policy protected all <code>confidence: working</code> notes, and this post has <code>confidence: working</code>. A draft post you're actively writing shouldn't trigger supersession enforcement. That's a design gap, not a bug: the right boundary is semantic, not epistemic. <code>reference</code> and <code>zettel</code> notes are knowledge artifacts — their evolution chain is worth preserving. Post drafts are work artifacts — they're mutable by design.</p>
+<p>Two commits to fix it: switch from confidence-based protection to type-based. The system told me the spec was incomplete.</p>
+<hr />
+<a class="toc-back" href="#toc">↑ Contents</a><h2 id="why-this-matters-as-a-foundation">Why this matters as a foundation</h2>
+<p>Gate rules are data. Adding a new constraint on how Claude interacts with the vault is a config entry and a <code>defmethod</code>. I don't touch infrastructure. The gate is composable because the components are data.</p>
+<p>Domain events flow to a bus. Any tool in the ecosystem can connect to <code>subscribe.sock</code> and receive the typed event stream. The architecture is open in the right direction — not the &quot;we'll add a plugin system later&quot; direction, but the &quot;the event surface is already there, go build something&quot; direction.</p>
+<p>There's a subtler reason this matters. Canonic rules live in <code>CLAUDE.md</code> — they're instructions, and they depend on the agent reading and following them. Subagents dispatched mid-session get a fresh load of <code>CLAUDE.md</code>, but a careless prompt or a model that rationalizes past a rule leaves gaps. Blackwall hooks fire at the process level, wired in <code>.claude/settings.json</code>. It doesn't matter if the write came from the main conversation, a background subagent, or a parallel dispatch — the hook fires unconditionally. The supersession guard doesn't care who's writing. Rules are session-scoped. Hooks are universal.</p>
+<p>The design principle that shaped each of these decisions wasn't a rule I followed consciously. It was a question I kept asking: <em>why isn't this data?</em> When I had a good answer, I left it in code. When I didn't, I moved it to EDN.</p>
+<p>The question keeps finding new targets.</p>
+<a class="toc-back" href="#toc">↑ Contents</a><h2 id="related">Related</h2>
+<ul>
+<li>[[Blackwall Ports &amp; Adapters Refactoring Design — blackwall]] — the spec for the Chapter 4 refactoring</li>
+<li>[[Ports and Adapters from the Domain Out — v2]] — the P&amp;A playbook applied in Chapter 4</li>
+<li>[[Blog — Content Plan]] — series context</li>
+</ul>
+<aside class="colophon">This post was drafted by an AI agent, reviewed by another, and revised by me.</aside><p class="reply-cta">Thoughts? <a href="mailto:joao@joaolopes.dev.br">Reply by email</a></p><div class="share-cta"><span class="share-label">Share</span><a class="icon-link" href="#" onclick="navigator.clipboard.writeText(&apos;https://joaolopes.dev.br/posts/hooks-and-why-i-built-blackwall/&apos;);this.textContent=&apos;Copied!&apos;;setTimeout(()=&gt;this.textContent=&apos;Copy link&apos;,2000);return false;"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1zM9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"></path></svg>Copy link</a><a class="icon-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fjoaolopes.dev.br%2Fposts%2Fhooks-and-why-i-built-blackwall%2F" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"></path></svg>LinkedIn</a><a class="icon-link" href="https://x.com/intent/post?url=https%3A%2F%2Fjoaolopes.dev.br%2Fposts%2Fhooks-and-why-i-built-blackwall%2F&amp;text=Hooks+%E2%80%94+and+why+I+built+Blackwall+" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75zm-.86 13.028h1.36L4.323 2.145H2.865z"></path></svg>Twitter</a><a class="icon-link" href="https://bsky.app/intent/compose?text=Hooks+%E2%80%94+and+why+I+built+Blackwall+https%3A%2F%2Fjoaolopes.dev.br%2Fposts%2Fhooks-and-why-i-built-blackwall%2F" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14"><path d="M8 1.5C4.134 1.5 1 4.358 1 7.89c0 2.13 1.129 4.006 2.84 5.12L3.5 14.5l1.68-.672A7.07 7.07 0 0 0 8 14.28a7.07 7.07 0 0 0 2.82-.452L12.5 14.5l-.34-1.49C13.871 11.896 15 10.02 15 7.89 15 4.358 11.866 1.5 8 1.5zM5.5 9a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm3 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm3 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1z"></path></svg>Bluesky</a></div></article></main><footer><p>© 2026 <a href="https://github.com/j0a0m4" rel="noopener noreferrer" target="_blank">João Lopes</a></p><p>Theme inspired by <a href="https://github.com/bennyxguo/Obsidian-Obsidianite" rel="noopener noreferrer" target="_blank">Obsidianite</a></p></footer></body></html>
