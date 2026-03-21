@@ -15,10 +15,6 @@
   (with-static-server ["public/" 3001]
     (e/with-driver :chrome ci-opts driver
       (e/go driver (base-url 3001 "/posts/building-your-ai-toolkit/"))
-      ;; Diagnostic: print page title to CI log to confirm correct page loaded
-      (println "PAGE TITLE:" (e/get-title driver))
-      (println "PAGE URL:" (e/get-url driver))
-      ;; Wait for DOM ready — ensures page loaded before querying
       (e/wait-visible driver {:css "abbr.glossary-term"} {:timeout 10})
       (let [term (e/query driver {:css "abbr.glossary-term"})]
         (is (not (e/visible? driver {:css ".glossary-tooltip.visible"})))
