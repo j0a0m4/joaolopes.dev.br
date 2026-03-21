@@ -2,23 +2,38 @@ name: e2e
 
 on:
   pull_request:
-    paths:
-      - 'posts/**'
-      - 'src/**'
-      - 'resources/**'
-      - 'assets/**'
-      - 'test/e2e-playwright/**'
-      - 'deps.edn'
-      - 'shadow-cljs.edn'
-      - 'package.json'
-      - 'playwright.config.js'
 
 permissions:
   contents: read
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            code:
+              - 'src/**'
+              - 'test/**'
+              - 'posts/**'
+              - 'glossary/**'
+              - 'pages/**'
+              - 'resources/**'
+              - 'assets/**'
+              - 'deps.edn'
+              - 'config.edn'
+              - 'shadow-cljs.edn'
+              - 'package.json'
+              - 'playwright.config.js'
 
   build:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -52,21 +67,11 @@ jobs:
           retention-days: 1
 
   e2e-tests:
-    needs: build
+    needs: [changes, build]
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: DeLaGuardo/setup-clojure@13.1
-        with:
-          cli: latest
-      - name: Cache Clojure deps
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.m2/repository
-            ~/.gitlibs
-            .cpcache
-          key: clj-v2-${{ hashFiles('deps.edn') }}
       - name: Cache npm deps
         uses: actions/cache@v4
         with:

@@ -12,3 +12,5 @@ CLAUDE.md
 .superpowers/brainstorm/**/.server-stopped
 .superpowers/brainstorm/**/.server.log
 .superpowers/brainstorm/**/.server.pid
+.superpowers/
+docs/superpowers/

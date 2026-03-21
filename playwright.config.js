@@ -15,7 +15,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "clojure -M -i test/serve_static.clj",
+    command: process.env.CI
+      ? "npx --yes serve public -l 3001 --no-clipboard"
+      : "clojure -M -i test/serve_static.clj",
     port: 3001,
     reuseExistingServer: !process.env.CI,
   },

@@ -6,9 +6,12 @@ on:
     branches: [main]
     paths:
       - 'posts/**'
+      - 'glossary/**'
+      - 'pages/**'
       - 'src/**'
       - 'resources/**'
       - 'assets/**'
+      - 'config.edn'
       - 'deps.edn'
       - 'shadow-cljs.edn'
       - 'package.json'
