@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1" name="viewport" /><meta content="dark" name="color-scheme" /><title>João Lopes</title><meta content="Writing about AI-first engineering" name="description" /><link href="https://fonts.googleapis.com" rel="preconnect" /><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" /><link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&amp;display=swap" rel="stylesheet" /><link href="/preview/css/style.css" rel="stylesheet" /><link href="/preview/favicon.svg" rel="icon" type="image/svg+xml" /><link href="/preview/feed.xml" rel="alternate" title="João Lopes" type="application/rss+xml" /><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css" rel="stylesheet" /><script defer="defer" src="/js/main.js"></script></head><body><header><nav><a class="site-logo" href="/preview/"><svg aria-hidden="true" class="logo" height="40" viewBox="0 0 32 32" width="40"><path class="logo-path" d="M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>João Lopes</a><button aria-controls="nav-menu" aria-expanded="false" aria-label="Menu" class="nav-toggle" id="nav-toggle"><span aria-hidden="true" class="hamburger-icon">☰</span></button><span class="nav-links" id="nav-menu"><a href="/preview/">Posts</a><a href="/preview/tags/">Tags</a><a href="/preview/glossary/">Glossary</a><a href="/preview/diagrams/">Diagrams</a><a href="/preview/about/">About</a><a href="/preview/feed.xml">RSS</a></span></nav></header><main><div class="diagram-page"><h1 class="diagram-title">Pre Pr Pipeline</h1><div class="diagram-full"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 1075">
+  <defs>
+    <marker id="uc-arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7a7a8e"/>
+    </marker>
+    <marker id="uc-arr-cyan" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0fb6d6"/>
+    </marker>
+  </defs>
+
+  <!-- ① User trigger -->
+  <rect x="280" y="20" width="200" height="80" rx="8" fill="#191621" stroke="rgba(14,210,247,0.3)" stroke-width="2"/>
+  <text x="380" y="52" text-anchor="middle" class="svg-heading svg-accent">/pre-pr</text>
+  <text x="380" y="78" text-anchor="middle" class="svg-sub svg-muted">💬 "ready to rock"</text>
+
+  <!-- Arrow: trigger → Prep -->
+  <line x1="380" y1="100" x2="380" y2="160" stroke="#7a7a8e" stroke-width="1.5" marker-end="url(#uc-arr)"/>
+
+  <!-- ① Prep group border -->
+  <rect x="40" y="160" width="680" height="150" rx="10" fill="none" stroke="rgba(14,210,247,0.15)" stroke-width="1" stroke-dasharray="6 4"/>
+  <text x="56" y="182" class="svg-group-label svg-muted">① Prep</text>
+
+  <!-- LLM node -->
+  <rect x="60" y="190" width="270" height="105" rx="8" fill="#191621" stroke="rgba(14,210,247,0.4)" stroke-width="1.5"/>
+  <text x="195" y="226" text-anchor="middle" class="svg-heading svg-accent">🧠 LLM</text>
+  <text x="195" y="256" text-anchor="middle" class="svg-sub svg-muted">classify files · prep context</text>
+
+  <!-- Arrow: LLM → engram -->
+  <line x1="330" y1="243" x2="410" y2="243" stroke="#0fb6d6" stroke-width="1.5" marker-end="url(#uc-arr-cyan)"/>
+
+  <!-- engram CLI node -->
+  <rect x="410" y="190" width="270" height="105" rx="8" fill="#191621" stroke="rgba(255,140,0,0.4)" stroke-width="1.5"/>
+  <text x="545" y="226" text-anchor="middle" class="svg-heading svg-fg">⚙️ engram</text>
+  <text x="545" y="256" text-anchor="middle" class="svg-sub svg-muted">git summary · repl-stop</text>
+
+  <!-- Arrow: Prep → Run -->
+  <line x1="380" y1="310" x2="380" y2="380" stroke="#7a7a8e" stroke-width="1.5" marker-end="url(#uc-arr)"/>
+
+  <!-- ② Run group border -->
+  <rect x="40" y="380" width="680" height="300" rx="10" fill="none" stroke="rgba(14,210,247,0.15)" stroke-width="1" stroke-dasharray="6 4"/>
+  <text x="56" y="402" class="svg-group-label svg-muted">② Run — 4 agents in parallel</text>
+
+  <!-- Lint node -->
+  <rect x="60" y="410" width="300" height="125" rx="8" fill="#191621" stroke="rgba(244,86,157,0.35)" stroke-width="1.5"/>
+  <text x="210" y="446" text-anchor="middle" class="svg-heading svg-pink">🔍 Lint</text>
+  <text x="210" y="474" text-anchor="middle" class="svg-sub svg-muted">lein lint | engram parse</text>
+  <text x="210" y="494" text-anchor="middle" class="svg-sub svg-muted">→ structured findings</text>
+
+  <!-- Unit Tests node -->
+  <rect x="400" y="410" width="300" height="125" rx="8" fill="#191621" stroke="rgba(244,86,157,0.35)" stroke-width="1.5"/>
+  <text x="550" y="446" text-anchor="middle" class="svg-heading svg-pink">🧪 Unit Tests</text>
+  <text x="550" y="474" text-anchor="middle" class="svg-sub svg-muted">lein unit</text>
+  <text x="550" y="494" text-anchor="middle" class="svg-sub svg-muted">→ pass · fail · count</text>
+
+  <!-- Integration node -->
+  <rect x="60" y="552" width="300" height="115" rx="8" fill="#191621" stroke="rgba(244,86,157,0.35)" stroke-width="1.5"/>
+  <text x="210" y="588" text-anchor="middle" class="svg-heading svg-pink">🔗 Integration &amp; Screens</text>
+  <text x="210" y="616" text-anchor="middle" class="svg-sub svg-muted">lein integration</text>
+  <text x="210" y="636" text-anchor="middle" class="svg-sub svg-muted">lein flutter-test</text>
+
+  <!-- Code Review node -->
+  <rect x="400" y="552" width="300" height="115" rx="8" fill="#191621" stroke="rgba(244,86,157,0.35)" stroke-width="1.5"/>
+  <text x="550" y="588" text-anchor="middle" class="svg-heading svg-pink">📋 Code Review</text>
+  <text x="550" y="616" text-anchor="middle" class="svg-sub svg-muted">Atlassian MCP → card</text>
+  <text x="550" y="636" text-anchor="middle" class="svg-sub svg-muted">→ arch · story · risk</text>
+
+  <!-- Arrow: Run → Synthesise -->
+  <line x1="380" y1="680" x2="380" y2="748" stroke="#7a7a8e" stroke-width="1.5" marker-end="url(#uc-arr)"/>
+
+  <!-- ③ Synthesise node -->
+  <rect x="130" y="748" width="500" height="115" rx="8" fill="#191621" stroke="rgba(14,210,247,0.4)" stroke-width="1.5"/>
+  <text x="380" y="784" text-anchor="middle" class="svg-heading svg-accent">③ Synthesise</text>
+  <text x="380" y="812" text-anchor="middle" class="svg-sub svg-muted">violations · coverage · risk</text>
+  <text x="380" y="832" text-anchor="middle" class="svg-sub svg-muted">→ action items · gate</text>
+
+  <!-- Arrow: Synthesise → Ship -->
+  <line x1="380" y1="863" x2="380" y2="928" stroke="#7a7a8e" stroke-width="1.5" marker-end="url(#uc-arr)"/>
+
+  <!-- ④ Ship group border -->
+  <rect x="40" y="928" width="680" height="130" rx="10" fill="none" stroke="rgba(14,210,247,0.15)" stroke-width="1" stroke-dasharray="6 4"/>
+  <text x="56" y="948" class="svg-group-label svg-muted">④ Ship</text>
+
+  <!-- LLM decide node -->
+  <rect x="60" y="958" width="240" height="90" rx="8" fill="#191621" stroke="rgba(14,210,247,0.4)" stroke-width="1.5"/>
+  <text x="180" y="990" text-anchor="middle" class="svg-heading svg-accent">🧠 LLM</text>
+  <text x="180" y="1018" text-anchor="middle" class="svg-sub svg-fg">decide</text>
+
+  <!-- Arrow: LLM decide → CLI -->
+  <line x1="300" y1="1003" x2="380" y2="1003" stroke="#0fb6d6" stroke-width="1.5" marker-end="url(#uc-arr-cyan)"/>
+
+  <!-- CLI ship node -->
+  <rect x="380" y="958" width="320" height="90" rx="8" fill="#191621" stroke="rgba(255,140,0,0.4)" stroke-width="1.5"/>
+  <text x="540" y="990" text-anchor="middle" class="svg-heading svg-fg">⚙️ commit · PR</text>
+  <text x="540" y="1018" text-anchor="middle" class="svg-sub svg-muted">in review · notify</text>
+
+</svg>
+</div><div class="diagram-transcript"><p>Pre Pr Pipeline</p></div></div></main><footer><p>© 2026 <a href="https://github.com/j0a0m4" rel="noopener noreferrer" target="_blank">João Lopes</a></p><p>Theme inspired by <a href="https://github.com/bennyxguo/Obsidian-Obsidianite" rel="noopener noreferrer" target="_blank">Obsidianite</a></p></footer></body></html>
