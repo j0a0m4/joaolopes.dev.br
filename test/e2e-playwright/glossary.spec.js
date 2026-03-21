@@ -69,3 +69,19 @@ test.describe("glossary index", () => {
     expect(count).toBeGreaterThan(0);
   });
 });
+
+test.describe("glossary tooltip content", () => {
+  test("blog-qa check 21: glossary tooltip shows definition text", async ({
+    page,
+  }) => {
+    await page.goto(POST_WITH_GLOSSARY);
+    const term = page.locator("abbr.glossary-term").first();
+    test.skip((await term.count()) === 0, "No glossary terms on page");
+
+    await term.dispatchEvent("click");
+    const tooltip = page.locator(".glossary-tooltip.visible");
+    await expect(tooltip).toBeVisible();
+    const tooltipText = await tooltip.textContent();
+    expect(tooltipText.length).toBeGreaterThan(0);
+  });
+});

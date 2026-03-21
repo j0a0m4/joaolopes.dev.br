@@ -45,4 +45,23 @@ test.describe("tags index", () => {
     const posts = page.locator("main a[href^='/posts/']");
     expect(await posts.count()).toBeGreaterThan(0);
   });
+
+  test("blog-qa check 23: tag page shows posts matching that tag", async ({
+    page,
+  }) => {
+    await page.goto("/tags/");
+    const firstPill = page.locator(".tag-pill").first();
+    test.skip((await firstPill.count()) === 0, "No tags found");
+
+    // Read the href to get the exact tag slug instead of parsing textContent
+    // (textContent includes the count span, e.g. "#ai-first-engineering1")
+    const href = await firstPill.getAttribute("href");
+    const tagSlug = href.replace(/^\/tags\//, "").replace(/\/$/, "");
+    await firstPill.click();
+    await page.waitForURL(/\/tags\//);
+    const heading = await page.locator("h1").textContent();
+    expect(heading.toLowerCase()).toContain(tagSlug.toLowerCase());
+    const posts = page.locator('a[href^="/posts/"]');
+    expect(await posts.count()).toBeGreaterThan(0);
+  });
 });

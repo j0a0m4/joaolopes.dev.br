@@ -1,6 +1,24 @@
 import { test, expect } from "@playwright/test";
 
-// blog-qa checks 3, 4, 5, 7, 18, 19
+// blog-qa checks 3, 4, 5, 7, 18, 19, 20
+
+/** Returns the href of the first post (among the first `limit`) that has .series-nav, or null. */
+async function findSeriesPostHref(page, limit = 5) {
+  await page.goto("/");
+  const postLocators = page.locator('main a[href^="/posts/"]');
+  const count = await postLocators.count();
+  const hrefs = [];
+  for (let i = 0; i < Math.min(count, limit); i++) {
+    hrefs.push(await postLocators.nth(i).getAttribute("href"));
+  }
+  for (const href of hrefs) {
+    await page.goto(href);
+    if ((await page.locator(".series-nav").count()) > 0) {
+      return href;
+    }
+  }
+  return null;
+}
 
 test.describe("homepage", () => {
   test("renders post list", async ({ page }) => {
@@ -76,5 +94,18 @@ test.describe("about page", () => {
 
     const mainText = await page.locator("main").textContent();
     expect(mainText.length).toBeGreaterThan(50);
+  });
+});
+
+test.describe("series navigation", () => {
+  test("blog-qa check 20: series post has prev/next navigation", async ({
+    page,
+  }) => {
+    const seriesPostHref = await findSeriesPostHref(page);
+    test.skip(seriesPostHref === null, "No series posts found — skip");
+
+    await page.goto(seriesPostHref);
+    const links = page.locator(".series-nav a");
+    expect(await links.count()).toBeGreaterThan(0);
   });
 });
