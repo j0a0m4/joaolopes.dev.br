@@ -23,10 +23,6 @@
   (.removeAttribute link "aria-describedby")
   (.remove (.-classList tooltip) "visible"))
 
-(defn- glossary-link? [el]
-  (and (= "A" (.-tagName el))
-       (some-> (.getAttribute el "href") (.startsWith "/glossary/"))))
-
 (defn- slug-from-href [href]
   (-> href (str/replace #"^/glossary/" "") (str/replace #"/$" "")))
 
