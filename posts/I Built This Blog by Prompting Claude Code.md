@@ -32,7 +32,7 @@ The repo is [public](https://github.com/j0a0m4/joaolopes.dev.br). Every commit, 
 
 I didn't open a text editor. I ran `/spark`.
 
-[[glossary:skills|`/spark`]] is a skill in my vault — it takes a raw idea, evaluates it from multiple angles, and produces a structured output. I told it what I wanted: a blog reading from my Obsidian vault, built in Clojure, deployed to GitHub Pages. One session later, before a single line of code existed, the blog had a shape.
+`/spark` is a [[glossary:skills|skill]] in my vault — it takes a raw idea, evaluates it from multiple angles, and produces a structured output. I told it what I wanted: a blog reading from my Obsidian vault, built in Clojure, deployed to GitHub Pages. One session later, before a single line of code existed, the blog had a shape.
 
 I also knew what it should look like. I use Obsidian with the [Obsidianite](https://github.com/bencodezen/obsidianite) theme — dark background, purple accents, clean typography. I wanted the blog to feel like the place I write. I asked Claude to replicate it, and it did. The footer credits the creator. **If you're going to be inspired by someone's work, name them.**
 
@@ -72,7 +72,7 @@ I reverted the GitHub Actions deployment. And then I stopped adding features.
 
 ## Two tools that closed the loop
 
-The revert was the turning point. Two things changed everything: `superpowers` and `chrome-devtools-mcp`.
+The revert was the turning point. Two things changed everything.
 
 `superpowers` wires planning discipline into every session before you type a word. A [[glossary:session-start|SessionStart]] [[glossary:hooks|hook]] — a script that runs each time Claude Code opens — fires at the beginning of every session and injects one meta-[[glossary:skills|skill]] into Claude's [[glossary:context-window|context]]: _if there's even a 1% chance a relevant skill exists, invoke it before doing anything_. That's it. The skills superpowers ships aren't loaded into context — they sit on disk and lazy-load on demand. When you describe something to build, Claude steps back, extracts a spec from the conversation, writes an implementation plan, gets your sign-off, then executes — dispatching [[glossary:subagent|sub-agents]] per task, each with a fresh [[glossary:context-window|context window]].
 
