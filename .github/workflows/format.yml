@@ -26,101 +26,33 @@ jobs:
               - 'test/e2e-playwright/**'
               - '.prettierrc'
 
-  # Same-repo PRs only: apply formatters and push. Fork PRs cannot receive GITHUB_TOKEN pushes.
-  format-apply:
+  format-clj:
     needs: changes
-    if: >-
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      (needs.changes.outputs.clj == 'true' || needs.changes.outputs.js == 'true')
+    if: needs.changes.outputs.clj == 'true'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: DeLaGuardo/setup-clojure@13.1
-        if: needs.changes.outputs.clj == 'true'
         with:
           cli: latest
-
-      - name: Cache Clojure deps
-        if: needs.changes.outputs.clj == 'true'
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.m2/repository
             ~/.gitlibs
             .cpcache
           key: clj-v2-${{ hashFiles('deps.edn') }}
+      - run: clojure -M:cljfmt check
 
-      - name: cljfmt fix
-        if: needs.changes.outputs.clj == 'true'
-        run: clojure -M:cljfmt fix
-
-      - name: Cache npm deps
-        if: needs.changes.outputs.js == 'true'
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('package-lock.json') }}
-
-      - name: Install Node deps
-        if: needs.changes.outputs.js == 'true'
-        run: npm ci
-
-      - name: Prettier write
-        if: needs.changes.outputs.js == 'true'
-        run: npx prettier --write test/e2e-playwright/
-
-      - name: Commit and push if needed
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          if git diff --staged --quiet; then
-            echo "No formatting changes."
-          else
-            git commit -m "💅🏻 Apply cljfmt and Prettier"
-            git push
-          fi
-
-  # Fork PRs: keep a strict check (no push possible with GITHUB_TOKEN).
-  format-check-fork:
+  format-js:
     needs: changes
-    if: >-
-      github.event.pull_request.head.repo.full_name != github.repository &&
-      (needs.changes.outputs.clj == 'true' || needs.changes.outputs.js == 'true')
+    if: needs.changes.outputs.js == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: DeLaGuardo/setup-clojure@13.1
-        if: needs.changes.outputs.clj == 'true'
-        with:
-          cli: latest
-      - name: Cache Clojure deps
-        if: needs.changes.outputs.clj == 'true'
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.m2/repository
-            ~/.gitlibs
-            .cpcache
-          key: clj-v2-${{ hashFiles('deps.edn') }}
-      - name: Check Clojure formatting
-        if: needs.changes.outputs.clj == 'true'
-        run: clojure -M:cljfmt check
-      - name: Cache npm deps
-        if: needs.changes.outputs.js == 'true'
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.npm
           key: npm-${{ hashFiles('package-lock.json') }}
-      - name: Install Node deps
-        if: needs.changes.outputs.js == 'true'
-        run: npm ci
-      - name: Check JS formatting
-        if: needs.changes.outputs.js == 'true'
-        run: npx prettier --check test/e2e-playwright/
+      - run: npm ci
+      - run: npx prettier --check test/e2e-playwright/
