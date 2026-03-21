@@ -80,7 +80,7 @@
 
 (deftest expand-wikilinks-test
   (let [glossary [{:title "Skill" :slug "skill" :definition "A reusable behaviour."}]
-        posts    [{:content {:body "Use a [[glossary:Skill]] to reuse behaviour."}}]
+        posts    [{:content {:body "Use a [[glossary:skill]] to reuse behaviour."}}]
         result   (domain/expand-wikilinks posts glossary)
         body     (get-in (first result) [:content :body])
         doc      (-> (str "<div>" body "</div>") hickory/parse hickory/as-hickory)

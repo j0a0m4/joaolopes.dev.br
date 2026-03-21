@@ -250,5 +250,5 @@
         (or display term)))))
 
 (defn expand-wikilinks [posts glossary]
-  (let [by-title (into {} (map (juxt :title identity) glossary))]
-    (map #(update-in % [:content :body] expand-post-wikilinks by-title) posts)))
+  (let [by-slug (into {} (map (juxt :slug identity) glossary))]
+    (map #(update-in % [:content :body] expand-post-wikilinks by-slug) posts)))
