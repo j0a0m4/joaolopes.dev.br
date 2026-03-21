@@ -166,3 +166,40 @@
   (let [html "<img src=\"/assets/nonexistent-diagram.svg\" alt=\"missing\">"
         result (render/inline-svgs html)]
     (is (= html result) "missing SVG leaves img tag unchanged")))
+
+(deftest render-rss-test
+  (let [posts [post-fixture]
+        xml   (render/render-rss posts config)]
+    (is (re-find #"<rss " xml) "RSS root element")
+    (is (re-find #"<item>" xml) "has items")
+    (is (re-find #"<title>Hello World</title>" xml) "item title")
+    (is (re-find #"<link>" xml) "item link")
+    (is (re-find #"<pubDate>" xml) "item pubDate")))
+
+(deftest render-sitemap-test
+  (let [posts    [post-fixture]
+        glossary [{:slug "skill" :title "Skill" :definition "A unit." :related []}]
+        diagrams []
+        xml      (render/render-sitemap posts glossary diagrams config)]
+    (is (re-find #"<urlset" xml) "sitemap root")
+    (is (re-find #"<loc>" xml) "has locations")
+    (is (re-find #"/posts/hello-world/" xml) "post URL in sitemap")
+    (is (re-find #"/glossary/skill/" xml) "glossary URL in sitemap")))
+
+(deftest series-pages-routes-test
+  (let [series {:my-series [{:identity {:slug "p1"} :taxonomy {:series {:id :my-series :order 1 :title "S"}}}]}
+        pages  (render/series-pages series config)]
+    (is (contains? pages "/series/my-series/"))))
+
+(deftest feed-pages-routes-test
+  (let [pages (render/feed-pages [post-fixture] config)]
+    (is (contains? pages "/feed.xml"))
+    (is (contains? pages "/llms.txt"))))
+
+(deftest render-glossary-index-test
+  (let [glossary [{:slug "skill" :title "Skill" :definition "A unit." :related []}
+                  {:slug "agent" :title "Agent" :definition "An actor." :related []}]
+        html     (render/render-glossary-index glossary config)
+        doc      (-> html hickory/parse hickory/as-hickory)]
+    (is (seq (sel/select (sel/find-in-text #"Skill") doc)) "first entry")
+    (is (seq (sel/select (sel/find-in-text #"Agent") doc)) "second entry")))
