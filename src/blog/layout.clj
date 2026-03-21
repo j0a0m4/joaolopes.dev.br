@@ -1,5 +1,6 @@
 (ns blog.layout
-  (:require [clojure.data.json :as json]
+  (:require [blog.domain :as domain]
+            [clojure.data.json :as json]
             [clojure.string :as str]
             [hiccup2.core :as h]))
 
@@ -203,7 +204,7 @@
               desc    (get-in p [:content :description])]
           [:li
            [:a {:href (href* purl)} ptitle]
-           [:time {:datetime (str pub-on)} (str pub-on)]
+           [:time {:datetime pub-on} (domain/display-date pub-on)]
            (when desc [:p.description desc])]))]]))
 
 (defn tag-index-layout
@@ -222,7 +223,7 @@
               desc   (get-in p [:content :description])]
           [:li
            [:a {:href (href* purl)} ptitle]
-           [:time {:datetime (str pub-on)} (str pub-on)]
+           [:time {:datetime pub-on} (domain/display-date pub-on)]
            (when desc [:p.description desc])]))]]))
 
 (defn tags-overview-layout
@@ -314,9 +315,9 @@
      [:article {:data-pagefind-body ""}
       [:h1 title]
       [:div.post-dateline
-       "Published " [:time {:datetime (str published)} (str published)]
+       "Published " [:time {:datetime published} (domain/display-date published)]
        (when updated
-         (list " · Updated " [:time {:datetime (str updated)} (str updated)]))]
+         (list " · Updated " [:time {:datetime updated} (domain/display-date updated)]))]
       (into [:div.share-cta [:span.share-label "Share"]] share-links)
       (when (seq tags)
         [:div.tags
@@ -357,7 +358,7 @@
                 tags   (get-in p [:taxonomy :tags] [])]
             [:li
              [:a {:href (href* url)} title]
-             [:time {:datetime (str pub-on)} (str pub-on)]
+             [:time {:datetime pub-on} (domain/display-date pub-on)]
              (when desc [:p.description desc])
              (when (seq tags)
                [:span.tags
@@ -428,17 +429,62 @@
            [:div.diagram-card-body
             [:p.diagram-card-title diag-title]]]))]]))
 
-;;; ── Feed / sitemap stubs (to be implemented in blog.system) ─────────────────
+;;; ── Feed / sitemap ───────────────────────────────────────────────────────────
+
+(defn- xml-escape [s]
+  (-> (str s)
+      (str/replace "&" "&amp;")
+      (str/replace "<" "&lt;")
+      (str/replace ">" "&gt;")
+      (str/replace "\"" "&quot;")))
 
 (defn rss-xml
-  "RSS 2.0 feed XML. Stub — real implementation stays in blog.pages for now."
-  [posts config]
-  (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?><rss version=\"2.0\"></rss>"))
+  "RSS 2.0 feed XML."
+  [posts {:keys [site-url site-title site-desc]}]
+  (let [items (for [p posts]
+                (let [title  (get-in p [:identity :title])
+                      slug   (get-in p [:identity :slug])
+                      date   (get-in p [:dates :published-on])
+                      desc   (get-in p [:content :description] "")
+                      link   (str site-url "/posts/" slug "/")]
+                  (str "<item>"
+                       "<title>" (xml-escape title) "</title>"
+                       "<link>" link "</link>"
+                       "<guid isPermaLink=\"true\">" link "</guid>"
+                       "<pubDate>" (domain/rfc822-date date) "</pubDate>"
+                       "<description>" (xml-escape desc) "</description>"
+                       "</item>")))]
+    (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+         "<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">"
+         "<channel>"
+         "<title>" (xml-escape site-title) "</title>"
+         "<link>" site-url "</link>"
+         "<description>" (xml-escape site-desc) "</description>"
+         "<atom:link href=\"" site-url "/feed.xml\" rel=\"self\" type=\"application/rss+xml\"/>"
+         (str/join items)
+         "</channel>"
+         "</rss>")))
 
 (defn sitemap-xml
-  "Sitemap XML. Stub — real implementation stays in blog.pages for now."
-  [posts glossary diagrams config]
-  (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?><urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"></urlset>"))
+  "Sitemap XML."
+  [posts glossary diagrams {:keys [site-url]}]
+  (let [post-urls    (for [p posts]
+                       (str site-url "/posts/" (get-in p [:identity :slug]) "/"))
+        glossary-urls (for [g glossary]
+                        (str site-url "/glossary/" (:slug g) "/"))
+        diagram-urls  (for [d diagrams]
+                        (str site-url "/diagrams/" (:slug d) "/"))
+        static-urls   [(str site-url "/")
+                       (str site-url "/glossary/")
+                       (str site-url "/tags/")
+                       (str site-url "/diagrams/")
+                       (str site-url "/about/")]
+        all-urls      (concat static-urls post-urls glossary-urls diagram-urls)]
+    (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+         "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">"
+         (str/join (for [url all-urls]
+                     (str "<url><loc>" url "</loc></url>")))
+         "</urlset>")))
 
 (defn llms-txt
   "llms.txt plain text. Stub — real implementation stays in blog.pages for now."
