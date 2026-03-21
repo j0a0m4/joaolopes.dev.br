@@ -3,22 +3,6 @@
             [clojure.string :as str]
             [hiccup2.core :as h]))
 
-(def site-title "João Lopes")
-(def site-url "https://joaolopes.dev.br")
-(def site-description "Notes on software, systems, and thinking tools.")
-
-;; Base path for GitHub Pages subpath hosting. Set to "" for custom domain.
-(def base-path (or (System/getenv "BASE_PATH") ""))
-
-(defn href
-  "Prepends base-path to an absolute path."
-  [path]
-  (str base-path path))
-
-(defn absolute-url
-  "Full URL for a site-relative path."
-  [path]
-  (str site-url path))
 
 (defn series-path
   "Canonical path for a series index page."
@@ -40,273 +24,224 @@
   [slug]
   (str "/glossary/" slug "/"))
 
+;;; ── Base layout ──────────────────────────────────────────────────────────────
+
+(defn base-layout
+  "Full HTML document. content is a hiccup vector to embed in <main>.
+   config has :site-title :site-url :site-desc :base-path.
+   Single serialization boundary — all other layout fns return hiccup data."
+  [content {:keys [site-title site-url site-desc base-path]
+            :or   {site-title "João Lopes"
+                   site-url   "https://joaolopes.dev.br"
+                   site-desc  "Notes on software, systems, and thinking tools."
+                   base-path  ""}}]
+  (let [bp (or base-path (System/getenv "BASE_PATH") "")
+        href* #(str bp %)]
+    (str
+     "<!DOCTYPE html>\n"
+     (h/html
+      [:html {:lang "en"}
+       [:head
+        [:meta {:charset "utf-8"}]
+        [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+        [:meta {:name "color-scheme" :content "dark"}]
+        [:title site-title]
+        [:meta {:name "description" :content site-desc}]
+        [:link {:rel "preconnect" :href "https://fonts.googleapis.com"}]
+        [:link {:rel "preconnect" :href "https://fonts.gstatic.com" :crossorigin ""}]
+        [:link {:rel "stylesheet"
+                :href "https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"}]
+        [:link {:rel "stylesheet" :href (href* "/css/style.css")}]
+        [:link {:rel "icon" :type "image/svg+xml" :href (href* "/favicon.svg")}]
+        [:link {:rel "alternate" :type "application/rss+xml"
+                :title site-title :href (href* "/feed.xml")}]
+        [:link {:rel "stylesheet"
+                :href "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css"}]
+        [:script {:src "/js/main.js" :defer true}]]
+       [:body
+        [:header
+         [:nav
+          [:a.site-logo {:href (href* "/")}
+           [:svg.logo {:viewBox "0 0 32 32" :width "40" :height "40" :aria-hidden "true"}
+            [:path.logo-path {:d "M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z"
+                              :fill "none" :stroke "currentColor" :stroke-width "2"
+                              :stroke-linecap "round" :stroke-linejoin "round"}]]
+           site-title]
+          [:button.nav-toggle
+           {:id            "nav-toggle"
+            :aria-expanded "false"
+            :aria-controls "nav-menu"
+            :aria-label "Menu"}
+           [:span.hamburger-icon {:aria-hidden "true"} "☰"]]
+          [:span#nav-menu.nav-links
+           [:a {:href (href* "/")} "Posts"]
+           [:a {:href (href* "/tags/")} "Tags"]
+           [:a {:href (href* "/glossary/")} "Glossary"]
+           [:a {:href (href* "/diagrams/")} "Diagrams"]
+           [:a {:href (href* "/about/")} "About"]
+           [:a {:href (href* "/feed.xml")} "RSS"]]]]
+        [:main content]
+        [:footer
+         [:p (str "© " (.getYear (java.time.LocalDate/now)) " ")
+          [:a {:href "https://github.com/j0a0m4" :target "_blank" :rel "noopener noreferrer"} "João Lopes"]]
+         [:p "Theme inspired by "
+          [:a {:href "https://github.com/bennyxguo/Obsidian-Obsidianite"
+               :target "_blank" :rel "noopener noreferrer"} "Obsidianite"]]]]]))))
+
+;;; ── Glossary layouts ─────────────────────────────────────────────────────────
+
 (defn glossary-index-layout
-  "A-Z sorted list of all published glossary entries."
-  [entries]
-  (let [sorted  (sort-by #(str/lower-case (:title %)) entries)
-        grouped (group-by #(str/upper-case (subs (:title %) 0 1)) sorted)]
+  "A-Z sorted list of all published glossary entries. Returns hiccup."
+  [entries config]
+  (let [bp        (or (:base-path config) (System/getenv "BASE_PATH") "")
+        href*     #(str bp %)
+        sorted    (sort-by #(str/lower-case (:title %)) entries)
+        grouped   (group-by #(str/upper-case (subs (:title %) 0 1)) sorted)]
     [:article.glossary-index
      [:h1 "Glossary"]
      [:p.subtitle "Definitions for terms used across the blog."]
-     (for [[letter entries] (sort-by first grouped)]
+     (for [[letter es] (sort-by first grouped)]
        [:section.glossary-letter {:id (str/lower-case letter)}
         [:h2 letter]
         [:ul
-         (for [{:keys [title slug definition]} entries]
+         (for [{:keys [title slug definition]} es]
            [:li
-            [:a {:href (href (glossary-path slug))} title]
+            [:a {:href (href* (glossary-path slug))} title]
             " — "
             definition])]])]))
 
 (defn glossary-entry-layout
-  "Single glossary entry page — article-style.
-   entry has :title :html-body and :related-links [{:label :slug}]."
-  [entry]
-  [:article.glossary-entry
-   [:h1 (:title entry)]
-   [:p.glossary-back [:a {:href (href "/glossary/")} "← Glossary"]]
-   [:div.glossary-body
-    (h/raw (:html-body entry))]
-   (when (seq (:related-links entry))
-     [:nav.glossary-related
-      [:span "Related: "]
-      (interpose " · "
-        (for [{:keys [label slug]} (:related-links entry)]
-          [:a {:href (href (glossary-path slug))} label]))])])
+  "Single glossary entry page. entry has :title :html-body :related-links. Returns hiccup."
+  [entry config]
+  (let [bp    (or (:base-path config) (System/getenv "BASE_PATH") "")
+        href* #(str bp %)]
+    [:article.glossary-entry
+     [:h1 (:title entry)]
+     [:p.glossary-back [:a {:href (href* "/glossary/")} "← Glossary"]]
+     [:div.glossary-body
+      (h/raw (or (:html-body entry) ""))]
+     (when (seq (:related-links entry))
+       [:nav.glossary-related
+        [:span "Related: "]
+        (interpose " · "
+          (for [{:keys [label slug]} (:related-links entry)]
+            [:a {:href (href* (glossary-path slug))} label]))])]))
 
-(defn base-layout
-  "Full HTML document. body is a hiccup vector to embed in <main>.
-   Single serialization boundary — all other layout fns return hiccup data."
-  [title description body]
-  (str
-   "<!DOCTYPE html>\n"
-   (h/html
-    [:html {:lang "en"}
-     [:head
-      [:meta {:charset "utf-8"}]
-      [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
-      [:meta {:name "color-scheme" :content "dark"}]
-      [:title (if title (str title " — " site-title) site-title)]
-      [:meta {:name "description" :content (or description site-description)}]
-      [:link {:rel "preconnect" :href "https://fonts.googleapis.com"}]
-      [:link {:rel "preconnect" :href "https://fonts.gstatic.com" :crossorigin ""}]
-      [:link {:rel "stylesheet"
-              :href "https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"}]
-      [:link {:rel "stylesheet" :href (href "/css/style.css")}]
-      [:link {:rel "icon" :type "image/svg+xml" :href (href "/favicon.svg")}]
-      [:link {:rel "alternate" :type "application/rss+xml"
-              :title site-title :href (href "/feed.xml")}]
-      [:link {:rel "stylesheet"
-              :href "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css"}]
-      [:script {:src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"}]
-      [:script (h/raw "document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el)));")]
-      [:script {:type "module"}
-       (h/raw "import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-        document.querySelectorAll('pre > code.language-mermaid').forEach(code => {
-          const pre = code.parentElement;
-          const div = document.createElement('pre');
-          div.className = 'mermaid';
-          div.textContent = code.textContent;
-          pre.replaceWith(div);
-        });
-        mermaid.initialize({ startOnLoad: true, theme: 'dark' });")]
-      [:script
-       (h/raw "document.addEventListener('DOMContentLoaded', () => {
-  const btn = document.querySelector('.nav-toggle');
-  const menu = document.getElementById('nav-menu');
-  if (!btn || !menu) return;
-
-  // Hide on mobile only — not server-rendered, so desktop without JS sees links
-  if (window.matchMedia('(max-width: 480px)').matches) {
-    menu.setAttribute('hidden', '');
-    // TOC starts open (server-rendered); close it on mobile
-    const toc = document.querySelector('.toc-details');
-    if (toc) toc.removeAttribute('open');
-  }
-
-  btn.addEventListener('click', () => {
-    const open = btn.getAttribute('aria-expanded') === 'true';
-    btn.setAttribute('aria-expanded', String(!open));
-    menu.toggleAttribute('hidden');
-    btn.querySelector('.hamburger-icon').textContent = open ? '\\u2630' : '\\u2715';
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') {
-      btn.setAttribute('aria-expanded', 'false');
-      menu.setAttribute('hidden', '');
-      btn.querySelector('.hamburger-icon').textContent = '\\u2630';
-      btn.focus();
-    }
-  });
-});
-
-// Glossary term click-to-show inline definition
-document.addEventListener('DOMContentLoaded', () => {
-  const tip = document.createElement('div');
-  tip.id = 'glossary-tip';
-  tip.setAttribute('role', 'tooltip');
-  tip.setAttribute('hidden', '');
-  document.body.appendChild(tip);
-
-  document.querySelectorAll('abbr.glossary-term').forEach(abbr => {
-    abbr.querySelector('a').addEventListener('click', e => {
-      e.preventDefault();
-      const def = abbr.getAttribute('title');
-      const href = e.currentTarget.getAttribute('href');
-      if (tip._source === abbr && !tip.hasAttribute('hidden')) {
-        tip.setAttribute('hidden', ''); tip._source = null; return;
-      }
-      tip._source = abbr;
-      tip.innerHTML = def + ' <a href=\"' + href + '\">→</a>';
-      tip.removeAttribute('hidden');
-      const r = abbr.getBoundingClientRect();
-      tip.style.top = (r.bottom + window.scrollY + 6) + 'px';
-      tip.style.left = Math.min(r.left + window.scrollX, window.innerWidth - 280) + 'px';
-    });
-  });
-
-  document.addEventListener('click', e => {
-    if (!e.target.closest('abbr.glossary-term') && !e.target.closest('#glossary-tip'))
-      tip.setAttribute('hidden', '');
-  });
-});
-
-// Scroll restoration: save position when clicking a diagram link, restore on back
-(function() {
-  if (history.scrollRestoration) history.scrollRestoration = 'manual';
-  const key = 'scroll:' + location.pathname;
-  const saved = sessionStorage.getItem(key);
-  if (saved !== null) {
-    sessionStorage.removeItem(key);
-    // Restore after DOM is parsed and layout is complete
-    document.addEventListener('DOMContentLoaded', () => {
-      requestAnimationFrame(() => window.scrollTo(0, parseInt(saved, 10)));
-    });
-  }
-  document.addEventListener('click', (e) => {
-    const a = e.target.closest('.diagram-link, .diagram-caption-link, .diagram-card');
-    if (a) sessionStorage.setItem('scroll:' + location.pathname, window.scrollY);
-  });
-})();")]]
-     [:body
-      [:header
-       [:nav
-        [:a.site-logo {:href (href "/")}
-         [:svg.logo {:viewBox "0 0 32 32" :width "40" :height "40" :aria-hidden "true"}
-          [:path.logo-path {:d "M16 16c-2-2.5-4-4.5-6-4.5a4.5 4.5 0 1 0 0 9c2 0 4-2 6-4.5zm0 0c2 2.5 4 4.5 6 4.5a4.5 4.5 0 1 0 0-9c-2 0-4 2-6 4.5z"
-                            :fill "none" :stroke "currentColor" :stroke-width "2"
-                            :stroke-linecap "round" :stroke-linejoin "round"}]]
-         site-title]
-        [:button.nav-toggle
-         {:aria-expanded "false"
-          :aria-controls "nav-menu"
-          :aria-label "Menu"}
-         [:span.hamburger-icon {:aria-hidden "true"} "☰"]]
-        [:span#nav-menu.nav-links
-         [:a {:href (href "/")} "Posts"]
-         [:a {:href (href "/tags/")} "Tags"]
-         [:a {:href (href "/glossary/")} "Glossary"]
-         [:a {:href (href "/diagrams/")} "Diagrams"]
-         [:a {:href (href "/about/")} "About"]
-         [:a {:href (href "/feed.xml")} "RSS"]]]]
-      [:main body]
-      [:footer
-       [:p (str "© " (.getYear (java.time.LocalDate/now)) " ")
-        [:a {:href "https://github.com/j0a0m4" :target "_blank" :rel "noopener noreferrer"} "João Lopes"]]
-       [:p "Theme inspired by "
-        [:a {:href "https://github.com/bennyxguo/Obsidian-Obsidianite"
-             :target "_blank" :rel "noopener noreferrer"} "Obsidianite"]]]]])))
+;;; ── Series / tag helpers ─────────────────────────────────────────────────────
 
 (defn- series-toc
   "Ordered list of series posts, current one highlighted. Returns hiccup."
-  [{:keys [series-posts series-title series-slug]} current-slug]
-  [:aside.series-toc
-   [:p.series-label
-    [:a {:href (href (series-path series-slug))} series-title]]
-   [:ol
-    (for [p series-posts]
-      (let [active? (= (:slug p) current-slug)]
-        [:li {:class (when active? "current")}
-         (if active?
-           [:strong (:title p)]
-           [:a {:href (href (:url p))} (:title p)])]))]])
+  [{:keys [series-posts series-title series-slug]} current-slug config]
+  (let [bp    (or (:base-path config) (System/getenv "BASE_PATH") "")
+        href* #(str bp %)]
+    [:aside.series-toc
+     [:p.series-label
+      [:a {:href (href* (series-path series-slug))} series-title]]
+     [:ol
+      (for [p series-posts]
+        (let [active? (= (get-in p [:identity :slug]) current-slug)]
+          [:li {:class (when active? "current")}
+           (if active?
+             [:strong (get-in p [:identity :title])]
+             [:a {:href (href* (or (:url p) (str "/posts/" (get-in p [:identity :slug]) "/")))}
+              (get-in p [:identity :title])])]))]]))
 
 (defn- series-nav
   "Prev/next navigation block with link to series index. Returns hiccup."
-  [{:keys [prev next series-slug series-title]}]
-  [:nav.series-nav
-   (if prev
-     [:a.series-prev {:href (href (:url prev))}
-      (str "\u2190 " (:title prev))]
-     [:span])
-   [:a.series-index {:href (href (series-path series-slug))}
-    series-title]
-   (if next
-     [:a.series-next {:href (href (:url next))}
-      (str (:title next) " \u2192")]
-     [:span])])
+  [{:keys [prev next series-slug series-title]} config]
+  (let [bp    (or (:base-path config) (System/getenv "BASE_PATH") "")
+        href* #(str bp %)]
+    [:nav.series-nav
+     (if prev
+       [:a.series-prev {:href (href* (or (:url prev) (str "/posts/" (get-in prev [:identity :slug]) "/")))}
+        (str "\u2190 " (get-in prev [:identity :title]))]
+       [:span])
+     [:a.series-index {:href (href* (series-path series-slug))}
+      series-title]
+     (if next
+       [:a.series-next {:href (href* (or (:url next) (str "/posts/" (get-in next [:identity :slug]) "/")))}
+        (str (get-in next [:identity :title]) " \u2192")]
+       [:span])]))
 
 (defn- series-json-ld
   "JSON-LD BlogPosting with isPartOf CreativeWorkSeries. Returns hiccup."
-  [{:keys [title published-on description url series-order]} {:keys [series-title series-slug]}]
-  (let [ld {"@context" "https://schema.org"
-             "@type" "BlogPosting"
-             "headline" title
-             "datePublished" (str published-on)
-             "url" (absolute-url url)
-             "author" {"@type" "Person" "name" "João Lopes"}
-             "isPartOf" {"@type" "CreativeWorkSeries"
-                         "name" series-title
-                         "url" (absolute-url (series-path series-slug))}
-             "position" series-order}
-        ld (cond-> ld description (assoc "description" description))]
+  [post {:keys [series-title series-slug]} config]
+  (let [site-url* (:site-url config)
+        title     (get-in post [:identity :title])
+        pub-on    (get-in post [:dates :published-on])
+        desc      (get-in post [:content :description])
+        slug      (get-in post [:identity :slug])
+        url       (str "/posts/" slug "/")
+        order     (get-in post [:taxonomy :series :order])
+        ld        (cond-> {"@context"    "https://schema.org"
+                           "@type"       "BlogPosting"
+                           "headline"    title
+                           "datePublished" (str pub-on)
+                           "url"         (str site-url* url)
+                           "author"      {"@type" "Person" "name" "João Lopes"}
+                           "isPartOf"    {"@type" "CreativeWorkSeries"
+                                          "name"  series-title
+                                          "url"   (str site-url* (series-path series-slug))}
+                           "position"    order}
+                    desc (assoc "description" desc))]
     [:script {:type "application/ld+json"} (h/raw (json/write-str ld))]))
 
 (defn series-index-layout
-  "Full series index page with title, count, ordered list. Returns hiccup."
-  [slug posts]
-  (let [title (:series-title (first posts))]
+  "Full series index page. Returns hiccup."
+  [slug posts config]
+  (let [bp    (or (:base-path config) (System/getenv "BASE_PATH") "")
+        href* #(str bp %)
+        title (or (get-in (first posts) [:taxonomy :series :title]) (str slug))]
     [:div.series-index
      [:h1 title]
      [:p.series-count (str (count posts) " post" (when (not= 1 (count posts)) "s") " in this series")]
      [:ol.series-full-toc
       (for [p posts]
-        [:li
-         [:a {:href (href (:url p))} (:title p)]
-         [:time {:datetime (str (:published-on p))} (str (:published-on p))]
-         (when (:description p)
-           [:p.description (:description p)])])]]))
+        (let [ptitle  (get-in p [:identity :title])
+              purl    (str "/posts/" (get-in p [:identity :slug]) "/")
+              pub-on  (get-in p [:dates :published-on])
+              desc    (get-in p [:content :description])]
+          [:li
+           [:a {:href (href* purl)} ptitle]
+           [:time {:datetime (str pub-on)} (str pub-on)]
+           (when desc [:p.description desc])]))]]))
 
 (defn tag-index-layout
-  "Tag index page with tag name, count, unordered post list. Returns hiccup."
-  [tag posts]
-  [:div.tag-index
-   [:h1 (str "#" tag)]
-   [:p.series-count (str (count posts) " post" (when (not= 1 (count posts)) "s") " with this tag")]
-   [:ul.tag-full-toc
-    (for [p posts]
-      [:li
-       [:a {:href (href (:url p))} (:title p)]
-       [:time {:datetime (str (:published-on p))} (str (:published-on p))]
-       (when (:description p)
-         [:p.description (:description p)])])]])
+  "Tag index page. Returns hiccup."
+  [tag posts config]
+  (let [bp    (or (:base-path config) (System/getenv "BASE_PATH") "")
+        href* #(str bp %)]
+    [:div.tag-index
+     [:h1 (str "#" (name tag))]
+     [:p.series-count (str (count posts) " post" (when (not= 1 (count posts)) "s") " with this tag")]
+     [:ul.tag-full-toc
+      (for [p posts]
+        (let [ptitle (get-in p [:identity :title])
+              purl   (str "/posts/" (get-in p [:identity :slug]) "/")
+              pub-on (get-in p [:dates :published-on])
+              desc   (get-in p [:content :description])]
+          [:li
+           [:a {:href (href* purl)} ptitle]
+           [:time {:datetime (str pub-on)} (str pub-on)]
+           (when desc [:p.description desc])]))]]))
 
 (defn tags-overview-layout
-  "All-tags overview page. Shows every tag as a pill with post count. Returns hiccup."
-  [tag-map]
-  [:div.tags-overview
-   [:h1 "Tags"]
-   [:div.tags-cloud
-    (for [[tag posts] tag-map]
-      [:a.tag-pill {:href (href (tag-path tag))}
-       (str "#" tag)
-       [:span.tag-count (str (count posts))]])]])
+  "All-tags overview page. Returns hiccup."
+  [tag-map config]
+  (let [bp    (or (:base-path config) (System/getenv "BASE_PATH") "")
+        href* #(str bp %)]
+    [:div.tags-overview
+     [:h1 "Tags"]
+     [:div.tags-cloud
+      (for [[tag posts] tag-map]
+        [:a.tag-pill {:href (href* (tag-path (name tag)))}
+         (str "#" (name tag))
+         [:span.tag-count (str (count posts))]])]]))
+
+;;; ── TOC helper ───────────────────────────────────────────────────────────────
 
 (defn- toc-nav
-  "Table of contents from extracted headings. Returns hiccup or nil.
-   Uses <details>/<summary> for native collapse on mobile — no JS needed.
-   Desktop CSS forces it open via min-width: 481px override."
+  "Table of contents from extracted headings. Returns hiccup or nil."
   [headings]
   (when (seq headings)
     (let [h2s           (filter #(= 2 (:level %)) headings)
@@ -326,10 +261,12 @@ document.addEventListener('DOMContentLoaded', () => {
                  (for [s subs]
                    [:li [:a {:href (str "#" (:anchor s))} (:text s)]])])]))]]])))
 
+;;; ── Icon helpers ─────────────────────────────────────────────────────────────
+
 (defn- icon-link
-  "Renders an anchor with an inline SVG icon + label. Centered via flex."
-  [href label icon-path & [{:keys [target onclick extra-class]}]]
-  [:a (cond-> {:href href :class (str "icon-link" (when extra-class (str " " extra-class)))}
+  "Renders an anchor with an inline SVG icon + label."
+  [href-str label icon-path & [{:keys [target onclick extra-class]}]]
+  [:a (cond-> {:href href-str :class (str "icon-link" (when extra-class (str " " extra-class)))}
         target  (assoc :target target :rel "noopener noreferrer")
         onclick (assoc :onclick onclick))
    [:svg {:viewBox "0 0 16 16" :width "14" :height "14" :aria-hidden "true"}
@@ -343,122 +280,167 @@ document.addEventListener('DOMContentLoaded', () => {
    :copy    "M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1zM9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"
    :github  "M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"})
 
+;;; ── Post layout ──────────────────────────────────────────────────────────────
+
 (defn post-layout
-  "Article layout for a single post. Returns hiccup."
-  ([post html-body] (post-layout post html-body nil nil))
-  ([post html-body series-ctx] (post-layout post html-body series-ctx nil))
-  ([{:keys [title published-on updated-on tags slug linkedin-url url filename] :as post} html-body series-ctx toc]
-   (let [post-url   (java.net.URLEncoder/encode (absolute-url url) "UTF-8")
+  "Article layout for a single post. Returns hiccup.
+   Nested domain model keys: :identity {:title :slug} :content {:body :description}
+     :dates {:published-on :updated-on} :taxonomy {:tags :series}
+     :external {:linkedin-url} :navigation {:prev :next}
+   config: {:site-url :base-path}
+   Optional extra-ctx: {:html-body :series-ctx :toc} for pre-rendered content."
+  ([post config] (post-layout post config nil))
+  ([post config {:keys [html-body series-ctx toc]}]
+   (let [bp         (or (:base-path config) (System/getenv "BASE_PATH") "")
+         href*      #(str bp %)
+         site-url*  (:site-url config)
+         title      (get-in post [:identity :title])
+         slug       (get-in post [:identity :slug])
+         published  (get-in post [:dates :published-on])
+         updated    (get-in post [:dates :updated-on])
+         tags       (get-in post [:taxonomy :tags] [])
+         linkedin   (get-in post [:external :linkedin-url])
+         url        (str "/posts/" slug "/")
+         post-url   (java.net.URLEncoder/encode (str site-url* url) "UTF-8")
          post-title (java.net.URLEncoder/encode (str title " ") "UTF-8")
-         raw-url    (when filename
-                      (str "https://raw.githubusercontent.com/j0a0m4/joaolopes.dev.br/main/posts/"
-                           (str/replace (java.net.URLEncoder/encode filename "UTF-8") "+" "%20")))
-         share-links (concat
-                       [(icon-link "#" "Copy link" (:copy icons)
-                                   {:onclick (str "navigator.clipboard.writeText('" (absolute-url url) "');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy link',2000);return false;")})
-                        (icon-link (str "https://www.linkedin.com/sharing/share-offsite/?url=" post-url)
-                                   "LinkedIn" (:linkedin icons) {:target "_blank"})
-                        (icon-link (str "https://x.com/intent/post?url=" post-url "&text=" post-title)
-                                   "Twitter" (:x icons) {:target "_blank"})
-                        (icon-link (str "https://bsky.app/intent/compose?text=" post-title post-url)
-                                   "Bluesky" (:bluesky icons) {:target "_blank"})]
-                       (when raw-url
-                         [(icon-link raw-url "RAW Markdown" (:github icons)
-                                     {:target "_blank" :extra-class "raw-link"})]))]
-   [:article {:data-pagefind-body ""}
-    [:h1 title]
-    [:div.post-dateline
-     "Published " [:time {:datetime (str published-on)} (str published-on)]
-     (when updated-on
-       (list " · Updated " [:time {:datetime (str updated-on)} (str updated-on)]))]
-    (into [:div.share-cta [:span.share-label "Share"]] share-links)
-    (when (seq tags)
-      [:div.tags
-       (for [tag tags]
-         [:a.tag {:href (href (tag-path (name tag)))} (str "#" (name tag))])])
-    (toc-nav toc)
-    (h/raw html-body)
-    (when series-ctx
-      (series-toc series-ctx slug))
-    [:aside.colophon
-     "This post was drafted by an AI agent, reviewed by another, and revised by me."]
-    [:p.reply-cta
-     "Thoughts? "
-     [:a {:href "mailto:joao@joaolopes.dev.br"} "Reply by email"]
-     (when linkedin-url
-       (list " · "
-             [:a {:href linkedin-url :target "_blank" :rel "noopener noreferrer"} "My LinkedIn post"]))]
-    (into [:div.share-cta [:span.share-label "Share"]] share-links)
-    (when series-ctx
-      (series-nav series-ctx))
-    (when series-ctx
-      (series-json-ld post series-ctx))])))
+         share-links [(icon-link "#" "Copy link" (:copy icons)
+                                 {:onclick (str "navigator.clipboard.writeText('" (str site-url* url) "');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy link',2000);return false;")})
+                      (icon-link (str "https://www.linkedin.com/sharing/share-offsite/?url=" post-url)
+                                 "LinkedIn" (:linkedin icons) {:target "_blank"})
+                      (icon-link (str "https://x.com/intent/post?url=" post-url "&text=" post-title)
+                                 "Twitter" (:x icons) {:target "_blank"})
+                      (icon-link (str "https://bsky.app/intent/compose?text=" post-title post-url)
+                                 "Bluesky" (:bluesky icons) {:target "_blank"})]]
+     [:article {:data-pagefind-body ""}
+      [:h1 title]
+      [:div.post-dateline
+       "Published " [:time {:datetime (str published)} (str published)]
+       (when updated
+         (list " · Updated " [:time {:datetime (str updated)} (str updated)]))]
+      (into [:div.share-cta [:span.share-label "Share"]] share-links)
+      (when (seq tags)
+        [:div.tags
+         (for [tag tags]
+           [:a.tag {:href (href* (tag-path (name tag)))} (str "#" (name tag))])])
+      (toc-nav toc)
+      (when html-body (h/raw html-body))
+      (when series-ctx (series-toc series-ctx slug config))
+      [:aside.colophon
+       "This post was drafted by an AI agent, reviewed by another, and revised by me."]
+      [:p.reply-cta
+       "Thoughts? "
+       [:a {:href "mailto:joao@joaolopes.dev.br"} "Reply by email"]
+       (when linkedin
+         (list " · "
+               [:a {:href linkedin :target "_blank" :rel "noopener noreferrer"} "My LinkedIn post"]))]
+      (into [:div.share-cta [:span.share-label "Share"]] share-links)
+      (when series-ctx (series-nav series-ctx config))
+      (when series-ctx (series-json-ld post series-ctx config))])))
+
+;;; ── Index layout ─────────────────────────────────────────────────────────────
+
+(defn index-layout
+  "Post list for the index page. Returns hiccup."
+  [posts config]
+  (let [bp    (or (:base-path config) (System/getenv "BASE_PATH") "")
+        href* #(str bp %)]
+    [:div.index
+     [:h1 "Posts"]
+     (if (seq posts)
+       [:ul.post-list
+        (for [p posts]
+          (let [title  (get-in p [:identity :title])
+                slug   (get-in p [:identity :slug])
+                url    (str "/posts/" slug "/")
+                pub-on (get-in p [:dates :published-on])
+                desc   (get-in p [:content :description])
+                tags   (get-in p [:taxonomy :tags] [])]
+            [:li
+             [:a {:href (href* url)} title]
+             [:time {:datetime (str pub-on)} (str pub-on)]
+             (when desc [:p.description desc])
+             (when (seq tags)
+               [:span.tags
+                (for [tag tags]
+                  [:a.tag {:href (href* (tag-path (name tag)))} (str "#" (name tag))])])]))]
+       [:p "No posts yet. Check back soon."])]))
+
+;;; ── About layout ─────────────────────────────────────────────────────────────
 
 (defn about-layout
   "About page content. Returns hiccup."
-  [html-body]
+  [html-body config]
   [:article.about
    [:h1 "About"]
    (h/raw html-body)])
 
+;;; ── Static page layout ───────────────────────────────────────────────────────
+
+(defn static-page-layout
+  "Generic static page. Returns hiccup."
+  [{:keys [title body]} config]
+  [:section.static-page
+   (when title [:h1 title])
+   (when body (h/raw body))])
+
+;;; ── Not-found layout ─────────────────────────────────────────────────────────
+
 (defn not-found-layout
   "404 page content. Returns hiccup."
-  []
-  [:div.not-found
-   [:h1 "404"]
-   [:p "This page doesn't exist."]
-   [:p [:a {:href (href "/")} "← Back to posts"]]])
+  [config]
+  (let [bp    (or (:base-path config) (System/getenv "BASE_PATH") "")
+        href* #(str bp %)]
+    [:div.not-found
+     [:h1 "404"]
+     [:p "This page doesn't exist."]
+     [:p [:a {:href (href* "/")} "← Back to posts"]]]))
+
+;;; ── Diagram layouts ──────────────────────────────────────────────────────────
 
 (defn diagram-page-layout
-  "Standalone diagram viewer page. Returns hiccup.
-   diagram map keys: :slug :title :back-post :description :svg-content :mermaid-source"
-  [{:keys [title back-post description svg-content mermaid-source]}]
-  [:div.diagram-page
-   (when back-post
-     [:a.diagram-back {:href (href (:url back-post))}
-      (str "\u2190 " (:title back-post))])
-   [:h1.diagram-title title]
-   [:div.diagram-full
-    (h/raw svg-content)]
-   (when (seq mermaid-source)
-     [:details.diagram-code
-      [:summary "View diagram source"]
-      [:pre [:code.language-mermaid mermaid-source]]])
-   (when (seq description)
-     [:div.diagram-transcript
-      [:p description]])])
+  "Standalone diagram viewer page.
+   diagram map keys: :slug :path :alt :content
+   Returns hiccup."
+  [{:keys [slug alt content]} config]
+  (let [bp         (or (:base-path config) (System/getenv "BASE_PATH") "")
+        diag-title (str/join " " (map str/capitalize (str/split slug #"-")))]
+    [:div.diagram-page
+     [:h1.diagram-title diag-title]
+     [:div.diagram-full
+      (when content (h/raw content))]
+     (when (seq alt)
+       [:div.diagram-transcript
+        [:p alt]])]))
 
 (defn diagrams-index-layout
   "All-diagrams index page. Returns hiccup."
-  [diagrams]
-  [:div.diagrams-index
-   [:h1 "Diagrams"]
-   [:div.diagram-cards
-    (for [{:keys [slug title back-post svg-content]} diagrams]
-      [:a.diagram-card {:href (href (diagram-path slug))}
-       [:div.diagram-card-thumb {:aria-hidden "true"}
-        (h/raw svg-content)]
-       [:div.diagram-card-body
-        [:p.diagram-card-title title]
-        (when back-post
-          [:p.diagram-card-source
-           "From: " (:title back-post)])]])]])
+  [diagrams config]
+  (let [bp    (or (:base-path config) (System/getenv "BASE_PATH") "")
+        href* #(str bp %)]
+    [:div.diagrams-index
+     [:h1 "Diagrams"]
+     [:div.diagram-cards
+      (for [{:keys [slug content]} diagrams]
+        (let [diag-title (str/join " " (map str/capitalize (str/split slug #"-")))]
+          [:a.diagram-card {:href (href* (diagram-path slug))}
+           [:div.diagram-card-thumb {:aria-hidden "true"}
+            (when content (h/raw content))]
+           [:div.diagram-card-body
+            [:p.diagram-card-title diag-title]]]))]]))
 
-(defn index-layout
-  "Post list for the index page. Returns hiccup."
-  [posts]
-  [:div.index
-   [:h1 "Posts"]
-   (if (seq posts)
-     [:ul.post-list
-      (for [{:keys [title url published-on description tags]} posts]
-        [:li
-         [:a {:href (href url)} title]
-         [:time {:datetime (str published-on)} (str published-on)]
-         (when description
-           [:p.description description])
-         (when (seq tags)
-           [:span.tags
-            (for [tag tags]
-              [:a.tag {:href (href (tag-path (name tag)))} (str "#" (name tag))])])])]
-     [:p "No posts yet. Check back soon."])])
+;;; ── Feed / sitemap stubs (to be implemented in blog.system) ─────────────────
+
+(defn rss-xml
+  "RSS 2.0 feed XML. Stub — real implementation stays in blog.pages for now."
+  [posts config]
+  (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?><rss version=\"2.0\"></rss>"))
+
+(defn sitemap-xml
+  "Sitemap XML. Stub — real implementation stays in blog.pages for now."
+  [posts glossary diagrams config]
+  (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?><urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"></urlset>"))
+
+(defn llms-txt
+  "llms.txt plain text. Stub — real implementation stays in blog.pages for now."
+  [posts config]
+  (str "# Blog\n"))

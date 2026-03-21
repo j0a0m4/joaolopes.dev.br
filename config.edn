@@ -1,0 +1,9 @@
+{:content-dir  "posts/"
+ :glossary-dir "glossary/"
+ :pages-dir    "pages/"
+ :assets-dir   "assets/"
+ :output-dir   "public/"
+ :site-url     "https://joaolopes.dev.br"
+ :site-title   "João Lopes"
+ :site-desc    "Writing about AI-first engineering"
+ :base-path    ""}
