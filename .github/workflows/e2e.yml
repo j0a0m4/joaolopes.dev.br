@@ -33,6 +33,11 @@ jobs:
             ~/.gitlibs
             .cpcache
           key: clj-${{ hashFiles('deps.edn') }}
+      - name: Cache npm deps
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
       - name: Install Node deps
         run: npm ci
       - name: Compile ClojureScript
@@ -67,10 +72,22 @@ jobs:
         with:
           name: site-e2e
           path: public/
-      - name: Setup ChromeDriver
-        uses: nanasess/setup-chromedriver@v2
+      - name: Setup Chrome + ChromeDriver
+        id: chrome
+        uses: browser-actions/setup-chrome@v2
+        with:
+          chrome-version: stable
+          install-chromedriver: true
+          install-dependencies: true
+      - name: Cache Chrome for Testing
+        uses: actions/cache@v4
+        with:
+          path: /opt/hostedtoolcache/chromium
+          key: chrome-${{ steps.chrome.outputs.chrome-version }}-${{ runner.os }}
       - name: Verify Chrome + ChromeDriver
         run: |
+          echo "Chrome: ${{ steps.chrome.outputs.chrome-version }}"
+          echo "ChromeDriver: ${{ steps.chrome.outputs.chromedriver-version }}"
           google-chrome --version
           chromedriver --version
       - name: Run e2e tests
