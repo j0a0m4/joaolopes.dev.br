@@ -133,3 +133,30 @@
   (let [toc (render/extract-toc "## What's New?\n\n## C++ & Rust\n\n## Hello World")]
     (is (= "whats-new" (:anchor (first toc))))
     (is (= "c--rust" (:anchor (second toc))) "heading-anchor doesn't collapse consecutive hyphens")))
+
+(deftest inject-svg-aria-direct-test
+  (let [svg "<svg xmlns=\"http://www.w3.org/2000/svg\"><circle/></svg>"
+        result (render/inject-svg-aria svg {:slug "my-diagram" :alt "A diagram"})]
+    (is (re-find #"role=\"img\"" result) "role=img injected")
+    (is (re-find #"aria-labelledby=\"my-diagram-title my-diagram-desc\"" result) "aria-labelledby correct")
+    (is (re-find #"<title id=\"my-diagram-title\">A diagram</title>" result) "title element")
+    (is (re-find #"<desc id=\"my-diagram-desc\">A diagram</desc>" result) "desc element")))
+
+(deftest inline-svgs-basic-test
+  (let [svg-content "<svg xmlns=\"http://www.w3.org/2000/svg\"><rect/></svg>"
+        svg-file (java.io.File. "./assets/test-inline.svg")]
+    (try
+      (.mkdirs (.getParentFile svg-file))
+      (spit svg-file svg-content)
+      (let [html "<p>Before</p><img src=\"/assets/test-inline.svg\" alt=\"Test diagram\"><p>After</p>"
+            result (render/inline-svgs html)]
+        (is (re-find #"<figure class=\"diagram-figure\">" result) "wrapped in figure")
+        (is (re-find #"role=\"img\"" result) "SVG has ARIA role")
+        (is (re-find #"Test diagram" result) "alt text preserved"))
+      (finally
+        (.delete svg-file)))))
+
+(deftest inline-svgs-missing-file-test
+  (let [html "<img src=\"/assets/nonexistent-diagram.svg\" alt=\"missing\">"
+        result (render/inline-svgs html)]
+    (is (= html result) "missing SVG leaves img tag unchanged")))
