@@ -140,12 +140,22 @@
       (str (first parts)
            (str/join (map #(str backlink %) (rest parts)))))))
 
+(defn- transform-glossary-links
+  "Converts [[glossary:slug|display]] → [display](/glossary/slug/) markdown links.
+   Runs BEFORE CommonMark so the output is standard markdown, not raw HTML."
+  [md]
+  (str/replace md
+               #"\[\[glossary:([^\]|]+)(?:\|([^\]]+))?\]\]"
+               (fn [[_ slug display]]
+                 (str "[" (or display slug) "](/glossary/" slug "/)"))))
+
 (defn- render-body
   "Renders a post's raw markdown body to HTML.
    Returns {:html-body html :toc toc}."
   [raw-body]
   (let [toc       (extract-toc raw-body)
         html-body (-> raw-body
+                      transform-glossary-links
                       render-markdown
                       inline-svgs
                       (cond-> toc inject-toc-backlinks))]

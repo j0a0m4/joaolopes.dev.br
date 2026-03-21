@@ -244,6 +244,18 @@ article li { margin-bottom: 0.25rem; }
 
 article img { max-width: 100%; height: auto; border-radius: 4px; margin: 1rem 0; }
 
+/* Horizontal rule — Obsidianite style */
+article hr {
+  position: relative;
+  margin: 2em 0;
+  border: none;
+  height: 0;
+  border-bottom: 1px solid;
+  border-image-slice: 1;
+  border-image-source: linear-gradient(to right, transparent, var(--accent), transparent);
+}
+/* no §  symbol — just the gradient line */
+
 /* Code */
 code {
   font-family: var(--mono);
@@ -768,20 +780,14 @@ footer a:hover { color: var(--accent); }
   overflow-x: auto;
 }
 
-/* ─── Glossary terms — abbr with title tooltip + link ────────────── */
-abbr.glossary-term {
-  text-decoration: underline;
-  text-decoration-style: dotted;
-  text-decoration-color: var(--accent);
-  cursor: help;
-}
-
-abbr.glossary-term a {
+/* ─── Glossary terms — links to /glossary/ enhanced with tooltips ── */
+a.glossary-term {
   color: var(--accent);
-  text-decoration: none;
+  text-decoration: underline dotted var(--accent);
+  cursor: pointer;
 }
 
-abbr.glossary-term a:hover {
+a.glossary-term:hover {
   color: var(--accent-hover);
 }
 

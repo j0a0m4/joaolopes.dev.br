@@ -14,46 +14,61 @@
                            (.remove (.-classList nav) "open")
                            (.add    (.-classList nav) "open"))))))))
 
-(defn- show-tooltip! [abbr tooltip]
-  (.setAttribute abbr "aria-describedby" (.-id tooltip))
+(defn- show-tooltip! [link tooltip]
+  (.setAttribute link "aria-describedby" (.-id tooltip))
   (.add (.-classList tooltip) "visible"))
 
-(defn- hide-tooltip! [abbr tooltip]
-  (.removeAttribute abbr "aria-describedby")
+(defn- hide-tooltip! [link tooltip]
+  (.removeAttribute link "aria-describedby")
   (.remove (.-classList tooltip) "visible"))
 
+(defn- glossary-link? [el]
+  (and (= "A" (.-tagName el))
+       (some-> (.getAttribute el "href") (.startsWith "/glossary/"))))
+
+(defn- slug-from-href [href]
+  (-> href (str/replace #"^/glossary/" "") (str/replace #"/$" "")))
+
 (defn init-glossary! []
-  (doseq [abbr (array-seq (dom/getElementsByClass "glossary-term"))]
-    (let [tooltip-id (str "tooltip-" (.-slug (.-dataset abbr)))
+  (doseq [link (array-seq (.querySelectorAll js/document "a[href^=\"/glossary/\"]"))]
+    (let [slug       (slug-from-href (.getAttribute link "href"))
+          tooltip-id (str "tooltip-" slug)
           tooltip    (or (dom/getElement tooltip-id)
-                         (let [div (dom/createElement "div")
-                               link (dom/createElement "a")]
+                         (let [div (dom/createElement "div")]
                            (.setAttribute div "id" tooltip-id)
                            (.setAttribute div "role" "tooltip")
                            (aset div "className" "glossary-tooltip")
-                           (aset div "innerHTML"
-                                 (str (.-definition (.-dataset abbr))
-                                      " <a href=\"/glossary/" (.-slug (.-dataset abbr))
-                                      "/\" class=\"glossary-link\">Full entry →</a>"))
-                           (.appendChild (.-parentNode abbr) div)
+                           (aset div "textContent" "Loading...")
+                           (.appendChild (.-parentNode link) div)
+                           ;; Fetch definition from the glossary page
+                           (-> (js/fetch (str "/glossary/" slug "/"))
+                               (.then #(.text %))
+                               (.then (fn [html]
+                                        (let [doc (.parseFromString (js/DOMParser.) html "text/html")
+                                              def-el (.querySelector doc ".glossary-body p, .glossary-body")]
+                                          (aset div "innerHTML"
+                                                (str (if def-el (.-textContent def-el) slug)
+                                                     " <a href=\"/glossary/" slug
+                                                     "/\" class=\"glossary-link\">Full entry →</a>"))))))
                            div))]
-      (events/listen abbr et/CLICK
+      (.add (.-classList link) "glossary-term")
+      (events/listen link et/CLICK
                      (fn [e]
                        (.preventDefault e)
                        (if (.contains (.-classList tooltip) "visible")
-                         (hide-tooltip! abbr tooltip)
-                         (show-tooltip! abbr tooltip))))
-      (events/listen abbr "keydown"
+                         (hide-tooltip! link tooltip)
+                         (show-tooltip! link tooltip))))
+      (events/listen link "keydown"
                      (fn [e]
                        (when (#{" " "Enter"} (.-key e))
                          (.preventDefault e)
                          (if (.contains (.-classList tooltip) "visible")
-                           (hide-tooltip! abbr tooltip)
-                           (show-tooltip! abbr tooltip)))))
+                           (hide-tooltip! link tooltip)
+                           (show-tooltip! link tooltip)))))
       (events/listen js/document et/KEYDOWN
                      (fn [e]
                        (when (= "Escape" (.-key e))
-                         (hide-tooltip! abbr tooltip)))))))
+                         (hide-tooltip! link tooltip)))))))
 
 (defn init-mermaid! []
   (when (exists? js/mermaid)
