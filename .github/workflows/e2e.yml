@@ -2,16 +2,6 @@ name: e2e
 
 on:
   pull_request:
-    paths:
-      - 'posts/**'
-      - 'src/**'
-      - 'resources/**'
-      - 'assets/**'
-      - 'test/e2e-playwright/**'
-      - 'deps.edn'
-      - 'shadow-cljs.edn'
-      - 'package.json'
-      - 'playwright.config.js'
 
 permissions:
   contents: read
