@@ -14,3 +14,7 @@ CLAUDE.md
 .superpowers/brainstorm/**/.server.pid
 .superpowers/
 docs/superpowers/
+.shadow-cljs/
+node_modules/
+test-results/
+resources/public/js/

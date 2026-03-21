@@ -1,10 +1,11 @@
 ---
 title: "Hello World"
-description: "First post — what this blog is about, who's behind it, and the Obsidian + Clojure stack that powers it."
 created: 2026-03-16
 published-on: 2026-03-16
+description:
+  "First post — what this blog is about, who's behind it, and the
+  Obsidian + Clojure stack that powers it."
 tags:
-  - meta
   - clojure
 ---
 

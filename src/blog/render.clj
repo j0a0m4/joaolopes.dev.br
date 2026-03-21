@@ -140,22 +140,67 @@
       (str (first parts)
            (str/join (map #(str backlink %) (rest parts)))))))
 
+(defn- strip-md-formatting
+  "Strips bold, italic (asterisk and underscore), and backtick formatting from a string."
+  [s]
+  (-> s
+      (str/replace #"\*{1,2}" "")
+      (str/replace #"_{1,2}" "")
+      (str/replace "`" "")))
+
+(defn- transform-glossary-links
+  "Converts [[glossary:slug|display]] → [display](/glossary/slug/) markdown links.
+   Strips formatting from display text — glossary links are styled via CSS, not inline markdown.
+   Runs BEFORE CommonMark so the output is standard markdown, not raw HTML."
+  [md]
+  (str/replace md
+               #"\[\[glossary:([^\]|]+)(?:\|([^\]]+))?\]\]"
+               (fn [[_ slug display]]
+                 (str "[" (strip-md-formatting (or display slug)) "](/glossary/" slug "/)"))))
+
+(defn- enhance-glossary-links
+  "After CommonMark, wraps <a href=\"/glossary/{slug}/\"> with <abbr class=\"glossary-term\">
+   when slug is a published glossary entry — restores tooltip attrs and e2e selectors."
+  [html-body glossary-by-slug]
+  (if (empty? glossary-by-slug)
+    html-body
+    (str/replace html-body
+                 #"<a href=\"/glossary/([^\"/]+)/\">([^<]*)</a>"
+                 (fn [& gs]
+                   (let [[whole slug _display]
+                         (if (and (= 1 (count gs)) (vector? (first gs)))
+                           (first gs)
+                           gs)]
+                     (if-let [entry (get glossary-by-slug slug)]
+                       (str "<abbr class=\"glossary-term\""
+                            " title=\"" (escape-html (:definition entry)) "\""
+                            " data-slug=\"" slug "\""
+                            " data-definition=\"" (escape-html (:definition entry)) "\">"
+                            whole
+                            "</abbr>")
+                       whole))))))
+
 (defn- render-body
   "Renders a post's raw markdown body to HTML.
    Returns {:html-body html :toc toc}."
-  [raw-body]
+  [raw-body glossary-by-slug]
   (let [toc       (extract-toc raw-body)
         html-body (-> raw-body
+                      transform-glossary-links
                       render-markdown
                       inline-svgs
-                      (cond-> toc inject-toc-backlinks))]
+                      (cond-> toc inject-toc-backlinks)
+                      (enhance-glossary-links glossary-by-slug))]
     {:html-body html-body :toc toc}))
 
 ;;; ── Individual renderers ─────────────────────────────────────────────────────
 
-(defn render-post [post config]
-  (let [{:keys [html-body toc]} (render-body (get-in post [:content :body] ""))]
-    (layout/base-layout (layout/post-layout post config {:html-body html-body :toc toc}) config)))
+(defn render-post
+  ([post config]
+   (render-post post config {}))
+  ([post config glossary-by-slug]
+   (let [{:keys [html-body toc]} (render-body (get-in post [:content :body] "") glossary-by-slug)]
+     (layout/base-layout (layout/post-layout post config {:html-body html-body :toc toc}) config))))
 
 (defn render-index [posts config]
   (layout/base-layout (layout/index-layout posts config) config))
@@ -178,11 +223,12 @@
 (defn- page-handler [html-fn]
   (fn [_req] (html-fn)))
 
-(defn post-pages [posts _glossary _diagrams config]
-  (into {} (map (fn [post]
-                  [(str "/posts/" (get-in post [:identity :slug]) "/")
-                   (page-handler #(render-post post config))])
-                posts)))
+(defn post-pages [posts glossary _diagrams config]
+  (let [glossary-by-slug (into {} (map (juxt :slug identity) glossary))]
+    (into {} (map (fn [post]
+                    [(str "/posts/" (get-in post [:identity :slug]) "/")
+                     (page-handler #(render-post post config glossary-by-slug))])
+                  posts))))
 
 (defn glossary-pages [glossary config]
   (merge

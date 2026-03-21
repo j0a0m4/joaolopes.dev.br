@@ -2,7 +2,8 @@ import { test, expect } from "@playwright/test";
 
 // blog-qa checks 8, 9, 10, 11
 
-const POST_WITH_GLOSSARY = "/posts/building-your-ai-toolkit/";
+// Post must contain [[glossary:...]] wikilinks (see posts/). Toolkit post is plain prose.
+const POST_WITH_GLOSSARY = "/posts/i-built-this-blog-by-prompting-claude-code/";
 
 test.describe("glossary tooltip", () => {
   test.beforeEach(async ({ page }) => {
@@ -28,12 +29,13 @@ test.describe("glossary tooltip", () => {
   }) => {
     // blog-qa check 9
     const term = page.locator("abbr.glossary-term").first();
-    await expect(term).toBeVisible();
+    const link = term.locator("a[href^='/glossary/']").first();
+    await expect(link).toBeVisible();
 
     await expect(page.locator(".glossary-tooltip.visible")).toBeHidden();
 
-    // dispatchEvent targets <abbr> itself — click() would hit child <a> and navigate
-    await term.dispatchEvent("click");
+    // Click the <a> inside <abbr> — listener is on the link, not the wrapper.
+    await link.dispatchEvent("click");
 
     const tooltip = page.locator(".glossary-tooltip.visible");
     await expect(tooltip).toBeVisible();
@@ -44,15 +46,22 @@ test.describe("glossary tooltip", () => {
     await expect(page.locator(".glossary-tooltip.visible")).toBeHidden();
   });
 
-  test("glossary link navigates to entry page", async ({ page }) => {
-    // blog-qa check 10
-    const link = page.locator("abbr.glossary-term a").first();
-    const href = await link.getAttribute("href");
+  test("full entry in tooltip navigates to glossary page", async ({ page }) => {
+    // blog-qa check 10 — term link opens tooltip; glossary page via in-tooltip redirect
+    const link = page
+      .locator("abbr.glossary-term a[href^='/glossary/']")
+      .first();
+    await link.dispatchEvent("click");
+
+    const fullEntry = page.locator(".glossary-tooltip.visible a.glossary-link");
+    await expect(fullEntry).toBeVisible();
+    const href = await fullEntry.getAttribute("href");
     expect(href).toMatch(/^\/glossary\//);
 
-    await link.click();
-    await page.waitForURL(/\/glossary\//);
-
+    await Promise.all([
+      page.waitForURL((u) => u.pathname.startsWith("/glossary/")),
+      fullEntry.click(),
+    ]);
     await expect(page.locator("text=← Glossary")).toBeVisible();
   });
 });
@@ -75,13 +84,16 @@ test.describe("glossary tooltip content", () => {
     page,
   }) => {
     await page.goto(POST_WITH_GLOSSARY);
-    const term = page.locator("abbr.glossary-term").first();
-    test.skip((await term.count()) === 0, "No glossary terms on page");
+    const link = page
+      .locator("abbr.glossary-term a[href^='/glossary/']")
+      .first();
+    test.skip((await link.count()) === 0, "No glossary terms on page");
 
-    await term.dispatchEvent("click");
+    await link.dispatchEvent("click");
     const tooltip = page.locator(".glossary-tooltip.visible");
     await expect(tooltip).toBeVisible();
     const tooltipText = await tooltip.textContent();
     expect(tooltipText.length).toBeGreaterThan(0);
+    await expect(tooltip.locator("a.glossary-link")).toBeVisible();
   });
 });

@@ -244,6 +244,18 @@ article li { margin-bottom: 0.25rem; }
 
 article img { max-width: 100%; height: auto; border-radius: 4px; margin: 1rem 0; }
 
+/* Horizontal rule — Obsidianite style */
+article hr {
+  position: relative;
+  margin: 2em 0;
+  border: none;
+  height: 0;
+  border-bottom: 1px solid;
+  border-image-slice: 1;
+  border-image-source: linear-gradient(to right, transparent, var(--accent), transparent);
+}
+/* no §  symbol — just the gradient line */
+
 /* Code */
 code {
   font-family: var(--mono);
@@ -768,21 +780,48 @@ footer a:hover { color: var(--accent); }
   overflow-x: auto;
 }
 
-/* ─── Glossary terms — abbr with title tooltip + link ────────────── */
+/* ─── Glossary terms — links to /glossary/ enhanced with tooltips ── */
 abbr.glossary-term {
-  text-decoration: underline;
-  text-decoration-style: dotted;
-  text-decoration-color: var(--accent);
-  cursor: help;
+  position: relative;
 }
 
-abbr.glossary-term a {
+abbr.glossary-term > a,
+a.glossary-term {
   color: var(--accent);
-  text-decoration: none;
+  text-decoration: underline dotted var(--accent);
+  cursor: pointer;
 }
 
-abbr.glossary-term a:hover {
+abbr.glossary-term > a:hover,
+a.glossary-term:hover {
   color: var(--accent-hover);
+}
+
+.glossary-tooltip {
+  display: none;
+  position: absolute;
+  z-index: 100;
+  max-width: 320px;
+  padding: 0.6rem 0.8rem;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--fg);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  white-space: normal;
+}
+
+.glossary-tooltip .glossary-link {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+
+.glossary-tooltip.visible {
+  display: block;
 }
 
 /* ─── Glossary index page ─────────────────────────────────────────── */

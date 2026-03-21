@@ -35,16 +35,14 @@ jobs:
       - uses: DeLaGuardo/setup-clojure@13.1
         with:
           cli: latest
-      - name: Cache Clojure deps
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.m2/repository
             ~/.gitlibs
             .cpcache
           key: clj-v2-${{ hashFiles('deps.edn') }}
-      - name: Check Clojure formatting
-        run: clojure -M:cljfmt check
+      - run: clojure -M:cljfmt check
 
   format-js:
     needs: changes
@@ -52,12 +50,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Cache npm deps
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.npm
           key: npm-${{ hashFiles('package-lock.json') }}
-      - name: Install Node deps
-        run: npm ci
-      - name: Check JS formatting
-        run: npx prettier --check test/e2e-playwright/
+      - run: npm ci
+      - run: npx prettier --check test/e2e-playwright/
