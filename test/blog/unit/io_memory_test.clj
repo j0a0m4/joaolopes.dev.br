@@ -1,4 +1,4 @@
-(ns blog.io-memory-test
+(ns blog.unit.io-memory-test
   (:require [clojure.test :refer [deftest is]]
             [blog.ports.io :as ports]
             [blog.io.memory :refer [map->MemorySource]]))

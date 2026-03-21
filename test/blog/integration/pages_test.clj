@@ -1,4 +1,4 @@
-(ns blog.pages-test
+(ns blog.integration.pages-test
   (:require [clojure.test :refer [deftest is]]
             [hickory.core :as hickory]
             [hickory.select :as sel]
