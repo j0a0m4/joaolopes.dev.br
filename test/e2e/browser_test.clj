@@ -1,6 +1,7 @@
 (ns e2e.browser-test
   (:require [clojure.test :refer [deftest is]]
             [etaoin.api :as e]
+            [etaoin.keys :as k]
             [aux.e2e-helpers :refer [with-static-server]]))
 
 (defn- base-url [port path]
@@ -19,7 +20,7 @@
         (e/click driver term)
         (is (e/visible? driver {:css ".glossary-tooltip.visible"}))
         (is (seq (e/get-element-attr driver term "aria-describedby")))
-        (e/key-press driver e/escape)
+        (e/fill-active driver k/escape)
         (is (not (e/visible? driver {:css ".glossary-tooltip.visible"})))))))
 
 (deftest nav-toggle-accessible
