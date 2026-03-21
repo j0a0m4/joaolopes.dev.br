@@ -6,7 +6,7 @@ target/
 *.class
 .DS_Store
 CLAUDE.md
-.clj-kondo
+.clj-kondo/.cache
 
 # Superpowers brainstorm sessions — keep HTML (design process), ignore operational noise
 .superpowers/brainstorm/**/.server-stopped

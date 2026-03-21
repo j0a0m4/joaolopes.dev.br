@@ -179,7 +179,7 @@
 (defn- page-handler [html-fn]
   (fn [_req] (html-fn)))
 
-(defn post-pages [posts glossary diagrams config]
+(defn post-pages [posts _glossary _diagrams config]
   (into {} (map (fn [post]
                   [(str "/posts/" (get-in post [:identity :slug]) "/")
                    (page-handler #(render-post post config))])

@@ -1,5 +1,5 @@
 (ns blog.unit.render-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [clojure.test :refer [deftest is]]
             [hickory.core :as hickory]
             [hickory.select :as sel]
             [blog.layout :as layout]
@@ -8,7 +8,7 @@
 (def config {:site-url "http://localhost" :site-title "Test" :site-desc "Test blog" :base-path ""})
 
 (deftest svg-aria-attributes-test
-  (let [diagram {:slug "agent-loop" :path "/assets/agent-loop.svg"
+  (let [_diagram {:slug "agent-loop" :path "/assets/agent-loop.svg"
                  :alt "The agent loop diagram"
                  :content "<svg xmlns=\"http://www.w3.org/2000/svg\"><circle r=\"10\"/></svg>"}
         post    {:identity {:title "Post" :slug "post"}
