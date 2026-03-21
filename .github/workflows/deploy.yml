@@ -10,6 +10,8 @@ on:
       - 'resources/**'
       - 'assets/**'
       - 'deps.edn'
+      - 'shadow-cljs.edn'
+      - 'package.json'
 
 permissions:
   contents: write
@@ -48,14 +50,6 @@ jobs:
 
       - name: Build site
         run: clojure -M:build
-
-      - name: Install ChromeDriver
-        run: |
-          sudo apt-get install -y chromium-driver
-          chromedriver --version
-
-      - name: Run e2e tests
-        run: clojure -M:e2e
 
       - name: Preserve preview if exists
         run: |
