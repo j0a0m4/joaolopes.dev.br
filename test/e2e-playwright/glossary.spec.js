@@ -3,8 +3,7 @@ import { test, expect } from "@playwright/test";
 // blog-qa checks 8, 9, 10, 11
 
 // Post must contain [[glossary:...]] wikilinks (see posts/). Toolkit post is plain prose.
-const POST_WITH_GLOSSARY =
-  "/posts/i-built-this-blog-by-prompting-claude-code/";
+const POST_WITH_GLOSSARY = "/posts/i-built-this-blog-by-prompting-claude-code/";
 
 test.describe("glossary tooltip", () => {
   test.beforeEach(async ({ page }) => {
@@ -47,14 +46,12 @@ test.describe("glossary tooltip", () => {
   });
 
   test("glossary link navigates to entry page", async ({ page }) => {
-    // blog-qa check 10
+    // blog-qa check 10 — inline term uses click→tooltip (preventDefault); navigate via href
     const link = page.locator("abbr.glossary-term a").first();
     const href = await link.getAttribute("href");
     expect(href).toMatch(/^\/glossary\//);
 
-    await link.click();
-    await page.waitForURL(/\/glossary\//);
-
+    await page.goto(href);
     await expect(page.locator("text=← Glossary")).toBeVisible();
   });
 });

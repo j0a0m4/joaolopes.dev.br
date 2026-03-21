@@ -141,10 +141,11 @@
            (str/join (map #(str backlink %) (rest parts)))))))
 
 (defn- strip-md-formatting
-  "Strips bold, italic, and backtick formatting from a string."
+  "Strips bold, italic (asterisk and underscore), and backtick formatting from a string."
   [s]
   (-> s
       (str/replace #"\*{1,2}" "")
+      (str/replace #"_{1,2}" "")
       (str/replace "`" "")))
 
 (defn- transform-glossary-links

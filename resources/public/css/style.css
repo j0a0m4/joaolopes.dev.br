@@ -781,12 +781,18 @@ footer a:hover { color: var(--accent); }
 }
 
 /* ─── Glossary terms — links to /glossary/ enhanced with tooltips ── */
+abbr.glossary-term {
+  position: relative;
+}
+
+abbr.glossary-term > a,
 a.glossary-term {
   color: var(--accent);
   text-decoration: underline dotted var(--accent);
   cursor: pointer;
 }
 
+abbr.glossary-term > a:hover,
 a.glossary-term:hover {
   color: var(--accent-hover);
 }
