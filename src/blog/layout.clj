@@ -205,9 +205,9 @@
   [slug posts config]
   (let [bp    (or (:base-path config) (System/getenv "BASE_PATH") "")
         href* #(str bp %)
-        title (get-in (first posts) [:taxonomy :series :title]
-                      ;; fallback: old flat shape used :series-title
-                      (or (:series-title (first posts)) (str slug))) ;;TODO(task-14): remove compat shim — old shape
+        title (or (get-in (first posts) [:taxonomy :series :title])
+                  (:series-title (first posts)) ;;TODO(task-14): remove compat shim — old shape
+                  (str slug))]
     [:div.series-index
      [:h1 title]
      [:p.series-count (str (count posts) " post" (when (not= 1 (count posts)) "s") " in this series")]
@@ -375,7 +375,7 @@
                 url    (or (:url p) (str "/posts/" slug "/"))
                 pub-on (or (get-in p [:dates :published-on]) (:published-on p)) ;;TODO(task-14): remove compat shim — old shape
                 desc   (or (get-in p [:content :description]) (:description p)) ;;TODO(task-14): remove compat shim — old shape
-                tags   (or (get-in p [:taxonomy :tags]) (:tags p) []) ;;TODO(task-14): remove compat shim — old shape
+                tags   (or (get-in p [:taxonomy :tags]) (:tags p) [])] ;;TODO(task-14): remove compat shim — old shape
             [:li
              [:a {:href (href* url)} title]
              [:time {:datetime (str pub-on)} (str pub-on)]
