@@ -785,26 +785,6 @@ abbr.glossary-term a:hover {
   color: var(--accent-hover);
 }
 
-.glossary-tooltip {
-  display: none;
-  position: absolute;
-  z-index: 100;
-  max-width: 320px;
-  padding: 0.6rem 0.8rem;
-  background: var(--bg-alt);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--fg);
-  font-size: 0.85rem;
-  line-height: 1.5;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  white-space: normal;
-}
-
-.glossary-tooltip.visible {
-  display: block;
-}
-
 /* ─── Glossary index page ─────────────────────────────────────────── */
 .glossary-index {
   max-width: 65ch;
