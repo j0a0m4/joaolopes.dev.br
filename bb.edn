@@ -1,0 +1,17 @@
+{:tasks
+ {lint:clj   {:doc  "Lint Clojure with clj-kondo"
+              :task (shell "clj-kondo --lint src test")}
+  lint:js    {:doc  "Lint JS with ESLint"
+              :task (shell "npx eslint test/e2e-playwright/")}
+  lint       {:doc  "Lint all (Clojure + JS)"
+              :depends [lint:clj lint:js]}
+  format     {:doc  "Check formatting (Clojure + JS)"
+              :task (do (shell "clojure -M:cljfmt check")
+                        (shell "npx prettier --check test/e2e-playwright/"))}
+  format:fix {:doc  "Fix formatting (Clojure + JS)"
+              :task (do (shell "clojure -M:cljfmt fix")
+                        (shell "npx prettier --write test/e2e-playwright/"))}
+  coverage   {:doc  "Run test coverage report"
+              :task (shell "clojure -M:coverage")}
+  quality    {:doc  "Full quality check (lint + format)"
+              :depends [lint format]}}}
