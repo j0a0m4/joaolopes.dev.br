@@ -12,10 +12,10 @@
                   :alt "The agent loop diagram"
                   :content "<svg xmlns=\"http://www.w3.org/2000/svg\"><circle r=\"10\"/></svg>"}
         post    {:identity {:title "Post" :slug "post"}
-                 :content  {:body "![The agent loop diagram](/assets/agent-loop.svg)" :description nil}
+                 :content  {:body "![The agent loop diagram](/assets/agent-loop.svg)"}
                  :dates    {:created-on "2025-01-10" :published-on "2025-01-15" :updated-on "2025-01-20"}
-                 :taxonomy {:tags [] :series nil}
-                 :external {:linkedin-url nil} :navigation {:prev nil :next nil}}
+                 :taxonomy {:tags []}
+                }
         html    (render/render-post post config)
         doc     (-> html hickory/parse hickory/as-hickory)
         svg     (first (sel/select (sel/descendant (sel/class "diagram-figure") (sel/tag :svg)) doc))]
@@ -24,14 +24,14 @@
 
 (def post-fixture
   {:identity   {:title "Hello World" :slug "hello-world"}
-   :content    {:body "The body." :description nil}
+   :content    {:body "The body."}
    :dates      {:created-on "2025-01-10" :published-on "2025-01-15" :updated-on "2025-01-20"}
-   :taxonomy   {:tags [] :series nil}
-   :external   {:linkedin-url nil}
-   :navigation {:prev nil :next nil}})
+   :taxonomy   {:tags []}
+  
+  })
 
 (deftest render-post-test
-  (let [post (assoc post-fixture :taxonomy {:tags [:clojure :ai] :series nil})
+  (let [post (assoc post-fixture :taxonomy {:tags [:clojure :ai]})
         html (render/render-post post config)
         doc  (-> html hickory/parse hickory/as-hickory)]
     (is (= 1 (count (sel/select (sel/tag :article) doc))) "has article")
@@ -49,10 +49,10 @@
 
 (deftest post-pages-test
   (let [post   {:identity {:title "Hello" :slug "hello"}
-                :content  {:body "" :description nil}
+                :content  {:body ""}
                 :dates    {:created-on "2025-01-10" :published-on "2025-01-15" :updated-on "2025-01-20"}
-                :taxonomy {:tags [] :series nil}
-                :external {:linkedin-url nil} :navigation {:prev nil :next nil}}
+                :taxonomy {:tags []}
+               }
         pages  (render/post-pages [post] [] [] config)
         handler (get pages "/posts/hello/")]
     (is (fn? handler))
@@ -70,10 +70,10 @@
 
 (deftest non-base-layouts-return-vectors
   (let [post {:identity {:title "T" :slug "s"}
-              :content  {:body "" :description nil}
+              :content  {:body ""}
               :dates    {:created-on "2025-01-10" :published-on "2025-01-15" :updated-on "2025-01-20"}
-              :taxonomy {:tags [] :series nil}
-              :external {:linkedin-url nil} :navigation {:prev nil :next nil}}]
+              :taxonomy {:tags []}
+             }]
     (is (vector? (layout/post-layout post config))  "post-layout returns hiccup vector")
     (is (vector? (layout/index-layout [] config))   "index-layout returns hiccup vector")))
 
@@ -208,11 +208,11 @@
 
 (deftest glossary-wikilinks-render-as-standard-links
   (let [post {:identity   {:title "Test" :slug "test"}
-              :content    {:body "Use a [[glossary:skill|skill]] to automate." :description nil}
+              :content    {:body "Use a [[glossary:skill|skill]] to automate."}
               :dates      {:created-on "2025-01-10" :published-on "2025-01-15" :updated-on "2025-01-20"}
-              :taxonomy   {:tags [] :series nil}
-              :external   {:linkedin-url nil}
-              :navigation {:prev nil :next nil}}
+              :taxonomy   {:tags []}
+             
+             }
         html (render/render-post post config)
         doc  (-> html hickory/parse hickory/as-hickory)
         link (first (sel/select (sel/and (sel/tag :a) (sel/attr :href #(= "/glossary/skill/" %))) doc))]
@@ -222,11 +222,11 @@
 
 (deftest glossary-wikilink-without-display-uses-slug
   (let [post {:identity   {:title "Test" :slug "test"}
-              :content    {:body "Uses [[glossary:mcp]] for tools." :description nil}
+              :content    {:body "Uses [[glossary:mcp]] for tools."}
               :dates      {:created-on "2025-01-10" :published-on "2025-01-15" :updated-on "2025-01-20"}
-              :taxonomy   {:tags [] :series nil}
-              :external   {:linkedin-url nil}
-              :navigation {:prev nil :next nil}}
+              :taxonomy   {:tags []}
+             
+             }
         html (render/render-post post config)
         doc  (-> html hickory/parse hickory/as-hickory)
         link (first (sel/select (sel/and (sel/tag :a) (sel/attr :href #(= "/glossary/mcp/" %))) doc))]
@@ -235,22 +235,22 @@
 
 (deftest glossary-wikilink-not-escaped-by-commonmark
   (let [post {:identity   {:title "Test" :slug "test"}
-              :content    {:body "A [[glossary:hooks|hook]] is important." :description nil}
+              :content    {:body "A [[glossary:hooks|hook]] is important."}
               :dates      {:created-on "2025-01-10" :published-on "2025-01-15" :updated-on "2025-01-20"}
-              :taxonomy   {:tags [] :series nil}
-              :external   {:linkedin-url nil}
-              :navigation {:prev nil :next nil}}
+              :taxonomy   {:tags []}
+             
+             }
         html (render/render-post post config)]
     (is (not (.contains html "[[glossary:")) "no raw wikilink syntax in output")
     (is (not (.contains html "&lt;abbr")) "no escaped HTML tags in output")))
 
 (deftest glossary-wikilink-strips-formatting-from-display
   (let [post {:identity   {:title "Test" :slug "test"}
-              :content    {:body "Uses [[glossary:skill|**`skill`**]] here." :description nil}
+              :content    {:body "Uses [[glossary:skill|**`skill`**]] here."}
               :dates      {:created-on "2025-01-10" :published-on "2025-01-15" :updated-on "2025-01-20"}
-              :taxonomy   {:tags [] :series nil}
-              :external   {:linkedin-url nil}
-              :navigation {:prev nil :next nil}}
+              :taxonomy   {:tags []}
+             
+             }
         html (render/render-post post config)
         doc  (-> html hickory/parse hickory/as-hickory)
         link (first (sel/select (sel/and (sel/tag :a) (sel/attr :href #(= "/glossary/skill/" %))) doc))]
