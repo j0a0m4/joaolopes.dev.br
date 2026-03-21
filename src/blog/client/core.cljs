@@ -33,9 +33,6 @@
          ;; Synthetic `click` from tests may omit `button` (Event, not MouseEvent).
          (or (undefined? btn) (nil? btn) (= 0 btn)))))
 
-(defn- click-on-tooltip-contents? [tooltip t]
-  (and tooltip (instance? js/Node t) (.contains tooltip t)))
-
 (defn- fill-tooltip-static! [div slug definition-text]
   (while (.hasChildNodes div)
     (.removeChild div (.-firstChild div)))
@@ -68,20 +65,13 @@
                                                     def-el (.querySelector doc ".glossary-body p, .glossary-body")]
                                                 (fill-tooltip-static! div slug (if def-el (.-textContent def-el) slug)))))))
                                div))]
-          (events/listen abbr et/CLICK
+          (events/listen link et/CLICK
                          (fn [e]
-                           (let [t (.-target e)]
-                             ;; Clicks inside the tooltip (e.g. "Full entry →") must reach the
-                             ;; real <a href> — only the term link uses preventDefault + toggle.
-                             (when-not (click-on-tooltip-contents? tooltip t)
-                               (when (and (instance? js/Node t)
-                                          (.contains abbr t)
-                                          (plain-left-click? e))
-                                 (when (or (= t abbr) (= t link) (.contains link t))
-                                   (.preventDefault e)
-                                   (if (.contains (.-classList tooltip) "visible")
-                                     (hide-tooltip! abbr tooltip)
-                                     (show-tooltip! abbr tooltip))))))))
+                           (when (plain-left-click? e)
+                             (.preventDefault e)
+                             (if (.contains (.-classList tooltip) "visible")
+                               (hide-tooltip! abbr tooltip)
+                               (show-tooltip! abbr tooltip)))))
           (events/listen link "keydown"
                          (fn [e]
                            (when (#{" " "Enter"} (.-key e))

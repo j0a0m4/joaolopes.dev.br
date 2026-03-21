@@ -29,12 +29,13 @@ test.describe("glossary tooltip", () => {
   }) => {
     // blog-qa check 9
     const term = page.locator("abbr.glossary-term").first();
-    await expect(term).toBeVisible();
+    const link = term.locator("a[href^='/glossary/']").first();
+    await expect(link).toBeVisible();
 
     await expect(page.locator(".glossary-tooltip.visible")).toBeHidden();
 
-    // Model: plain click on the term toggles the tooltip (navigation is via tooltip link).
-    await term.dispatchEvent("click");
+    // Click the <a> inside <abbr> — listener is on the link, not the wrapper.
+    await link.dispatchEvent("click");
 
     const tooltip = page.locator(".glossary-tooltip.visible");
     await expect(tooltip).toBeVisible();
@@ -47,8 +48,10 @@ test.describe("glossary tooltip", () => {
 
   test("full entry in tooltip navigates to glossary page", async ({ page }) => {
     // blog-qa check 10 — term link opens tooltip; glossary page via in-tooltip redirect
-    const term = page.locator("abbr.glossary-term").first();
-    await term.dispatchEvent("click");
+    const link = page
+      .locator("abbr.glossary-term a[href^='/glossary/']")
+      .first();
+    await link.dispatchEvent("click");
 
     const fullEntry = page.locator(".glossary-tooltip.visible a.glossary-link");
     await expect(fullEntry).toBeVisible();
@@ -81,10 +84,12 @@ test.describe("glossary tooltip content", () => {
     page,
   }) => {
     await page.goto(POST_WITH_GLOSSARY);
-    const term = page.locator("abbr.glossary-term").first();
-    test.skip((await term.count()) === 0, "No glossary terms on page");
+    const link = page
+      .locator("abbr.glossary-term a[href^='/glossary/']")
+      .first();
+    test.skip((await link.count()) === 0, "No glossary terms on page");
 
-    await term.dispatchEvent("click");
+    await link.dispatchEvent("click");
     const tooltip = page.locator(".glossary-tooltip.visible");
     await expect(tooltip).toBeVisible();
     const tooltipText = await tooltip.textContent();
