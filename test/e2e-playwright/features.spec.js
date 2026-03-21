@@ -9,10 +9,8 @@ test.describe("SVG diagrams", () => {
     await page.goto("/posts/building-your-ai-toolkit/");
 
     const diagramSvg = page.locator('svg[role="img"]').first();
-    if ((await diagramSvg.count()) === 0) {
-      test.skip();
-      return;
-    }
+    const svgCount = await diagramSvg.count();
+    test.skip(svgCount === 0, "No diagram SVGs found on this page");
 
     await expect(diagramSvg).toHaveAttribute("aria-labelledby", /.+/);
 

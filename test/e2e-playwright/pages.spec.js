@@ -36,10 +36,8 @@ test.describe("post page", () => {
   test("TOC anchors navigate within page", async ({ page }) => {
     // blog-qa check 5
     const tocLink = page.locator(".toc a, details a").first();
-    if ((await tocLink.count()) === 0) {
-      test.skip();
-      return;
-    }
+    const tocCount = await tocLink.count();
+    test.skip(tocCount === 0, "No TOC links found on this page");
 
     const href = await tocLink.getAttribute("href");
     expect(href).toMatch(/^#/);
@@ -53,12 +51,13 @@ test.describe("post page", () => {
     // blog-qa check 18: highlight.js runs client-side, adds hljs class.
     // CDN resources are blocked in the test server, so we verify the JS
     // initializer exists and code blocks are present for hljs to act on.
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // The init-highlight! function must be wired into the init export
     const highlightWired = await page.evaluate(
-      () => typeof window.blogClientCore !== "undefined"
-            || document.querySelector("pre code") !== null,
+      () =>
+        typeof window.blogClientCore !== "undefined" ||
+        document.querySelector("pre code") !== null,
     );
     expect(highlightWired).toBe(true);
 

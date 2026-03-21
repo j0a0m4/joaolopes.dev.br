@@ -23,12 +23,14 @@ test.describe("glossary tooltip", () => {
     expect(definition).not.toMatch(/^#\s/);
   });
 
-  test("click reveals tooltip with a11y attributes, escape dismisses", async ({ page }) => {
+  test("click reveals tooltip with a11y attributes, escape dismisses", async ({
+    page,
+  }) => {
     // blog-qa check 9
     const term = page.locator("abbr.glossary-term").first();
     await expect(term).toBeVisible();
 
-    await expect(page.locator(".glossary-tooltip.visible")).not.toBeVisible();
+    await expect(page.locator(".glossary-tooltip.visible")).toBeHidden();
 
     // dispatchEvent targets <abbr> itself — click() would hit child <a> and navigate
     await term.dispatchEvent("click");
@@ -39,7 +41,7 @@ test.describe("glossary tooltip", () => {
     await expect(term).toHaveAttribute("aria-describedby", /.+/);
 
     await page.keyboard.press("Escape");
-    await expect(page.locator(".glossary-tooltip.visible")).not.toBeVisible();
+    await expect(page.locator(".glossary-tooltip.visible")).toBeHidden();
   });
 
   test("glossary link navigates to entry page", async ({ page }) => {
@@ -60,7 +62,9 @@ test.describe("glossary index", () => {
     // blog-qa check 11
     await page.goto("/glossary/");
 
-    const entries = page.locator(".glossary-index a, .glossary-list a, article a");
+    const entries = page.locator(
+      ".glossary-index a, .glossary-list a, article a",
+    );
     const count = await entries.count();
     expect(count).toBeGreaterThan(0);
   });
