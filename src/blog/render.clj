@@ -1,7 +1,128 @@
 (ns blog.render
   (:require [blog.layout :as layout]
-            [blog.markdown :as markdown]
-            [clojure.string :as str]))
+            [clojure.java.io :as io]
+            [clojure.string :as str])
+  (:import [org.commonmark.parser Parser]
+           [org.commonmark.renderer.html HtmlRenderer]
+           [org.commonmark.ext.heading.anchor HeadingAnchorExtension]
+           [org.commonmark.ext.gfm.tables TablesExtension]))
+
+;;; ── CommonMark pipeline ──────────────────────────────────────────────────────
+
+(def ^:private extensions
+  [(HeadingAnchorExtension/create)
+   (TablesExtension/create)])
+
+(def ^:private md-parser
+  (-> (Parser/builder)
+      (.extensions extensions)
+      (.build)))
+
+(def ^:private md-renderer
+  (-> (HtmlRenderer/builder)
+      (.extensions extensions)
+      (.build)))
+
+(defn render-markdown
+  "Converts markdown string to HTML via CommonMark."
+  [text]
+  (->> (.parse md-parser text)
+       (.render md-renderer)))
+
+;;; ── TOC extraction ───────────────────────────────────────────────────────────
+
+(defn- heading-anchor
+  "Derives a TOC anchor slug from heading text."
+  [text]
+  (-> text
+      str/lower-case
+      str/trim
+      (str/replace #"\s+" "-")
+      (str/replace #"[^\w-]" "")))
+
+(defn extract-toc
+  "Parses ## and ### headings from raw markdown body.
+   Returns [{:level 2, :text ..., :anchor ...}] or nil if fewer than min-headings h2s."
+  ([body] (extract-toc body 3))
+  ([body min-headings]
+   (let [headings (->> (str/split-lines body)
+                       (keep (fn [line]
+                               (when-let [[_ hashes text] (re-matches #"^(#{2,3})\s+(.*)" line)]
+                                 {:level  (count hashes)
+                                  :text   (str/trim text)
+                                  :anchor (heading-anchor (str/trim text))})))
+                       vec)]
+     (when (>= (count (filter #(= 2 (:level %)) headings)) min-headings)
+       headings))))
+
+;;; ── SVG inlining ─────────────────────────────────────────────────────────────
+
+(def ^:private img-svg-pattern
+  #"<img\s+[^>]*src=\"(/assets/[^\"]+\.svg)\"[^>]*>")
+
+(defn- extract-alt
+  "Extracts alt attribute value from an HTML img tag string."
+  [img-tag]
+  (when-let [alt (second (re-find #"alt=\"([^\"]*)\"" img-tag))]
+    (when (seq alt) alt)))
+
+(defn- svg-slug-from-path
+  "Derives diagram slug from SVG src path. /assets/agent-loop.svg → agent-loop"
+  [src-path]
+  (-> src-path
+      (str/replace #"^/assets/" "")
+      (str/replace #"\.svg$" "")))
+
+(defn- inject-svg-a11y
+  "Injects role, aria-labelledby, and (when alt present) aria-describedby
+   onto the <svg> opening tag. Inserts <title> and <desc> as first children."
+  [svg-content slug title alt]
+  (str/replace svg-content #"(<svg)([ \t\n][^>]*)?(>)"
+               (fn [[_ tag attrs close]]
+                 (str tag
+                      (or attrs "")
+                      " role=\"img\""
+                      " aria-labelledby=\"diag-" slug "-title\""
+                      (when alt
+                        (str " aria-describedby=\"diag-" slug "-desc\""))
+                      close
+                      "<title id=\"diag-" slug "-title\">" title "</title>"
+                      (when alt
+                        (str "<desc id=\"diag-" slug "-desc\">" alt "</desc>"))))))
+
+(defn inline-svgs
+  "Replaces <img> tags pointing to local SVGs with accessible <figure> elements."
+  [html-body]
+  (str/replace html-body img-svg-pattern
+               (fn [[img-tag src-path]]
+                 (let [f (io/file (str "." src-path))]
+                   (if (.exists f)
+                     (let [slug    (svg-slug-from-path src-path)
+                           title   (str/join " " (map str/capitalize (str/split slug #"-")))
+                           alt     (extract-alt img-tag)
+                           svg-raw (-> (slurp f)
+                                       (str/replace #"<\?xml[^>]*\?>\s*" "")
+                                       str/trim)
+                           svg     (inject-svg-a11y svg-raw slug title alt)
+                           base    (or (System/getenv "BASE_PATH") "")
+                           href    (str base "/diagrams/" slug "/")]
+                       (str "<figure class=\"diagram-figure\">"
+                            "<a href=\"" href "\""
+                            " class=\"diagram-link\""
+                            " aria-label=\"View " title " diagram\">"
+                            svg
+                            "</a>"
+                            "<figcaption>"
+                            "<a href=\"" href "\" class=\"diagram-caption-link\">"
+                            "View " title " diagram \u2192"
+                            "</a>"
+                            (when alt
+                              (str "<div class=\"diagram-transcript\">"
+                                   "<p>" alt "</p>"
+                                   "</div>"))
+                            "</figcaption>"
+                            "</figure>"))
+                     img-tag)))))
 
 ;;; ── Internal rendering pipeline ──────────────────────────────────────────────
 
@@ -9,7 +130,7 @@
   "Inserts ↑ Contents links before each <h2> (except the first)."
   [html-body]
   (let [backlink "<a class=\"toc-back\" href=\"#toc\">\u2191 Contents</a>"
-        parts (str/split html-body #"(?=<h2 )")]
+        parts    (str/split html-body #"(?=<h2 )")]
     (if (<= (count parts) 1)
       html-body
       (str (first parts)
@@ -19,10 +140,10 @@
   "Renders a post's raw markdown body to HTML.
    Returns {:html-body html :toc toc}."
   [raw-body]
-  (let [toc       (markdown/extract-toc raw-body)
+  (let [toc       (extract-toc raw-body)
         html-body (-> raw-body
-                      markdown/render-markdown
-                      markdown/inline-svgs
+                      render-markdown
+                      inline-svgs
                       (cond-> toc inject-toc-backlinks))]
     {:html-body html-body :toc toc}))
 
@@ -36,8 +157,7 @@
   (layout/base-layout (layout/index-layout posts config) config))
 
 (defn render-glossary-entry [entry config]
-  (let [html-body (-> (or (:raw-body entry) "")
-                      markdown/render-markdown)]
+  (let [html-body (-> (or (:raw-body entry) "") render-markdown)]
     (layout/base-layout (layout/glossary-entry-layout (assoc entry :html-body html-body) config) config)))
 
 (defn render-glossary-index [glossary config]
