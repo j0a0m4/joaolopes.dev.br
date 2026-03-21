@@ -33,7 +33,7 @@ test.describe("glossary tooltip", () => {
 
     await expect(page.locator(".glossary-tooltip.visible")).toBeHidden();
 
-    // dispatchEvent targets <abbr> itself — click() would hit child <a> and navigate
+    // Model: plain click on the term toggles the tooltip (navigation is via tooltip link).
     await term.dispatchEvent("click");
 
     const tooltip = page.locator(".glossary-tooltip.visible");
@@ -45,13 +45,20 @@ test.describe("glossary tooltip", () => {
     await expect(page.locator(".glossary-tooltip.visible")).toBeHidden();
   });
 
-  test("glossary link navigates to entry page", async ({ page }) => {
-    // blog-qa check 10 — inline term uses click→tooltip (preventDefault); navigate via href
-    const link = page.locator("abbr.glossary-term a").first();
-    const href = await link.getAttribute("href");
+  test("full entry in tooltip navigates to glossary page", async ({ page }) => {
+    // blog-qa check 10 — term link opens tooltip; glossary page via in-tooltip redirect
+    const term = page.locator("abbr.glossary-term").first();
+    await term.dispatchEvent("click");
+
+    const fullEntry = page.locator(".glossary-tooltip.visible a.glossary-link");
+    await expect(fullEntry).toBeVisible();
+    const href = await fullEntry.getAttribute("href");
     expect(href).toMatch(/^\/glossary\//);
 
-    await page.goto(href);
+    await Promise.all([
+      page.waitForURL((u) => u.pathname.startsWith("/glossary/")),
+      fullEntry.click(),
+    ]);
     await expect(page.locator("text=← Glossary")).toBeVisible();
   });
 });
@@ -82,5 +89,6 @@ test.describe("glossary tooltip content", () => {
     await expect(tooltip).toBeVisible();
     const tooltipText = await tooltip.textContent();
     expect(tooltipText.length).toBeGreaterThan(0);
+    await expect(tooltip.locator("a.glossary-link")).toBeVisible();
   });
 });
