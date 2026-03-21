@@ -1,0 +1,63 @@
+name: format
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      clj: ${{ steps.filter.outputs.clj }}
+      js: ${{ steps.filter.outputs.js }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            clj:
+              - 'src/**'
+              - 'test/**/*.clj'
+              - '.cljfmt.edn'
+            js:
+              - 'test/e2e-playwright/**'
+              - '.prettierrc'
+
+  format-clj:
+    needs: changes
+    if: needs.changes.outputs.clj == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeLaGuardo/setup-clojure@13.1
+        with:
+          cli: latest
+      - name: Cache Clojure deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+            .cpcache
+          key: clj-v2-${{ hashFiles('deps.edn') }}
+      - name: Check Clojure formatting
+        run: clojure -M:cljfmt check
+
+  format-js:
+    needs: changes
+    if: needs.changes.outputs.js == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache npm deps
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+      - name: Install Node deps
+        run: npm ci
+      - name: Check JS formatting
+        run: npx prettier --check test/e2e-playwright/
